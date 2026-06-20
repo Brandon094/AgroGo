@@ -21,31 +21,38 @@ class PantallaCronograma extends ConsumerWidget {
         elevation: 0,
       ),
       body: estadoTareas.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 4.0)),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (tareas) {
           final pendientes = tareas.where((t) => !t.estaCompletada).length;
           return Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)]),
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
-                ),
-                child: Column(
-                  children: [
-                    const Text('ACTIVIDADES PENDIENTES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white70)),
-                    Text('$pendientes', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Colors.white)),
-                  ],
+              RepaintBoundary(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)]),
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text('ACTIVIDADES PENDIENTES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white70)),
+                      Text('$pendientes', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Colors.white)),
+                    ],
+                  ),
                 ),
               ),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: tareas.length,
-                  itemBuilder: (context, index) => _TarjetaTarea(tarea: tareas[index]),
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return RepaintBoundary(
+                      child: _TarjetaTarea(tarea: tareas[index]),
+                    );
+                  },
                 ),
               ),
             ],
@@ -67,6 +74,7 @@ class _TarjetaTarea extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         onTap: () => _manejarToque(context, ref),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -104,27 +112,37 @@ class _DialogoGastoConInventarioState extends ConsumerState<_DialogoGastoConInve
   InsumoEntity? _insumoSeleccionado;
 
   @override
+  void dispose() {
+    _costoCtrl.dispose();
+    _cantidadInsumoCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final insumosAsync = ref.watch(insumosNotifierProvider);
     return AlertDialog(
       title: const Text('Registrar Gasto'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _costoCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Valor (COP)')),
+            TextField(controller: _costoCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Valor (COP)', border: OutlineInputBorder())),
             const SizedBox(height: 16),
             insumosAsync.maybeWhen(
               data: (insumos) => DropdownButtonFormField<InsumoEntity>(
                 value: _insumoSeleccionado,
                 items: insumos.map((i) => DropdownMenuItem(value: i, child: Text(i.nombre))).toList(),
                 onChanged: (v) => setState(() => _insumoSeleccionado = v),
-                decoration: const InputDecoration(labelText: 'Insumo (Bodega)'),
+                decoration: const InputDecoration(labelText: 'Insumo (Bodega)', border: OutlineInputBorder()),
               ),
               orElse: () => const Text('Cargando bodega...'),
             ),
-            if (_insumoSeleccionado != null)
-              TextField(controller: _cantidadInsumoCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Cantidad', suffixText: _insumoSeleccionado!.unidadMedida)),
+            if (_insumoSeleccionado != null) ...[
+              const SizedBox(height: 12),
+              TextField(controller: _cantidadInsumoCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Cantidad', suffixText: _insumoSeleccionado!.unidadMedida, border: const OutlineInputBorder())),
+            ]
           ],
         ),
       ),
@@ -145,7 +163,7 @@ class _DialogoGastoConInventarioState extends ConsumerState<_DialogoGastoConInve
               final cant = double.tryParse(_cantidadInsumoCtrl.text) ?? 0;
               await ref.read(insumosNotifierProvider.notifier).ajustarStock(_insumoSeleccionado!.id, -cant);
             }
-            Navigator.pop(context);
+            if (mounted) Navigator.pop(context);
           },
           child: const Text('GUARDAR'),
         ),

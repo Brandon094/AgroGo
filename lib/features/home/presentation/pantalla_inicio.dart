@@ -8,8 +8,15 @@ import '../../inventory_costs/presentation/providers/costos_notifier.dart';
 import '../../livestock/presentation/providers/pecuario_notifier.dart';
 import '../../farms/presentation/providers/fincas_notifier.dart';
 import '../../inventory_management/presentation/providers/insumos_notifier.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:permission_handler/permission_handler.dart';
+import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
+import '../../field_workers/presentation/providers/trabajadores_notifier.dart';
+
+import '../../farm_calendar/domain/tarea_model.dart';
+import '../../inventory_management/domain/insumo_model.dart';
+import '../../maps_and_lots/domain/lote_model.dart';
+import '../../inventory_costs/domain/item_costo_model.dart';
+import '../../livestock/domain/entidades_pecuario.dart';
+import '../../field_workers/domain/trabajador_model.dart';
 
 class PantallaInicio extends ConsumerStatefulWidget {
   const PantallaInicio({super.key});
@@ -19,296 +26,385 @@ class PantallaInicio extends ConsumerStatefulWidget {
 }
 
 class _PantallaInicioState extends ConsumerState<PantallaInicio> {
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  bool _isListening = false;
-  String _text = 'Toca el micrófono para hablar';
+  late final String _fechaHoy;
+
+  @override
+  void initState() {
+    super.initState();
+    _fechaHoy = DateFormat('EEEE, d ' 'MMMM', 'es_CO').format(DateTime.now()).toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final fincaAsync = ref.watch(fincaActualProvider);
     final tareasAsync = ref.watch(cronogramaNotifierProvider);
     final costosAsync = ref.watch(costosNotifierProvider);
     final animalesAsync = ref.watch(pecuarioNotifierProvider);
-    final fincaAsync = ref.watch(fincaActualProvider);
     final insumosAsync = ref.watch(insumosNotifierProvider);
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
+    final equipoAsync = ref.watch(trabajadoresNotifierProvider);
     
-    final fechaHoy = DateFormat('EEEE, d ' 'MMMM', 'es_CO').format(DateTime.now());
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF8), 
-      body: CustomScrollView(
-        slivers: [
-          // Header con Saludo
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          fincaAsync.maybeWhen(
-                            data: (f) => f?.nombre ?? 'Mi Finca',
-                            orElse: () => 'Cargando...',
-                          ),
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1B5E20)),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          ref.read(fincaSeleccionadaProvider.notifier).limpiarFinca();
-                          context.go('/');
-                        },
-                        icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF1B5E20), size: 30),
-                        tooltip: 'Cambiar Finca',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    fechaHoy.toUpperCase(),
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 1.2),
-                  ),
-                ],
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF9FBF9), Colors.white],
           ),
-
-          SliverPadding(
-            padding: const EdgeInsets.all(24.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Alerta Predictiva (Agenda)
-                tareasAsync.when(
-                  data: (tareas) {
-                    final hoy = DateTime.now();
-                    final tareasHoy = tareas.where((t) => 
-                      !t.estaCompletada && 
-                      t.fechaInicio.year == hoy.year && 
-                      t.fechaInicio.month == hoy.month && 
-                      t.fechaInicio.day == hoy.day
-                    ).toList();
-
-                    if (tareasHoy.isEmpty) return const SizedBox.shrink();
-
-                    return _CardAlerta(
-                      cantidad: tareasHoy.length,
-                      primeraTarea: tareasHoy.first.titulo,
-                    );
-                  },
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
-                ),
-
-                // Alerta de Inventario (Bajo stock)
-                insumosAsync.when(
-                  data: (insumos) {
-                    final escasos = insumos.where((i) => i.esEscaso).toList();
-                    if (escasos.isEmpty) return const SizedBox.shrink();
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: _CardAlerta(
-                        cantidad: escasos.length,
-                        primeraTarea: 'Queda poco ${escasos.first.nombre}',
-                        esCritica: true,
-                      ),
-                    );
-                  },
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
-                ),
-
-                const SizedBox(height: 32),
-                const Text(
-                  'Gestión Rápida',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 16),
-
-                // Bento Grid de Atajos
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 1.1,
+        ),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // APP BAR ESTILO HERO
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(24, 70, 24, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _BotonBento(
-                      titulo: 'Registrar\nGasto',
-                      icono: Icons.add_shopping_cart,
-                      color: Colors.blue.shade700,
-                      onTap: () => context.push('/gastos'),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: const Icon(Icons.agriculture, color: Colors.white),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Hacienda', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                            fincaAsync.maybeWhen(
+                              data: (f) => Text(f?.nombre ?? 'Mi Finca', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                              orElse: () => const Text('Cargando...', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        IconButton.filledTonal(
+                          onPressed: () {
+                            ref.read(fincaSeleccionadaProvider.notifier).limpiarFinca();
+                            context.go('/');
+                          },
+                          icon: const Icon(Icons.swap_horiz_rounded),
+                        ),
+                      ],
                     ),
-                    _BotonBento(
-                      titulo: 'Mi\nEquipo',
-                      icono: Icons.people_alt,
-                      color: Colors.teal.shade700,
-                      onTap: () => context.push('/trabajadores'),
-                    ),
-                    _BotonBento(
-                      titulo: 'Proyectar\nInsumos',
-                      icono: Icons.calculate,
-                      color: Colors.orange.shade800,
-                      onTap: () => context.push('/gastos'), // Redirige a gastos donde está la calculadora
-                    ),
-                    _BotonBento(
-                      titulo: 'Mis\nAnimales',
-                      icono: Icons.pets,
-                      color: Colors.purple.shade700,
-                      onTap: () => context.go('/dashboard/animales'),
-                    ),
-                    _BotonBento(
-                      titulo: 'Mapa\nGlobal',
-                      icono: Icons.map_outlined,
-                      color: Colors.brown.shade700,
-                      onTap: () => context.push('/mapa-finca'),
-                    ),
-                    _BotonBento(
-                      titulo: 'Mi\nBodega',
-                      icono: Icons.inventory_2,
-                      color: const Color(0xFF3E2723),
-                      onTap: () => context.push('/bodega'),
-                    ),
+                    const SizedBox(height: 24),
+                    Text(_fechaHoy, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.teal, letterSpacing: 1.5)),
                   ],
                 ),
-              ]),
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _listen,
-        backgroundColor: _isListening ? Colors.red : const Color(0xFF1B5E20),
-        child: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white),
+
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // ALERTAS DINÁMICAS (Diseño tipo Banner Moderno)
+                  _buildAlertas(tareasAsync, insumosAsync),
+
+                  const SizedBox(height: 32),
+                  const Text('RESUMEN DE NEGOCIO', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.blueGrey, letterSpacing: 2)),
+                  const SizedBox(height: 16),
+
+                  // MÉTRICAS EN GRID BENTO PROFESIONAL
+                  RepaintBoundary(
+                    child: _buildMetricas(lotesAsync, costosAsync, animalesAsync, equipoAsync, insumosAsync),
+                  ),
+
+                  const SizedBox(height: 40),
+                  const Text('GESTIÓN OPERATIVA', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.blueGrey, letterSpacing: 2)),
+                  const SizedBox(height: 16),
+
+                  // ATAJOS RÁPIDOS ESTILO PREMIUM
+                  RepaintBoundary(
+                    child: _buildAtajos(context),
+                  ),
+                  const SizedBox(height: 50),
+                ]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _listen() async {
-    if (!_isListening) {
-      bool available = await _speech.initialize(
-        onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            _text = val.recognizedWords;
-            if (val.hasConfidenceRating && val.confidence > 0) {
-              // Simulación de procesamiento de lenguaje natural local
-              if (_text.toLowerCase().contains('gasto')) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Comando detectado: Registrar Gasto...')));
-              }
-            }
-          }),
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
-      if (_text != 'Toca el micrófono para hablar') {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Escuché: "$_text"')));
-      }
-    }
+  Widget _buildAlertas(AsyncValue<List<TareaEntity>> tareas, AsyncValue<List<InsumoEntity>> insumos) {
+    return Column(
+      children: [
+        tareas.maybeWhen(
+          data: (t) {
+            final hoy = DateTime.now();
+            final pendientes = t.where((x) => !x.estaCompletada && x.fechaInicio.day == hoy.day).length;
+            if (pendientes == 0) return const SizedBox.shrink();
+            return _CardAlerta(
+              titulo: 'Tienes $pendientes labores hoy', 
+              subtitulo: 'Abre la agenda para completar', 
+              icono: Icons.calendar_today_rounded, 
+              color: const Color(0xFFF57C00),
+              onTap: () => context.go('/agenda'),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+        insumos.maybeWhen(
+          data: (i) {
+            final escasos = i.where((x) => x.esEscaso).length;
+            if (escasos == 0) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: _CardAlerta(
+                titulo: 'Bodega en rojo ($escasos)', 
+                subtitulo: 'Se agotan los insumos críticos', 
+                icono: Icons.inventory_2_rounded, 
+                color: Colors.red.shade800, 
+                esCritica: true,
+                onTap: () => context.push('/bodega'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricas(
+    AsyncValue<List<Lote>> lotes, 
+    AsyncValue<List<ItemCostoEntity>> costos, 
+    AsyncValue<List<EspecieEntity>> animales, 
+    AsyncValue<List<TrabajadorEntity>> equipo,
+    AsyncValue<List<InsumoEntity>> insumos,
+  ) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final crossAxisCount = textScale > 1.8 ? 1 : 2;
+    final aspectRatio = textScale > 1.4 ? 1.8 : 1.4;
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: aspectRatio,
+      children: [
+        lotes.maybeWhen(
+          data: (l) => _MetricaCard(
+            titulo: 'Tierra', 
+            valor: '${l.fold<double>(0.0, (a, b) => a + b.areaEnHectareas).toStringAsFixed(1)} Ha', 
+            subtitulo: '${l.length} Lotes zonificados',
+            icono: Icons.landscape_rounded,
+            color: Colors.green.shade800,
+          ),
+          orElse: () => const _MetricaLoading(),
+        ),
+        costos.maybeWhen(
+          data: (c) => _MetricaCard(
+            titulo: 'Finanzas', 
+            valor: '\$${(c.fold<double>(0.0, (a, b) => a + b.precioTotal) / 1000).toStringAsFixed(0)}k', 
+            subtitulo: 'Inversión acumulada',
+            icono: Icons.payments_rounded,
+            color: Colors.blue.shade800,
+          ),
+          orElse: () => const _MetricaLoading(),
+        ),
+        insumos.maybeWhen(
+          data: (i) => _MetricaCard(
+            titulo: 'Bodega', 
+            valor: '${i.length}', 
+            subtitulo: '${i.where((x) => x.esEscaso).length} con poco stock',
+            icono: Icons.inventory_2_rounded,
+            color: Colors.brown,
+          ),
+          orElse: () => const _MetricaLoading(),
+        ),
+        animales.maybeWhen(
+          data: (a) => _MetricaCard(
+            titulo: 'Pecuario', 
+            valor: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)}', 
+            subtitulo: 'Censo total de animales',
+            icono: Icons.pets_rounded,
+            color: Colors.purple.shade800,
+          ),
+          orElse: () => const _MetricaLoading(),
+        ),
+        equipo.maybeWhen(
+          data: (e) => _MetricaCard(
+            titulo: 'Equipo', 
+            valor: '${e.length}', 
+            subtitulo: 'Personas en nómina',
+            icono: Icons.people_alt_rounded,
+            color: Colors.teal.shade800,
+          ),
+          orElse: () => const _MetricaLoading(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAtajos(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final crossAxisCount = textScale > 1.6 ? 2 : 3;
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      children: [
+        _BotonMiniBento(titulo: 'Gastos', icono: Icons.add_shopping_cart, color: Colors.blue, onTap: () => context.push('/gastos')),
+        _BotonMiniBento(titulo: 'Nómina', icono: Icons.payments, color: Colors.teal, onTap: () => context.push('/trabajadores')),
+        _BotonMiniBento(titulo: 'Animales', icono: Icons.pets, color: Colors.purple, onTap: () => context.go('/dashboard/animales')),
+        _BotonMiniBento(titulo: 'Mapa', icono: Icons.map, color: Colors.brown, onTap: () => context.push('/mapa-finca')),
+        _BotonMiniBento(titulo: 'Bodega', icono: Icons.inventory_2, color: Colors.blueGrey, onTap: () => context.push('/bodega')),
+      ],
+    );
   }
 }
 
-class _CardAlerta extends StatelessWidget {
-  final int cantidad;
-  final String primeraTarea;
-  final bool esCritica;
+class _MetricaCard extends StatelessWidget {
+  final String titulo;
+  final String valor;
+  final String subtitulo;
+  final IconData icono;
+  final Color color;
 
-  const _CardAlerta({required this.cantidad, required this.primeraTarea, this.esCritica = false});
+  const _MetricaCard({required this.titulo, required this.valor, required this.subtitulo, required this.icono, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: esCritica 
-            ? [const Color(0xFFFFCCBC), const Color(0xFFFFAB91)] // Tonos rojizos para crítico
-            : [const Color(0xFFFFF176), const Color(0xFFFFD54F)]
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: (esCritica ? Colors.red : Colors.amber).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [BoxShadow(color: color.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8))],
+        border: Border.all(color: color.withOpacity(0.05)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            esCritica ? Icons.inventory_2_rounded : Icons.warning_amber_rounded, 
-            size: 40, 
-            color: esCritica ? Colors.red.shade900 : const Color(0xFF795548)
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                child: Icon(icono, color: color, size: 18),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(titulo, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey), overflow: TextOverflow.ellipsis),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  esCritica ? 'Alerta de Bodega' : 'Hoy tienes $cantidad tareas',
-                  style: TextStyle(
-                    fontSize: 18, 
-                    fontWeight: FontWeight.bold, 
-                    color: esCritica ? Colors.red.shade900 : const Color(0xFF5D4037)
-                  ),
-                ),
-                Text(
-                  primeraTarea,
-                  style: TextStyle(color: esCritica ? Colors.red.shade800 : const Color(0xFF795548)),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(valor, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
           ),
-          Icon(Icons.chevron_right, color: esCritica ? Colors.red.shade900 : const Color(0xFF795548)),
+          const SizedBox(height: 2),
+          Text(subtitulo, style: const TextStyle(fontSize: 11, color: Colors.grey), maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
     );
   }
 }
 
-class _BotonBento extends StatelessWidget {
+class _BotonMiniBento extends StatelessWidget {
   final String titulo;
   final IconData icono;
   final Color color;
   final VoidCallback onTap;
-
-  const _BotonBento({required this.titulo, required this.icono, required this.color, required this.onTap});
+  const _BotonMiniBento({required this.titulo, required this.icono, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icono, color: color, size: 32),
-            Text(
-              titulo,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, height: 1.2, color: Colors.black87),
-            ),
+            Icon(icono, color: color, size: 30),
+            const SizedBox(height: 8),
+            Text(titulo, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF37474F))),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CardAlerta extends StatelessWidget {
+  final String titulo;
+  final String subtitulo;
+  final IconData icono;
+  final Color color;
+  final bool esCritica;
+  final VoidCallback? onTap;
+
+  const _CardAlerta({required this.titulo, required this.subtitulo, required this.icono, required this.color, this.esCritica = false, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [color.withOpacity(0.8), color],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle),
+              child: Icon(icono, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(titulo, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
+                  Text(subtitulo, style: const TextStyle(fontSize: 14, color: Colors.white70, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetricaLoading extends StatelessWidget {
+  const _MetricaLoading();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28)),
+      child: const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
     );
   }
 }
