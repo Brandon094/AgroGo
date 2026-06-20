@@ -11,6 +11,7 @@ import 'package:agrogo/features/livestock/presentation/pantalla_panel_pecuario.d
 import 'package:agrogo/features/livestock/presentation/pantalla_detalle_especie.dart';
 import 'package:agrogo/features/home/presentation/pantalla_inicio.dart';
 import 'package:agrogo/features/farms/presentation/pantalla_mis_fincas.dart';
+import 'package:agrogo/features/farms/presentation/pantalla_onboarding.dart';
 import 'package:agrogo/features/maps_and_lots/presentation/pantalla_mapa_global.dart';
 import 'package:agrogo/features/inventory_management/presentation/pantalla_bodega.dart';
 
@@ -25,6 +26,11 @@ class EnrutadorApp {
       GoRoute(
         path: '/',
         builder: (context, state) => const PantallaMisFincas(),
+      ),
+
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const PantallaOnboarding(),
       ),
 
       // Shell de Navegación para la Finca Seleccionada
@@ -93,7 +99,13 @@ class EnrutadorApp {
       GoRoute(
         path: '/gastos',
         parentNavigatorKey: _navigatorRaizKey,
-        builder: (context, state) => const PantallaPanelCostos(),
+        builder: (context, state) {
+          final action = state.uri.queryParameters['action'];
+          return PantallaPanelCostos(
+            abrirCalculadora: action == 'calc',
+            abrirFormulario: action == 'add',
+          );
+        },
       ),
       GoRoute(
         path: '/mapa-finca',
