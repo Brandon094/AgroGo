@@ -7,7 +7,7 @@ Este documento define la evolución de AgroGo, desde una herramienta local de ge
 ## ✅ Fase 1: Cimientos y Mapeo (COMPLETO)
 *   **Clean Architecture:** Estructura modular y escalable.
 *   **Multi-Finca:** Soporte para múltiples propiedades con aislamiento total.
-*   **Zonificación:** Diferenciación entre lotes Agrícolas, Pecuarios e Infraestructura.
+*   **Zonificación:** Diferenciación entre lotes Agrícolas, Pecuario e Infraestructura.
 *   **Portafolio Global:** Visor de inteligencia de negocios con agregación de hectáreas y centroides.
 *   **Offline-First:** Persistencia atómica con Isar Database.
 
@@ -22,18 +22,13 @@ El sistema ya soporta la gestión integral de la fauna de la finca.
 
 ---
 
-## 🧠 Fase 2.5: Integración 360° y Automatización (PRÓXIMAMENTE)
-El objetivo es que los módulos "hablen" entre sí para reducir el trabajo administrativo.
-
-### 1. Vínculo Financiero Tarea-Gasto
-*   **Gasto In Situ:** Al marcar una tarea (ej. Abonar) como "Completada", se abrirá un popup para registrar el dinero gastado en ese instante, vinculándolo automáticamente al módulo de Gastos y al lote correspondiente.
-
-### 2. Gestión de Inventarios Real
-*   **Bodega Virtual:** Descontar automáticamente bultos de purina o fertilizante cuando se registre una alimentación animal o un abono de lote.
-*   **Alertas de Reabastecimiento:** Notificación naranja si el inventario de un insumo cae por debajo del umbral mínimo.
-
-### 3. Asistente de Voz (IA Local)
-*   **Entrada Manos Libres:** Permitir al usuario dictar registros ("Anotar 2 kilos de purina a los cerdos") mientras tiene las manos ocupadas en la labor.
+## ✅ Fase 2.5: Integración 360°, Nómina y Logística (COMPLETO)
+Se ha logrado que los módulos "hablen" entre sí, reduciendo drásticamente la carga administrativa.
+*   **Vínculo Financiero Tarea-Gasto:** Registro de gastos "In Situ" al completar labores.
+*   **Bodega e Inventarios:** Descuento automático de insumos y alertas de bajo stock en el Dashboard.
+*   **Nómina Dinámica:** Motor de liquidación por jornal o por kilo (destajo) con asientos contables automáticos (Alimentación).
+*   **Asistente de Voz:** Reconocimiento de comandos naturales para entrada de datos manos libres.
+*   **Puente Logístico (Beta):** Integración preparada para el despacho de carga mediante ServiCarga.
 
 ---
 

@@ -52,15 +52,20 @@ lib/
  │    └── persistence/         # Proveedores de base de datos Isar
  │
  ├── features/                 # Módulos o funcionalidades de negocio
- │    ├── home/                # Dashboard de Inicio (Centro de Mando)
- │    │    └── presentation/   # Interfaz de tablero dinámico (pantalla_inicio.dart)
+ │    ├── home/                # Dashboard Ejecutivo (Centro de Mando)
+ │    │    └── presentation/   # Interfaz de panel con métricas en tiempo real (pantalla_inicio.dart)
  │    │
- │    ├── farms/               # Gestión Multi-Finca
+ │    ├── farms/               # Gestión Multi-Finca y Tutor de Configuración
  │    │    ├── domain/         # Entidad de Finca (finca_model.dart)
  │    │    ├── data/           # Repositorio Isar (repositorio_fincas.dart)
- │    │    └── presentation/   # Listado de fincas (pantalla_mis_fincas.dart)
+ │    │    └── presentation/   # Listado de fincas y Tutor Interactivo (pantalla_onboarding.dart)
  │    │
- │    ├── maps_and_lots/       # Gestión de Lotes y Zonificación
+ │    ├── inventory_management/ # Gestión de Bodega y Stock
+ │    │    ├── domain/         # Entidad de Insumo (insumo_model.dart)
+ │    │    ├── data/           # Repositorio Isar (repositorio_insumos.dart)
+ │    │    └── presentation/   # Interfaz de bodega virtual (pantalla_bodega.dart)
+ │    │
+ │    ├── maps_and_lots/       # Gestión de Lotes y Zonificación GIS
  │    │    ├── domain/         # Modelo de Lote con Tipo de Uso (lote_model.dart)
  │    │    ├── data/           # Implementación Isar (repositorio_lotes.dart)
  │    │    └── presentation/   # Mapas e Inventario de Tierra (pantalla_panel_lotes.dart, pantalla_mapa_finca.dart)
@@ -95,10 +100,20 @@ lib/
 1.  **Idioma de Código e Interfaz**: Todo el proyecto está redactado en **Español** para facilitar el entendimiento local.
 2.  **Parche de Compatibilidad Gradle**: Inyección dinámica en `build.gradle.kts` para soportar Android SDK 36 e Isar.
 3.  **Botones Grandes e Interfaces de Alto Contraste**: Botones de altura `56.0` - `85.0` y textos de `18.0+` en `tema_app.dart`.
-4.  **Dashboard de Inicio (Centro de Mando)**:
-    *   **Contexto de Finca**: Header con el nombre de la finca seleccionada actualmente.
-    *   **UX Predictiva Inmediata**: Banner de alerta naranja que aparece automáticamente si hay tareas pendientes en la agenda.
-    *   **Acceso Rápido**: Grid de tarjetas (Bento Style) para disparar flujos de Gastos, Nómina, Animales y Mapa Global.
+4.  **Diseño Adaptativo y Accesibilidad (Fuentes al 200%)**:
+    *   Implementación de layouts dinámicos que detectan el factor de escala de texto del sistema (`MediaQuery.textScaler`).
+    *   Ajuste automático de columnas en Grids: El Dashboard cambia de 2 a 1 columna en métricas y de 3 a 2 en atajos cuando se detectan fuentes extra grandes, evitando desbordamientos de UI.
+    *   Uso de `FittedBox` y `Flexible` en componentes críticos para garantizar que los valores numéricos y títulos sean siempre legibles sin cortarse.
+5.  **Dashboard de Inicio (Centro de Mando Ejecutivo)**:
+    *   **Contexto de Finca**: Header con el nombre de la finca seleccionada actualmente y conmutador rápido de propiedad.
+    *   **Métricas de Negocio en Tiempo Real**: Panel que resume los KPIs críticos de la finca:
+        *   **Tierra**: Hectáreas totales y cantidad de lotes zonificados.
+        *   **Finanzas**: Inversión acumulada en pesos.
+        *   **Pecuario**: Censo total de cabezas de animales.
+        *   **Bodega**: Cantidad de insumos registrados y alertas de stock.
+        *   **Equipo**: Número de personas activas en nómina.
+    *   **UX Predictiva Inmediata**: Banners de alerta condicionales y accionables. Al tocar la alerta de tareas, el sistema transporta al usuario directamente a la Agenda; al tocar la alerta de stock bajo, lo lleva a la Bodega Virtual.
+    *   **Acceso Rápido Inteligente**: Grid de atajos (Bento Style) simplificado para evitar redundancias. Los módulos de Gastos, Nómina, Animales, Mapa y Bodega son accesibles con un toque, manteniendo la Calculadora Predictiva integrada dentro del módulo de Gastos para un flujo de trabajo más coherente.
 5.  **Localización GPS y Mapeo Satelital de Precisión**:
     *   **Modo Pantalla Completa**: El mapa se extiende bajo el AppBar transparente para máxima visibilidad.
     *   **Dock Lateral**: Controles flotantes circulares para centrar ubicación y limpiar dibujo.
@@ -117,8 +132,9 @@ lib/
     *   **Cerebro Central**: Registro de actividades con diseño tipo checklist.
     *   **Integración Cruzada**: Recibe tareas automáticas desde el módulo pecuario y agrícola.
 9.  **Módulo Pecuario Detallado**:
-    *   **Gestión de Salud**: Registro de vacunas/purgas con creación automática de recordatorios en la Agenda Global (color púrpura).
-    *   **Alimentación**: Seguimiento de consumo de kilos/bultos por grupo animal.
+    *   **Gestión de Salud**: Registro de tratamientos (vacunas, purgas, vitaminas) con creación automática de recordatorios en la Agenda Global (color púrpura).
+    *   **Alimentación Inteligente**: Seguimiento de consumo de kilos por grupo animal con integración a la Bodega Virtual para descuento automático de stock.
+    *   **UX Inmersiva**: Pantalla de detalle con pestañas independientes, indicadores de cantidad y tipo de especie en el header, y feedback háptico en registros.
 10. **Calculadora Predictiva de Insumos**: Lógica que cruza el censo de plantas de un lote con dosis recomendadas para proyectar compras de bultos de abono.
 11. **Flujo de Registro Unificado (Lote + Agenda)**: 
     *   Integración transaccional (`isar.writeTxn`) que permite guardar un lote y agendar su cronograma inicial (Abonado, Cosecha, Fumigación) en un solo paso.
@@ -148,6 +164,17 @@ lib/
     *   **Bodega Virtual e Inventarios**: Módulo dedicado para la gestión de insumos (bultos de urea, purina, etc.) con alertas visuales de bajo stock en el Dashboard.
     *   **Descuento Automático de Stock**: Integración entre la Agenda y la Bodega que permite descontar insumos directamente al momento de reportar la ejecución de una labor.
     *   **Asistente de Voz (IA Local)**: Implementación de reconocimiento de voz en el Dashboard para facilitar la entrada de datos "manos libres" mediante comandos naturales.
+18. **Nómina Dinámica y Recolección**:
+    *   **Liquidación Transaccional**: Motor de cálculo para pagar a trabajadores por jornal fijo o por kilo recolectado (destajo).
+    *   **Asientos Contables Automáticos**: El sistema deduce costos de alimentación de la nómina neta e inyecta automáticamente el gasto correspondiente en la contabilidad de la finca.
+    *   **Trazabilidad de Cosecha**: Registro histórico de quién recolectó, en qué fecha y en qué lote, amarrado al ID de la finca.
+19. **Puente Logístico (Interoperabilidad)**:
+    *   **Módulo ServiCarga**: Implementación de un botón de solicitud de transporte de carga pesada integrado en la Bodega Virtual.
+    *   **Integración mediante Deep Links**: Preparado para conectar con la plataforma externa de ServiCarga pasando parámetros de origen, carga y cantidad de forma automática.
+20. **Tutor Interactivo de Configuración (Onboarding de Misiones)**:
+    *   **Aprendizaje Práctico**: Sistema de guía paso a paso que lleva al usuario a través de las interfaces reales de la aplicación en lugar de formularios estáticos.
+    *   **Centro de Misiones**: El usuario debe completar 5 misiones críticas (Crear Finca con Nombre y Ubicación, Dibujar Lote, Cargar Bodega, Agendar Tarea, Configurar Equipo) antes de aterrizar en el Dashboard.
+    *   **Validación de Estado**: El tutor detecta automáticamente cuando se han guardado los datos reales en Isar para marcar la misión como cumplida.
 
 ---
 
