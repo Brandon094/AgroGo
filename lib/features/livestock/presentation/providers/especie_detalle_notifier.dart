@@ -3,6 +3,7 @@ import '../../data/repositorio_pecuario.dart';
 import '../../domain/entidades_pecuario.dart';
 import '../../../farm_calendar/presentation/providers/cronograma_notifier.dart';
 import '../../../farms/presentation/providers/fincas_notifier.dart';
+import '../../../inventory_management/presentation/providers/insumos_notifier.dart';
 
 part 'especie_detalle_notifier.g.dart';
 
@@ -72,6 +73,7 @@ class EspecieDetalle extends _$EspecieDetalle {
   Future<void> registrarComida({
     required String producto,
     required double kilos,
+    String? insumoId,
   }) async {
     state = const AsyncValue.loading();
     final repo = ref.read(repositorioPecuarioProvider);
@@ -87,6 +89,12 @@ class EspecieDetalle extends _$EspecieDetalle {
     );
 
     await repo.guardarAlimentacion(nuevaAlimentacion);
+
+    // Descontar de bodega si se seleccionó un insumo
+    if (insumoId != null) {
+      await ref.read(insumosNotifierProvider.notifier).ajustarStock(insumoId, -kilos);
+    }
+
     ref.invalidateSelf();
   }
 }

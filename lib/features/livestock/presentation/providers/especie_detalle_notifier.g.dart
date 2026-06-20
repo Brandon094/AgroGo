@@ -6,7 +6,7 @@ part of 'especie_detalle_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$especieDetalleHash() => r'8b0649ad22488fac9bdbe4390a3235b373b570da';
+String _$especieDetalleHash() => r'2ad7e696a65888460929fcd06a57af6835180c61';
 
 /// Copied from Dart SDK
 class _SystemHash {
