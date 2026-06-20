@@ -14,6 +14,7 @@ import 'features/farm_calendar/data/tarea_isar_model.dart';
 import 'features/livestock/data/modelos_pecuario_isar.dart';
 import 'features/farms/data/finca_isar_model.dart';
 import 'features/inventory_management/data/insumo_isar_model.dart';
+import 'features/field_workers/data/registro_labor_isar_model.dart';
 
 // Provider global para la instancia de Isar
 final isarProvider = Provider<Isar>((ref) {
@@ -37,6 +38,7 @@ void main() async {
       AlimentacionIsarModelSchema,
       FincaIsarModelSchema,
       InsumoIsarModelSchema,
+      RegistroLaborIsarModelSchema,
     ],
     directory: dir.path,
   );
