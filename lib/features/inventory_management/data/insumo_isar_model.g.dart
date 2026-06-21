@@ -22,23 +22,34 @@ const InsumoIsarModelSchema = CollectionSchema(
       name: r'cantidadActual',
       type: IsarType.double,
     ),
-    r'fincaId': PropertySchema(
+    r'categoria': PropertySchema(
       id: 1,
+      name: r'categoria',
+      type: IsarType.byte,
+      enumMap: _InsumoIsarModelcategoriaEnumValueMap,
+    ),
+    r'esParaSecado': PropertySchema(
+      id: 2,
+      name: r'esParaSecado',
+      type: IsarType.bool,
+    ),
+    r'fincaId': PropertySchema(
+      id: 3,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'nombre': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'nombre',
       type: IsarType.string,
     ),
     r'umbralMinimo': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'umbralMinimo',
       type: IsarType.double,
     ),
     r'unidadMedida': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'unidadMedida',
       type: IsarType.string,
     )
@@ -75,10 +86,12 @@ void _insumoIsarModelSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.cantidadActual);
-  writer.writeLong(offsets[1], object.fincaId);
-  writer.writeString(offsets[2], object.nombre);
-  writer.writeDouble(offsets[3], object.umbralMinimo);
-  writer.writeString(offsets[4], object.unidadMedida);
+  writer.writeByte(offsets[1], object.categoria.index);
+  writer.writeBool(offsets[2], object.esParaSecado);
+  writer.writeLong(offsets[3], object.fincaId);
+  writer.writeString(offsets[4], object.nombre);
+  writer.writeDouble(offsets[5], object.umbralMinimo);
+  writer.writeString(offsets[6], object.unidadMedida);
 }
 
 InsumoIsarModel _insumoIsarModelDeserialize(
@@ -89,11 +102,15 @@ InsumoIsarModel _insumoIsarModelDeserialize(
 ) {
   final object = InsumoIsarModel();
   object.cantidadActual = reader.readDouble(offsets[0]);
-  object.fincaId = reader.readLongOrNull(offsets[1]);
+  object.categoria = _InsumoIsarModelcategoriaValueEnumMap[
+          reader.readByteOrNull(offsets[1])] ??
+      CategoriaInsumo.operativo;
+  object.esParaSecado = reader.readBool(offsets[2]);
+  object.fincaId = reader.readLongOrNull(offsets[3]);
   object.id = id;
-  object.nombre = reader.readString(offsets[2]);
-  object.umbralMinimo = reader.readDouble(offsets[3]);
-  object.unidadMedida = reader.readString(offsets[4]);
+  object.nombre = reader.readString(offsets[4]);
+  object.umbralMinimo = reader.readDouble(offsets[5]);
+  object.unidadMedida = reader.readString(offsets[6]);
   return object;
 }
 
@@ -107,17 +124,34 @@ P _insumoIsarModelDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
+      return (_InsumoIsarModelcategoriaValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          CategoriaInsumo.operativo) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _InsumoIsarModelcategoriaEnumValueMap = {
+  'operativo': 0,
+  'maquinaria': 1,
+  'cosecha': 2,
+};
+const _InsumoIsarModelcategoriaValueEnumMap = {
+  0: CategoriaInsumo.operativo,
+  1: CategoriaInsumo.maquinaria,
+  2: CategoriaInsumo.cosecha,
+};
 
 Id _insumoIsarModelGetId(InsumoIsarModel object) {
   return object.id;
@@ -276,6 +310,72 @@ extension InsumoIsarModelQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      categoriaEqualTo(CategoriaInsumo value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoria',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      categoriaGreaterThan(
+    CategoriaInsumo value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'categoria',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      categoriaLessThan(
+    CategoriaInsumo value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'categoria',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      categoriaBetween(
+    CategoriaInsumo lower,
+    CategoriaInsumo upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'categoria',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      esParaSecadoEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'esParaSecado',
+        value: value,
       ));
     });
   }
@@ -771,6 +871,34 @@ extension InsumoIsarModelQuerySortBy
     });
   }
 
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByCategoria() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoria', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByCategoriaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoria', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByEsParaSecado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esParaSecado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByEsParaSecadoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esParaSecado', Sort.desc);
+    });
+  }
+
   QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy> sortByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fincaId', Sort.asc);
@@ -839,6 +967,34 @@ extension InsumoIsarModelQuerySortThenBy
       thenByCantidadActualDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cantidadActual', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByCategoria() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoria', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByCategoriaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoria', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByEsParaSecado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esParaSecado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByEsParaSecadoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esParaSecado', Sort.desc);
     });
   }
 
@@ -919,6 +1075,20 @@ extension InsumoIsarModelQueryWhereDistinct
   }
 
   QueryBuilder<InsumoIsarModel, InsumoIsarModel, QDistinct>
+      distinctByCategoria() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'categoria');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QDistinct>
+      distinctByEsParaSecado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'esParaSecado');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QDistinct>
       distinctByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fincaId');
@@ -959,6 +1129,19 @@ extension InsumoIsarModelQueryProperty
       cantidadActualProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'cantidadActual');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, CategoriaInsumo, QQueryOperations>
+      categoriaProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'categoria');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, bool, QQueryOperations> esParaSecadoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'esParaSecado');
     });
   }
 

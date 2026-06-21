@@ -12,6 +12,11 @@ class InsumoIsarModel {
   late double cantidadActual;
   late double umbralMinimo;
 
+  @enumerated
+  late CategoriaInsumo categoria;
+  
+  late bool esParaSecado;
+
   InsumoEntity toEntity() {
     return InsumoEntity(
       id: id.toString(),
@@ -20,6 +25,8 @@ class InsumoIsarModel {
       unidadMedida: unidadMedida,
       cantidadActual: cantidadActual,
       umbralMinimo: umbralMinimo,
+      categoria: categoria,
+      esParaSecado: esParaSecado,
     );
   }
 
@@ -29,7 +36,9 @@ class InsumoIsarModel {
       ..nombre = entidad.nombre
       ..unidadMedida = entidad.unidadMedida
       ..cantidadActual = entidad.cantidadActual
-      ..umbralMinimo = entidad.umbralMinimo;
+      ..umbralMinimo = entidad.umbralMinimo
+      ..categoria = entidad.categoria
+      ..esParaSecado = entidad.esParaSecado;
     
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);

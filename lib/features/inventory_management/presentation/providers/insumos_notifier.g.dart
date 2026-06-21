@@ -6,7 +6,7 @@ part of 'insumos_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$insumosNotifierHash() => r'3cf12acdb33bf82ba87cafccf36214686fd2e725';
+String _$insumosNotifierHash() => r'adb2881b07ffa9f67252bacec38f7c758a6463c6';
 
 /// See also [InsumosNotifier].
 @ProviderFor(InsumosNotifier)
