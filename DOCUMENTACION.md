@@ -9,7 +9,7 @@ Este documento detalla la estructura base, las tecnologías configuradas, las de
 *   **Organización:** `com.chopcode`
 *   **Arquitectura:** Clean Architecture estructurada por módulos (`Domain`, `Data`, `Presentation`).
 *   **Enfoque Offline-First**: Almacenamiento persistente local mediante base de datos Isar en todos los módulos.
-*   **Enfoque de UX**: Diseño adaptado para condiciones de exterior (alto contraste, botones con objetivos de toque grandes).
+*   **Enfoque de UX**: Diseño adaptado para condiciones de campo (alto contraste, botones grandes, accesibilidad).
 
 ---
 
@@ -18,184 +18,124 @@ Este documento detalla la estructura base, las tecnologías configuradas, las de
 Las dependencias principales se han añadido y bloqueado en versiones estables y totalmente compatibles:
 
 ### Dependencias Principales (`dependencies`):
-*   `flutter_riverpod` y `riverpod_annotation` (^2.6.1): Para la gestión de estados reactivos y asíncronos.
-*   `isar` y `isar_flutter_libs` (^3.1.0+1): Base de datos local ultrarrápida (Offline-First).
-*   `path_provider` (^2.1.6): Para localizar directorios de documentos para la BD Isar.
-*   `google_maps_flutter` (^2.17.1): Renderizado de mapas de Google.
-*   `maps_toolkit` (^3.1.0): Cálculos geográficos de áreas y polígonos.
-*   `geolocator` (^14.0.3): Acceso a servicios de GPS nativos y geolocalización.
-*   `dartz` (^0.10.1): Programación funcional (retorno de errores tipo `Either<Fallo, Success>`).
-*   `go_router` (^17.3.0): Enrutamiento declarativo robusto basado en URLs.
-*   `intl` (^0.20.2): Internacionalización y formateo de fechas y monedas locales.
-
-### Dependencias de Desarrollo (`dev_dependencies`):
-*   `build_runner` (^2.4.13): Generador de código.
-*   `riverpod_generator` (^2.3.3): Generación de código seguro para Riverpod.
-*   `isar_generator` (^3.1.0+1): Generador de esquemas para la BD Isar.
-*   `custom_lint` (^0.5.11) y `riverpod_lint` (^2.1.1): Análisis estático avanzado para código limpio.
+*   `flutter_riverpod` y `riverpod_annotation` (^2.6.1): Gestión de estados reactivos.
+*   `isar` y `isar_flutter_libs` (^3.1.0+1): Base de datos local Offline-First.
+*   `google_maps_flutter` (^2.17.1): Renderizado de mapas.
+*   `maps_toolkit` (^3.1.0): Cálculos geográficos (Áreas y polígonos).
+*   `geolocator` (^14.0.3): Acceso a servicios de GPS nativos.
+*   `speech_to_text` (^7.4.0): Asistente de voz para entrada de datos.
+*   `intl` (^0.20.2): Internacionalización y formatos locales (`es_CO`).
+*   `go_router` (^17.3.0): Enrutamiento declarativo robusto.
 
 ---
 
-## 📐 Estructura de Directorios Creada
-
-La estructura del código sigue el estándar **Feature-Driven Clean Architecture** completamente traducido al español:
+## 📐 Estructura de Directorios (Feature-Driven)
 
 ```
 lib/
- ├── core/                     # Código transversal compartido en la app
- │    ├── errors/              # Abstracción de fallos (fallos.dart)
- │    ├── theme/               # Paleta de colores e interfaces de alta visibilidad (tema_app.dart)
- │    ├── utils/               # Constantes globales (constantes.dart)
- │    ├── routing/             # Enrutamiento GoRouter y vistas de navegación
- │    │    ├── enrutador_app.dart              # Enrutador GoRouter principal
- │    │    └── pantalla_principal_shell.dart   # Esqueleto de navegación inferior (Solid Dock)
- │    └── persistence/         # Proveedores de base de datos Isar
+ ├── core/                     # Código transversal
+ │    ├── persistence/         # Instancia global de Isar
+ │    ├── routing/             # Enrutador App y Navigation Shell
+ │    ├── theme/               # ADN Visual (Premium Emerald Theme)
+ │    └── utils/               # Constantes y utilidades
  │
- ├── features/                 # Módulos o funcionalidades de negocio
+ ├── features/                 # Módulos de Negocio
  │    ├── home/                # Dashboard Ejecutivo (Centro de Mando)
- │    │    └── presentation/   # Interfaz de panel con métricas en tiempo real (pantalla_inicio.dart)
- │    │
- │    ├── farms/               # Gestión Multi-Finca y Tutor de Configuración
- │    │    ├── domain/         # Entidad de Finca (finca_model.dart)
- │    │    ├── data/           # Repositorio Isar (repositorio_fincas.dart)
- │    │    └── presentation/   # Listado de fincas y Tutor Interactivo (pantalla_onboarding.dart)
- │    │
- │    ├── inventory_management/ # Gestión de Bodega y Stock
- │    │    ├── domain/         # Entidad de Insumo (insumo_model.dart)
- │    │    ├── data/           # Repositorio Isar (repositorio_insumos.dart)
- │    │    └── presentation/   # Interfaz de bodega virtual (pantalla_bodega.dart)
- │    │
- │    ├── maps_and_lots/       # Gestión de Lotes y Zonificación GIS
- │    │    ├── domain/         # Modelo de Lote con Tipo de Uso (lote_model.dart)
- │    │    ├── data/           # Implementación Isar (repositorio_lotes.dart)
- │    │    └── presentation/   # Mapas e Inventario de Tierra (pantalla_panel_lotes.dart, pantalla_mapa_finca.dart)
- │    │
- │    ├── field_workers/       # Gestión de Trabajadores (Nómina)
- │    │    ├── domain/         # Entidad de Trabajador (trabajador_model.dart)
- │    │    ├── data/           # Implementación Isar (repositorio_trabajadores.dart)
- │    │    └── presentation/   # Interfaz de nómina (pantalla_lista_trabajadores.dart)
- │    │
- │    ├── inventory_costs/     # Control de Gastos e Insumos
- │    │    ├── domain/         # Entidad de Costo (item_costo_model.dart)
- │    │    ├── data/           # Implementación Isar (repositorio_costos.dart)
- │    │    └── presentation/   # Interfaz financiera y calculadora (pantalla_panel_costos.dart)
- │    │
- │    └── farm_calendar/       # Agenda de la Finca (Cronograma)
- │         ├── domain/         # Entidad de Tarea (tarea_model.dart)
- │         ├── data/           # Implementación Isar (repositorio_calendar.dart)
- │         └── presentation/   # Interfaz de agenda (pantalla_cronograma.dart)
- │
- │    └── livestock/           # Gestión Pecuaria (Animales)
- │         ├── domain/         # Entidades de Especie, Salud y Alimento
- │         ├── data/           # Repositorio Isar (repositorio_pecuario.dart)
- │         └── presentation/   # Detalle de salud y alimentación (pantalla_panel_pecuario.dart, pantalla_detalle_especie.dart)
- │
- └── main.dart                 # Inicializador con Isar, ProviderScope y GoRouter
+ │    ├── farms/               # Gestión Multi-Finca y Onboarding Tutor
+ │    ├── maps_and_lots/       # Zonificación GIS e Ingeniería de Tierra
+ │    ├── inventory_management/ # Bodega Virtual y Stock
+ │    ├── field_workers/       # Nómina Dinámica y Recolección
+ │    ├── inventory_costs/     # Finanzas y Calculadora Predictiva
+ │    ├── farm_calendar/       # Agenda de la Finca (Cronograma)
+ │    └── livestock/           # Gestión Pecuaria (Salud y Alimento)
 ```
 
 ---
 
-## 🎨 Decisiones de Diseño y Adaptaciones Técnicas
+## 🎨 Decisiones de Diseño y Evolución Técnica
 
-1.  **Idioma de Código e Interfaz**: Todo el proyecto está redactado en **Español** para facilitar el entendimiento local.
-2.  **Parche de Compatibilidad Gradle**: Inyección dinámica en `build.gradle.kts` para soportar Android SDK 36 e Isar.
-3.  **Botones Grandes e Interfaces de Alto Contraste**: Botones de altura `56.0` - `85.0` y textos de `18.0+` en `tema_app.dart`.
+1.  **Idioma 100% Español**: Código, interfaces y mensajes adaptados al contexto local.
+2.  **Parche de Compatibilidad**: Soporte para Android SDK 36 e Isar mediante inyección en Gradle.
+3.  **Diseño Visual Unificado (Premium Emerald Theme)**:
+    *   Paleta basada en **Verde Esmeralda Profundo** (`#00695C`) y **Verde Bosque**.
+    *   Bordes Ultra-Redondeados (28px - 32px) para una estética moderna.
+    *   Headers consistentes con estilo "Glassmorphism" y sombras sutiles.
 4.  **Diseño Adaptativo y Accesibilidad (Fuentes al 200%)**:
-    *   Implementación de layouts dinámicos que detectan el factor de escala de texto del sistema (`MediaQuery.textScaler`).
-    *   Ajuste automático de columnas en Grids: El Dashboard cambia de 2 a 1 columna en métricas y de 3 a 2 en atajos cuando se detectan fuentes extra grandes, evitando desbordamientos de UI.
-    *   Uso de `FittedBox` y `Flexible` en componentes críticos para garantizar que los valores numéricos y títulos sean siempre legibles sin cortarse.
-5.  **Dashboard de Inicio (Centro de Mando Ejecutivo)**:
-    *   **Contexto de Finca**: Header con el nombre de la finca seleccionada actualmente y conmutador rápido de propiedad.
-    *   **Métricas de Negocio en Tiempo Real**: Panel que resume los KPIs críticos de la finca:
-        *   **Tierra**: Hectáreas totales y cantidad de lotes zonificados.
-        *   **Finanzas**: Inversión acumulada en pesos.
-        *   **Pecuario**: Censo total de cabezas de animales.
-        *   **Bodega**: Cantidad de insumos registrados y alertas de stock.
-        *   **Equipo**: Número de personas activas en nómina.
-    *   **UX Predictiva Inmediata**: Banners de alerta condicionales y accionables. Al tocar la alerta de tareas, el sistema transporta al usuario directamente a la Agenda; al tocar la alerta de stock bajo, lo lleva a la Bodega Virtual.
-    *   **Acceso Rápido Inteligente**: Grid de atajos (Bento Style) simplificado para evitar redundancias. Los módulos de Gastos, Nómina, Animales, Mapa y Bodega son accesibles con un toque, manteniendo la Calculadora Predictiva integrada dentro del módulo de Gastos para un flujo de trabajo más coherente.
-5.  **Localización GPS y Mapeo Satelital de Precisión**:
-    *   **Modo Pantalla Completa**: El mapa se extiende bajo el AppBar transparente para máxima visibilidad.
-    *   **Dock Lateral**: Controles flotantes circulares para centrar ubicación y limpiar dibujo.
-    *   **Guía de Usuario**: Banner superior dinámico que indica cuántos puntos faltan para cerrar un polígono.
-    *   **Pines Arrastrables**: Los marcadores de dibujo son `draggable`, permitiendo al usuario ajustar milimétricamente los linderos después de marcarlos, recalculando el área automáticamente.
-    *   **Centrado Inteligente (Smart Landing - Estricto)**: Al abrir el mapa de creación, el sistema prioriza la infraestructura existente o el centroide de la finca. Se implementó una lógica de bloqueo asíncrono que evita que el GPS del celular "robe" el foco de la cámara una vez centrado en la propiedad, garantizando una navegación estable.
-    *   **Mapeo Híbrido (Manual vs Campo)**: Sistema dual que permite dibujar tocando la pantalla (Modo Manual) o capturando coordenadas caminando el lindero (Modo GPS Campo).
-    *   **Filtro de Precisión Satelital**: En el modo GPS Campo, se implementó un guardián de calidad que solo permite capturar esquinas si el margen de error del GPS es inferior a 5.0 metros, asegurando la validez de los cálculos de hectáreas.
-6.  **Persistencia Centralizada con Isar**:
-    *   Inicialización global en `main.dart` con esquemas para `Finca`, `Lote`, `Trabajador`, `Costo`, `Tarea`, `Especie`, `Salud` y `Alimento`.
-    *   Todas las colecciones incluyen `fincaId` para aislamiento de datos.
-7.  **Navegación Global (Solid Dock)**:
-    *   Uso de `NavigationBar` de Material 3 con altura aumentada (`85.0`) y etiquetas siempre visibles para máxima estabilidad.
-    *   3 pestañas estratégicas en el Shell: **Inicio**, **Mis Lotes** y **Agenda**.
-8.  **Módulo Agenda de la Finca**:
-    *   **Cerebro Central**: Registro de actividades con diseño tipo checklist.
-    *   **Integración Cruzada**: Recibe tareas automáticas desde el módulo pecuario y agrícola.
-9.  **Módulo Pecuario Detallado**:
-    *   **Gestión de Salud**: Registro de tratamientos (vacunas, purgas, vitaminas) con creación automática de recordatorios en la Agenda Global (color púrpura).
-    *   **Alimentación Inteligente**: Seguimiento de consumo de kilos por grupo animal con integración a la Bodega Virtual para descuento automático de stock.
-    *   **UX Inmersiva**: Pantalla de detalle con pestañas independientes, indicadores de cantidad y tipo de especie en el header, y feedback háptico en registros.
-10. **Calculadora Predictiva de Insumos**: Lógica que cruza el censo de plantas de un lote con dosis recomendadas para proyectar compras de bultos de abono.
-11. **Flujo de Registro Unificado (Lote + Agenda)**: 
-    *   Integración transaccional (`isar.writeTxn`) que permite guardar un lote y agendar su cronograma inicial (Abonado, Cosecha, Fumigación) en un solo paso.
-12. **Mapa Global de la Finca**: 
-    *   Visualización satelital completa de la propiedad con polígonos coloreados por **Tipo de Uso**.
-    *   Cálculo dinámico de límites (`LatLngBounds`) para encuadre automático de todos los lotes guardados.
-    *   **Codificación por Colores**: Los pines centrales usan códigos de color estándar (Verde: Agrícola, Naranja: Pecuario, Azul: Forestal, Violeta: Infraestructura).
-13. **Portafolio Global de Propiedades (Agregación BI)**:
-    *   **Visualización Consolidada**: Vista de alto nivel que muestra todas las propiedades en un solo mapa interactivo.
-    *   **Inteligencia de Datos**: Implementación de algoritmos GIS para calcular el **Centroide Geométrico**, el **Área Total Agregada** y el conteo de lotes por cada finca.
-    *   **Optimización Visual (Anti-Cluttering)**: En lugar de saturar el mapa con cientos de polígonos, se muestra un único marcador maestro por finca con toda su información consolidada.
-    *   **Zoom Semántico (Drill-down)**: Al tocar una finca, el mapa desciende (zoom) para revelar sus polígonos específicos coloreados por uso.
-    *   **Panel de Inteligencia Terrenal**: Despliegue de un panel inferior que resume la distribución de la tierra (ej: cuántas Ha son de café vs ganado) antes de entrar a la gestión detallada.
-    *   **Inmersión Táctil**: Al tocar "Administrar esta Finca", la app cambia automáticamente el contexto global y transporta al usuario directamente al Dashboard de esa propiedad.
-14. **Internacionalización Local**: Configuración `es_CO` para nombres de días, meses y formatos de moneda.
-15. **Arquitectura Multi-Finca (Multi-Tenant Local)**:
-    *   **Aislamiento de Datos**: Todas las consultas filtran obligatoriamente por el ID de la finca seleccionada (`fincaSeleccionadaProvider`).
-    *   **Entrada Segura**: La app inicia en `PantallaMisFincas` obligando a seleccionar una propiedad antes de entrar al Dashboard.
-    *   **Conmutador de Finca (Switch Workspace)**: Botón de salida rápida en el Dashboard que limpia el estado global y permite regresar a la selección de propiedades.
-16. **Zonificación de Finca Integral**:
-    *   **Clasificación de Uso**: Implementación del `TipoUsoLote` (Agrícola, Pecuario, Forestal, Infraestructura).
-    *   **Lógica de Negocio**: Campos condicionales en el formulario (ej: "Capacidad de animales" para Pecuario vs "Número de matas" para Agrícola).
-    *   **Visualización Inteligente**: Colores automáticos en mapas (Verde, Naranja, Azul, Gris) según la clasificación de la tierra.
-    *   **Capas de Dibujo (UX Avanzada)**: Durante la creación de nuevos lotes, se visualizan los polígonos existentes como una "capa pasiva" de fondo. Esto evita solapamientos accidentales y proporciona contexto espacial inmediato al administrador.
-17. **Integración 360° y Automatización (Fase 2.5)**:
-    *   **Vínculo Financiero (Gasto In Situ)**: Al completar tareas críticas en la Agenda (Abonado, Fumigación), el sistema activa automáticamente un flujo de registro de gastos, eliminando la doble entrada de datos.
-    *   **Bodega Virtual e Inventarios**: Módulo dedicado para la gestión de insumos (bultos de urea, purina, etc.) con alertas visuales de bajo stock en el Dashboard.
-    *   **Descuento Automático de Stock**: Integración entre la Agenda y la Bodega que permite descontar insumos directamente al momento de reportar la ejecución de una labor.
-    *   **Asistente de Voz (IA Local)**: Implementación de reconocimiento de voz en el Dashboard para facilitar la entrada de datos "manos libres" mediante comandos naturales.
-18. **Nómina Dinámica y Recolección**:
-    *   **Liquidación Transaccional**: Motor de cálculo para pagar a trabajadores por jornal fijo o por kilo recolectado (destajo).
-    *   **Asientos Contables Automáticos**: El sistema deduce costos de alimentación de la nómina neta e inyecta automáticamente el gasto correspondiente en la contabilidad de la finca.
-    *   **Trazabilidad de Cosecha**: Registro histórico de quién recolectó, en qué fecha y en qué lote, amarrado al ID de la finca.
-19. **Puente Logístico (Interoperabilidad)**:
-    *   **Módulo ServiCarga**: Implementación de un botón de solicitud de transporte de carga pesada integrado en la Bodega Virtual.
-    *   **Integración mediante Deep Links**: Preparado para conectar con la plataforma externa de ServiCarga pasando parámetros de origen, carga y cantidad de forma automática.
-20. **Tutor Interactivo de Configuración (Onboarding de Misiones)**:
-    *   **Aprendizaje Práctico**: Sistema de guía paso a paso que lleva al usuario a través de las interfaces reales de la aplicación en lugar de formularios estáticos.
-    *   **Centro de Misiones**: El usuario debe completar 5 misiones críticas (Crear Finca con Nombre y Ubicación, Dibujar Lote, Cargar Bodega, Agendar Tarea, Configurar Equipo) antes de aterrizar en el Dashboard.
-    *   **Validación de Estado**: El tutor detecta automáticamente cuando se han guardado los datos reales en Isar para marcar la misión como cumplida.
-
----
-
-## 🌟 Lineamientos de UX/UI para el Campo
-
-1.  **Feedback Háptico**: Vibraciones de confirmación al guardar datos.
-2.  **Modo Sol Intenso**: Diseño de ultra-contraste para legibilidad extrema.
-3.  **Entrada de Voz**: Integración futura de dictado para formularios.
-4.  **Micro-interacciones**: Swipe-to-complete en listas.
-5.  **Capas de Visibilidad**: Estilo de mapa personalizado resaltando polígonos sobre el satélite.
+    *   Layouts dinámicos que detectan el `textScaler` del sistema.
+    *   Ajuste automático de columnas en Grids para evitar desbordamientos.
+    *   Uso de `FittedBox` en métricas críticas para garantizar legibilidad.
+5.  **Optimización de Rendimiento (High Performance)**:
+    *   Implementación de `RepaintBoundary` para aislar el renderizado del Dashboard y listas.
+    *   Eliminación de lag en la apertura de teclado mediante `resizeToAvoidBottomInset: false`.
+    *   Scroll fluido con `BouncingScrollPhysics` y carga diferida con `ListView.builder`.
+6.  **Dashboard de Inicio (Centro de Mando Ejecutivo)**:
+    *   Métricas en tiempo real: Tierra (Ha), Finanzas ($), Beneficio (Café en proceso), Bodega (Stock), Pecuario y Equipo.
+    *   Banners de alerta accionables: Atajos directos a la Agenda o Bodega según la urgencia.
+    *   Conmutador de Finca rápido para administración Multi-Tenant.
+7.  **Localización GPS y Mapeo de Precisión**:
+    *   **Centrado Inteligente**: Prioriza la infraestructura (casa) sobre el GPS real al iniciar.
+    *   **Mapeo Híbrido**: Modo Manual (dedo) vs Modo Campo (caminar el lindero).
+    *   **Selector de Capas**: Botón para alternar entre Vista Satelital (Híbrida) y Vista Simple (Mapa Gris/Normal) para optimizar el rendimiento y ahorro de datos.
+    *   **Filtro de Precisión**: Bloqueo de captura si el error del GPS es > 5.0 metros.
+    *   **Pines Arrastrables**: Ajuste milimétrico de linderos con recálculo de área en vivo.
+8.  **Persistencia Atómica (Isar)**:
+    *   Transacciones `isar.writeTxn` para garantizar integridad en registros complejos.
+    *   Aislamiento de datos Multi-Finca mediante llave foránea lógica `fincaId`.
+9.  **Navegación Global (Solid Dock)**:
+    *   Barra inferior de 3 pestañas estratégicas (**Inicio**, **Mis Lotes**, **Agenda**).
+    *   Flujos de gestión como rutas superpuestas para reducir fatiga cognitiva.
+10. **Automatización 360° (Cerebro de Datos)**:
+    *   **Gasto In Situ**: Registro de costos al completar tareas de la agenda.
+    *   **Descuento de Inventario**: La ejecución de labores resta automáticamente stock de la Bodega.
+    *   **Agenda Sanitaria**: Las vacunas pecuarias agendan automáticamente el próximo refuerzo.
+    *   **Programación Recurrente Inteligente**: Al crear un lote, el sistema permite definir frecuencias de **Abonado** y **Fumigación** (ej: cada 3 meses) basadas en estándares de **Cenicafé**, generando automáticamente el cronograma de tareas para todo el año.
+11. **Registro de Cosechas Personalizado**:
+    *   **Flexibilidad por Región**: Selección de rangos de meses para la **Cosecha Principal** y la **Mitaca** (Travesía), adaptándose a los ciclos específicos de zonas como Nátaga o cualquier región cafetera.
+    *   **Cálculo de Anualidad**: El sistema proyecta automáticamente el año (actual o siguiente) según el mes seleccionado para evitar tareas vencidas en la agenda.
+12. **Nómina Dinámica y Recolección**:
+    *   Liquidación por Jornal, Kilo o **Arroba (12.5 kg)**.
+    *   Descuento automático por alimentación y registro de asiento contable.
+    *   **Liquidación Semanal**: Pantalla de resumen que agrupa todas las labores por trabajador desde el inicio de la semana para pagos rápidos.
+13. **Beneficio y Transformación del Café (Trazabilidad)**:
+    *   **Recolección Automática**: El sistema suma los kilos de cereza entregados por todos los recolectores en la semana para iniciar el beneficio.
+    *   **Gestión de Estados**: Seguimiento del lote desde **Cereza -> Lavado -> Secado -> Listo (Venta)**.
+    *   **Conversión a Producción**: Al finalizar el secado, el sistema solicita el peso seco final e inyecta automáticamente el stock en la categoría de "Producción" de la Bodega.
+14. **Bodega Virtual Triple Categoría**:
+    *   **Operación**: Insumos consumibles (Abono, purina, venenos).
+    *   **Maquinaria**: Gestión de gasolina, aceite, cuchillas y equipos (Guadañas, motosierras).
+    *   **Producción**: Control de productos cosechados para venta (Café, Cacao, Plátano).
+    *   **Inteligencia de Café**: Detector de nombre que habilita la marca de **"EN SECADO"** para trazabilidad de beneficio.
+15. **Calculadora Predictiva e Integración Financiera**:
+    *   Proyección de bultos de abono, alimento animal y bombas de fumigación basada en censo de plantas y cabezas.
+    *   **Costo Estimado**: Cálculo de inversión antes de comprar.
+    *   **Inyección Automática**: Al confirmar una proyección, el sistema registra el gasto en finanzas y carga el stock automáticamente en la Bodega.
+16. **Portafolio Global de Propiedades (Agregación BI)**:
+    *   Mapa consolidado de todas las fincas con cálculo de Centroides y Áreas Agregadas.
+    *   Zoom Semántico (Drill-down) para revelar polígonos al seleccionar una finca.
+17. **Tutor Interactivo (Onboarding de Misiones)**:
+    *   Sistema de guía práctica que obliga a configurar la Finca, el Lote y el Equipo usando la interfaz real antes de empezar.
+18. **Sistema de Feedback y UX Comunicativa**:
+    *   **Notificaciones In-App**: SnackBars flotantes en cada operación de éxito (Guardado de finca, registro de labor, ajuste de bodega).
+    *   **Feedback Háptico**: Vibraciones táctiles en momentos clave (captura GPS, errores de validación) para mejorar la usabilidad en campo.
+    *   **Unidades de Medida**: Indicación visual clara (kg, plantas, bultos) en todos los campos de entrada de datos.
+19. **Gestión Pecuaria con Trazabilidad Geográfica**:
+    *   **Asociación de Lotes**: Capacidad de vincular grupos de animales (cerdos, aves, peces) a infraestructuras específicas mapeadas en el sistema (ej: cocheras, galpones).
+    *   **Visualización en Tarjeta**: Identificación inmediata de la ubicación física de cada grupo animal directamente desde el panel pecuario.
+    *   **Edición Dinámica**: Posibilidad de reasignar grupos animales a diferentes lotes o actualizar su información directamente desde el panel de control.
+20. **Gestión Ágil de Recursos y Equipo**:
+    *   **Acciones Directas**: Implementación de funciones de eliminación y edición rápida directamente en las listas de Lotes, Trabajadores y Animales.
+21. **Formateo Financiero Profesional**:
+    *   **Estándar Bancario**: Implementación de separadores de miles (puntos) y sufijo oficial `COP` en todos los valores monetarios.
+    *   **Manejo de Millones**: Visualización inteligente que escala a millones (ej: $1.5M) o miles (ej: $10k) en el Dashboard para mantener la limpieza visual.
+    *   **FittedBox Adaptativo**: Los valores grandes se auto-ajustan al ancho de la tarjeta para evitar cortes o desbordamientos.
 
 ---
 
 ## 🚀 Cómo correr y continuar el Desarrollo
-
-### En un celular Android conectado:
-1.  Activa la depuración USB.
-2.  Corre: `flutter run -d E6FACI5XU8O7AIXK`
-3.  **Generación de código**: `flutter pub run build_runner build --delete-conflicting-outputs`
+1.  `flutter pub get`
+2.  `flutter pub run build_runner build --delete-conflicting-outputs`
+3.  `flutter run -d <ID_DISPOSITIVO>`
 
 ---
 
-## 🗺️ Hoja de Ruta y Próximas Fases
-Consulte el archivo [FUTURAS_VERSIONES.md](FUTURAS_VERSIONES.md).
+**Desarrollado por ChopCode Solutions.**
