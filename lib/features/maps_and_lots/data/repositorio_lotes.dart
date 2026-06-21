@@ -21,7 +21,10 @@ abstract class RepositorioLotes {
   Future<Either<Fallo, void>> guardarLoteCompleto({
     required Lote lote,
     required Map<String, DateTime?> fechasCronograma,
+    int mesesFrecuenciaAbono = 3,
+    int mesesFrecuenciaFumiga = 4,
   });
+  Future<Either<Fallo, void>> eliminarLote(String id);
 }
 
 class RepositorioLotesImpl implements RepositorioLotes {
@@ -57,6 +60,8 @@ class RepositorioLotesImpl implements RepositorioLotes {
   Future<Either<Fallo, void>> guardarLoteCompleto({
     required Lote lote,
     required Map<String, DateTime?> fechasCronograma,
+    int mesesFrecuenciaAbono = 3,
+    int mesesFrecuenciaFumiga = 4,
   }) async {
     try {
       await isar.writeTxn(() async {
@@ -64,18 +69,47 @@ class RepositorioLotesImpl implements RepositorioLotes {
         final idLote = await isar.loteIsarModels.put(modeloLote);
 
         final List<TareaIsarModel> tareasNuevas = [];
+        
         fechasCronograma.forEach((tipo, fecha) {
           if (fecha != null) {
-            final tarea = TareaIsarModel()
-              ..titulo = '$tipo: ${lote.nombre}'
-              ..tipoActividad = _mapearTipoActividad(tipo)
-              ..fechaInicio = fecha
-              ..fechaFinEstimada = fecha.add(const Duration(days: 2))
-              ..estaCompletada = false
-              ..loteId = idLote
-              ..fincaId = modeloLote.fincaId; // Heredar fincaId del lote
-            
-            tareasNuevas.add(tarea);
+            if (tipo == 'Próxima Abonada') {
+              // Generar ciclos de abono (4 al año)
+              for (int i = 0; i < 4; i++) {
+                final fechaTarea = DateTime(fecha.year, fecha.month + (i * mesesFrecuenciaAbono), fecha.day);
+                tareasNuevas.add(TareaIsarModel()
+                  ..titulo = i == 0 ? 'Abonada Inicial: ${lote.nombre}' : 'Abonada de Refuerzo: ${lote.nombre}'
+                  ..tipoActividad = 'Abonado'
+                  ..fechaInicio = fechaTarea
+                  ..fechaFinEstimada = fechaTarea.add(const Duration(days: 2))
+                  ..estaCompletada = false
+                  ..loteId = idLote
+                  ..fincaId = modeloLote.fincaId);
+              }
+            } else if (tipo == 'Próxima Fumigación') {
+              // Generar ciclos de fumigación (3-4 al año según frecuencia)
+              int numCiclos = (12 / mesesFrecuenciaFumiga).floor();
+              for (int i = 0; i < numCiclos; i++) {
+                final fechaTarea = DateTime(fecha.year, fecha.month + (i * mesesFrecuenciaFumiga), fecha.day);
+                tareasNuevas.add(TareaIsarModel()
+                  ..titulo = i == 0 ? 'Fumigación Inicial: ${lote.nombre}' : 'Fumigación de Ciclo: ${lote.nombre}'
+                  ..tipoActividad = 'Fumigación'
+                  ..fechaInicio = fechaTarea
+                  ..fechaFinEstimada = fechaTarea.add(const Duration(days: 2))
+                  ..estaCompletada = false
+                  ..loteId = idLote
+                  ..fincaId = modeloLote.fincaId);
+              }
+            } else {
+              // Cosechas y otros son eventos únicos
+              tareasNuevas.add(TareaIsarModel()
+                ..titulo = '$tipo: ${lote.nombre}'
+                ..tipoActividad = _mapearTipoActividad(tipo)
+                ..fechaInicio = fecha
+                ..fechaFinEstimada = fecha.add(const Duration(days: 2))
+                ..estaCompletada = false
+                ..loteId = idLote
+                ..fincaId = modeloLote.fincaId);
+            }
           }
         });
 
@@ -86,6 +120,21 @@ class RepositorioLotesImpl implements RepositorioLotes {
       return const Right(null);
     } catch (e) {
       return Left(FalloBaseDatos('Error en la transacción', e));
+    }
+  }
+
+  @override
+  Future<Either<Fallo, void>> eliminarLote(String id) async {
+    try {
+      final idInt = int.parse(id);
+      await isar.writeTxn(() async {
+        await isar.loteIsarModels.delete(idInt);
+        // Opcional: Eliminar tareas asociadas a este lote
+        await isar.tareaIsarModels.filter().loteIdEqualTo(idInt).deleteAll();
+      });
+      return const Right(null);
+    } catch (e) {
+      return Left(FalloBaseDatos('Error al eliminar lote', e));
     }
   }
 

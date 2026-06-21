@@ -16,6 +16,7 @@ class Lote {
   final int numeroMatas; // Solo para uso agrícola
   final int? capacidadAnimales; // Solo para uso pecuario
   final List<CoordenadaLote> coordenadas;
+  final String? etapaCultivo; // Ej: "Recién Sembrado", "En Producción", "Soca"
 
   const Lote({
     required this.id,
@@ -27,6 +28,7 @@ class Lote {
     this.numeroMatas = 0,
     this.capacidadAnimales,
     required this.coordenadas,
+    this.etapaCultivo,
   });
 }
 

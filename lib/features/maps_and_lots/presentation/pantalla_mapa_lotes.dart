@@ -20,6 +20,7 @@ class PantallaMapaLotes extends ConsumerStatefulWidget {
 class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
   GoogleMapController? _controladorMapa;
   bool _permisoUbicacionConcedido = false;
+  MapType _tipoMapa = MapType.hybrid;
 
   static const CameraPosition _posicionCamaraInicial = CameraPosition(
     target: LatLng(4.9816, -75.6033),
@@ -157,7 +158,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
         children: [
           GoogleMap(
             initialCameraPosition: _posicionCamaraInicial,
-            mapType: MapType.hybrid,
+            mapType: _tipoMapa,
             markers: estadoMapa.marcadores,
             polygons: todosLosPoligonos,
             onTap: estadoMapa.modo == ModoMapeo.manual ? notificador.agregarPunto : null,
@@ -196,7 +197,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.resolveWith<Color>(
                     (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.selected)) return const Color(0xFF1B5E20);
+                      if (states.contains(WidgetState.selected)) return const Color(0xFF00695C);
                       return Colors.white.withOpacity(0.9);
                     },
                   ),
@@ -254,6 +255,15 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                   color: Colors.white,
                 ),
                 const SizedBox(height: 12),
+                _BotonFlotanteMapa(
+                  icono: _tipoMapa == MapType.hybrid ? Icons.layers_outlined : Icons.layers,
+                  onTap: () => setState(() {
+                    _tipoMapa = _tipoMapa == MapType.hybrid ? MapType.normal : MapType.hybrid;
+                  }),
+                  color: Colors.white,
+                  iconColor: const Color(0xFF00695C),
+                ),
+                const SizedBox(height: 12),
                 if (estadoMapa.puntos.isNotEmpty) ...[
                   _BotonFlotanteMapa(
                     icono: Icons.delete_sweep,
@@ -274,7 +284,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
               right: 40,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B5E20),
+                  backgroundColor: const Color(0xFF00695C),
                   foregroundColor: Colors.white,
                   minimumSize: const Size(0, 80),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -308,13 +318,13 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('ÁREA CALCULADA', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                          Text('${estadoMapa.areaEnHectareas.toStringAsFixed(3)} Ha', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1B5E20))),
+                          Text('${estadoMapa.areaEnHectareas.toStringAsFixed(3)} Ha', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF00695C))),
                         ],
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(12)),
-                        child: Text('${estadoMapa.puntos.length} Puntos', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                        decoration: BoxDecoration(color: const Color(0xFFF57C00).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                        child: const Text('Mapeando...', style: TextStyle(color: Color(0xFFF57C00), fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -323,8 +333,8 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                     children: [
                       if (estadoMapa.puntos.isNotEmpty) ...[
                         _BotonAccion(
-                          icono: Icons.undo,
-                          color: Colors.grey.shade200,
+                          icono: Icons.undo_rounded,
+                          color: Colors.grey.shade100,
                           onTap: notificador.deshacerUltimoPunto,
                         ),
                         const SizedBox(width: 12),
@@ -332,7 +342,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1B5E20),
+                            backgroundColor: const Color(0xFF00695C),
                             foregroundColor: Colors.white,
                             minimumSize: const Size(0, 64),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -416,9 +426,32 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
   
   TipoUsoLote _usoSeleccionado = TipoUsoLote.agricola;
   
+  String? _etapaSeleccionada;
+  
+  final List<String> _etapasCafe = [
+    'Recién Sembrado',
+    'Crecimiento (Levante)',
+    'En Producción',
+    'Soca (Renovación)',
+    'Abatido / Viejo'
+  ];
+  
   DateTime? _fechaAbonada;
-  DateTime? _fechaCosecha;
+  int _mesesFrecuenciaAbono = 3;
+  
   DateTime? _fechaFumigada;
+  int _mesesFrecuenciaFumiga = 4;
+  
+  // Rangos de Cosecha
+  int? _mesInicioCosecha;
+  int? _mesFinCosecha;
+  int? _mesInicioMitaca;
+  int? _mesFinMitaca;
+
+  final List<String> _meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
 
   Future<void> _pickDate(String titulo, Function(DateTime) onPicked) async {
     final pick = await showDatePicker(
@@ -471,19 +504,28 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
             ),
             const SizedBox(height: 16),
             
-            if (_usoSeleccionado == TipoUsoLote.agricola)
+            if (_usoSeleccionado == TipoUsoLote.agricola) ...[
               TextFormField(
                 controller: _matasCtrl, 
                 keyboardType: TextInputType.number, 
-                decoration: const InputDecoration(labelText: 'Número de Matas', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pin)), 
+                decoration: const InputDecoration(labelText: 'Número de Matas', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pin), suffixText: 'plantas'), 
                 validator: (v) => v!.isEmpty ? 'Ingresa cantidad' : null
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _etapaSeleccionada,
+                decoration: const InputDecoration(labelText: 'Etapa del Cultivo', border: OutlineInputBorder(), prefixIcon: Icon(Icons.psychology_alt_rounded)),
+                items: _etapasCafe.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (v) => setState(() => _etapaSeleccionada = v),
+                validator: (v) => v == null ? 'Selecciona una etapa' : null,
+              ),
+            ],
             
             if (_usoSeleccionado == TipoUsoLote.pecuario)
               TextFormField(
                 controller: _capAnimCtrl, 
                 keyboardType: TextInputType.number, 
-                decoration: const InputDecoration(labelText: 'Capacidad de Animales', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pets)), 
+                decoration: const InputDecoration(labelText: 'Capacidad de Animales', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pets), suffixText: 'cabezas'),
                 validator: (v) => v!.isEmpty ? 'Ingresa capacidad' : null
               ),
 
@@ -492,13 +534,95 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
               const Text('CRONOGRAMA INICIAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
               const Divider(),
               _DatePickerTile(titulo: 'Próxima Abonada', fecha: _fechaAbonada, onTap: () => _pickDate('Abonada', (d) => _fechaAbonada = d)),
-              _DatePickerTile(titulo: 'Cosecha Principal', fecha: _fechaCosecha, onTap: () => _pickDate('Cosecha', (d) => _fechaCosecha = d)),
+              
+              if (_fechaAbonada != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: DropdownButtonFormField<int>(
+                    value: _mesesFrecuenciaAbono,
+                    decoration: const InputDecoration(
+                      labelText: 'Frecuencia de Abonada', 
+                      prefixIcon: Icon(Icons.repeat_rounded),
+                      helperText: 'Cenicafé: Levante cada 3 meses, Producción cada 4-6 meses.',
+                    ),
+                    items: [
+                      const DropdownMenuItem(value: 2, child: Text('Cada 2 meses (Intensivo)')),
+                      const DropdownMenuItem(value: 3, child: Text('Cada 3 meses (Levante/Soca)')),
+                      const DropdownMenuItem(value: 4, child: Text('Cada 4 meses (Producción Pro)')),
+                      const DropdownMenuItem(value: 6, child: Text('Cada 6 meses (Tradicional)')),
+                    ],
+                    onChanged: (v) => setState(() => _mesesFrecuenciaAbono = v!),
+                  ),
+                ),
+              
+              const SizedBox(height: 16),
+              const Text('Cosecha Principal (Rango)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      value: _mesInicioCosecha,
+                      decoration: const InputDecoration(labelText: 'Inicia en', prefixIcon: Icon(Icons.play_arrow_rounded)),
+                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                      onChanged: (v) => setState(() => _mesInicioCosecha = v),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      value: _mesFinCosecha,
+                      decoration: const InputDecoration(labelText: 'Termina en', prefixIcon: Icon(Icons.stop_rounded)),
+                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                      onChanged: (v) => setState(() => _mesFinCosecha = v),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              const Text('Temporada Mitaca (Rango)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      value: _mesInicioMitaca,
+                      decoration: const InputDecoration(labelText: 'Inicia en', prefixIcon: Icon(Icons.play_arrow_rounded)),
+                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                      onChanged: (v) => setState(() => _mesInicioMitaca = v),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      value: _mesFinMitaca,
+                      decoration: const InputDecoration(labelText: 'Termina en', prefixIcon: Icon(Icons.stop_rounded)),
+                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                      onChanged: (v) => setState(() => _mesFinMitaca = v),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
               _DatePickerTile(titulo: 'Próxima Fumigación', fecha: _fechaFumigada, onTap: () => _pickDate('Fumigación', (d) => _fechaFumigada = d)),
+
+              if (_fechaFumigada != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: DropdownButtonFormField<int>(
+                    value: _mesesFrecuenciaFumiga,
+                    decoration: const InputDecoration(labelText: 'Frecuencia de Fumigación', prefixIcon: Icon(Icons.repeat_rounded)),
+                    items: [2, 3, 4, 6].map((m) => DropdownMenuItem(value: m, child: Text('Cada $m meses'))).toList(),
+                    onChanged: (v) => setState(() => _mesesFrecuenciaFumiga = v!),
+                  ),
+                ),
             ],
             
             const SizedBox(height: 32),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(0, 64), backgroundColor: const Color(0xFF1B5E20), foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(0, 64), backgroundColor: const Color(0xFF00695C), foregroundColor: Colors.white),
               onPressed: () async {
                 if (_formularioKey.currentState!.validate()) {
                   final fincaIdStr = ref.read(fincaSeleccionadaProvider);
@@ -512,26 +636,58 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                     numeroMatas: int.tryParse(_matasCtrl.text) ?? 0,
                     capacidadAnimales: int.tryParse(_capAnimCtrl.text),
                     coordenadas: widget.estadoMapa.puntos.map((p) => CoordenadaLote(latitud: p.latitude, longitud: p.longitude)).toList(),
+                    etapaCultivo: _usoSeleccionado == TipoUsoLote.agricola ? _etapaSeleccionada : null,
                   );
+
+                  // Convertir rangos de meses a fechas para el cronograma
+                  DateTime? fechaCosecha;
+                  if (_mesInicioCosecha != null) {
+                    final now = DateTime.now();
+                    int year = now.year;
+                    if (_mesInicioCosecha! < now.month) year++;
+                    fechaCosecha = DateTime(year, _mesInicioCosecha!, 1);
+                  }
+
+                  DateTime? fechaMitaca;
+                  if (_mesInicioMitaca != null) {
+                    final now = DateTime.now();
+                    int year = now.year;
+                    if (_mesInicioMitaca! < now.month) year++;
+                    fechaMitaca = DateTime(year, _mesInicioMitaca!, 1);
+                  }
 
                   final fechas = {
                     'Próxima Abonada': _fechaAbonada,
-                    'Cosecha Principal': _fechaCosecha,
+                    'Cosecha Principal': fechaCosecha,
+                    'Temporada Mitaca': fechaMitaca,
                     'Próxima Fumigación': _fechaFumigada,
                   };
 
-                  final res = await ref.read(repositorioLotesProvider).guardarLoteCompleto(lote: nuevoLote, fechasCronograma: fechas);
-                  
-                  res.fold(
-                    (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(f.mensaje))),
-                    (_) {
-                      ref.read(panelLotesNotifierProvider.notifier).refresh();
-                      ref.read(cronogramaNotifierProvider.notifier).refresh();
-                      ref.read(loteMapaNotifierProvider.notifier).limpiarMapa();
-                      Navigator.pop(context); Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Lote guardado con éxito!'), backgroundColor: Color(0xFF1B5E20)));
-                    }
+                  final res = await ref.read(repositorioLotesProvider).guardarLoteCompleto(
+                    lote: nuevoLote, 
+                    fechasCronograma: fechas,
+                    mesesFrecuenciaAbono: _mesesFrecuenciaAbono,
+                    mesesFrecuenciaFumiga: _mesesFrecuenciaFumiga,
                   );
+                  
+                  if (context.mounted) {
+                    res.fold(
+                      (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(f.mensaje))),
+                      (_) {
+                        ref.read(panelLotesNotifierProvider.notifier).refresh();
+                        ref.read(cronogramaNotifierProvider.notifier).refresh();
+                        ref.read(loteMapaNotifierProvider.notifier).limpiarMapa();
+                        Navigator.pop(context); Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('¡Lote guardado con éxito!'), 
+                            backgroundColor: Color(0xFF00695C),
+                            behavior: SnackBarBehavior.floating,
+                          )
+                        );
+                      }
+                    );
+                  }
                 }
               },
               child: const Text('GUARDAR LOTE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

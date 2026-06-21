@@ -33,28 +33,33 @@ const LoteIsarModelSchema = CollectionSchema(
       type: IsarType.objectList,
       target: r'CoordenadaLoteIsarModel',
     ),
-    r'fincaId': PropertySchema(
+    r'etapaCultivo': PropertySchema(
       id: 3,
+      name: r'etapaCultivo',
+      type: IsarType.string,
+    ),
+    r'fincaId': PropertySchema(
+      id: 4,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'nombre': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'nombre',
       type: IsarType.string,
     ),
     r'numeroMatas': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'numeroMatas',
       type: IsarType.long,
     ),
     r'subCategoria': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'subCategoria',
       type: IsarType.string,
     ),
     r'uso': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'uso',
       type: IsarType.byte,
       enumMap: _LoteIsarModelusoEnumValueMap,
@@ -89,6 +94,12 @@ int _loteIsarModelEstimateSize(
           value, offsets, allOffsets);
     }
   }
+  {
+    final value = object.etapaCultivo;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.nombre.length * 3;
   bytesCount += 3 + object.subCategoria.length * 3;
   return bytesCount;
@@ -108,11 +119,12 @@ void _loteIsarModelSerialize(
     CoordenadaLoteIsarModelSchema.serialize,
     object.coordenadas,
   );
-  writer.writeLong(offsets[3], object.fincaId);
-  writer.writeString(offsets[4], object.nombre);
-  writer.writeLong(offsets[5], object.numeroMatas);
-  writer.writeString(offsets[6], object.subCategoria);
-  writer.writeByte(offsets[7], object.uso.index);
+  writer.writeString(offsets[3], object.etapaCultivo);
+  writer.writeLong(offsets[4], object.fincaId);
+  writer.writeString(offsets[5], object.nombre);
+  writer.writeLong(offsets[6], object.numeroMatas);
+  writer.writeString(offsets[7], object.subCategoria);
+  writer.writeByte(offsets[8], object.uso.index);
 }
 
 LoteIsarModel _loteIsarModelDeserialize(
@@ -131,13 +143,14 @@ LoteIsarModel _loteIsarModelDeserialize(
         CoordenadaLoteIsarModel(),
       ) ??
       [];
-  object.fincaId = reader.readLongOrNull(offsets[3]);
+  object.etapaCultivo = reader.readStringOrNull(offsets[3]);
+  object.fincaId = reader.readLongOrNull(offsets[4]);
   object.id = id;
-  object.nombre = reader.readString(offsets[4]);
-  object.numeroMatas = reader.readLong(offsets[5]);
-  object.subCategoria = reader.readString(offsets[6]);
+  object.nombre = reader.readString(offsets[5]);
+  object.numeroMatas = reader.readLong(offsets[6]);
+  object.subCategoria = reader.readString(offsets[7]);
   object.uso =
-      _LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           TipoUsoLote.agricola;
   return object;
 }
@@ -162,14 +175,16 @@ P _loteIsarModelDeserializeProp<P>(
           ) ??
           []) as P;
     case 3:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
-      return (reader.readLong(offset)) as P;
-    case 6:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readLong(offset)) as P;
     case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
       return (_LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offset)] ??
           TipoUsoLote.agricola) as P;
     default:
@@ -512,6 +527,160 @@ extension LoteIsarModelQueryFilter
         upper,
         includeUpper,
       );
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'etapaCultivo',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'etapaCultivo',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'etapaCultivo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'etapaCultivo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'etapaCultivo',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'etapaCultivo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      etapaCultivoIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'etapaCultivo',
+        value: '',
+      ));
     });
   }
 
@@ -1069,6 +1238,20 @@ extension LoteIsarModelQuerySortBy
     });
   }
 
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByEtapaCultivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'etapaCultivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByEtapaCultivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'etapaCultivo', Sort.desc);
+    });
+  }
+
   QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> sortByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fincaId', Sort.asc);
@@ -1160,6 +1343,20 @@ extension LoteIsarModelQuerySortThenBy
       thenByCapacidadAnimalesDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'capacidadAnimales', Sort.desc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByEtapaCultivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'etapaCultivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByEtapaCultivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'etapaCultivo', Sort.desc);
     });
   }
 
@@ -1255,6 +1452,13 @@ extension LoteIsarModelQueryWhereDistinct
     });
   }
 
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QDistinct> distinctByEtapaCultivo(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'etapaCultivo', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<LoteIsarModel, LoteIsarModel, QDistinct> distinctByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fincaId');
@@ -1315,6 +1519,13 @@ extension LoteIsarModelQueryProperty
       coordenadasProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'coordenadas');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, String?, QQueryOperations>
+      etapaCultivoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'etapaCultivo');
     });
   }
 
