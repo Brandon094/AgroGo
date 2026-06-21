@@ -25,6 +25,18 @@ class CalculadoraInsumosUseCase {
     final litrosMezcla = bombas * capacidadBombaLitros;
     return ResultadoFumigacion(bombas: bombas, litrosMezcla: litrosMezcla);
   }
+
+  /// Método 3 (Alimento Animal): Calcula los bultos necesarios para un periodo de tiempo.
+  int calcularBultosAlimento({
+    required int cantidadAnimales,
+    required double gramosDiaPorAnimal,
+    required int diasProyeccion,
+    required double kilosPorBulto,
+  }) {
+    if (cantidadAnimales <= 0 || gramosDiaPorAnimal <= 0 || diasProyeccion <= 0 || kilosPorBulto <= 0) return 0;
+    final totalKilos = (cantidadAnimales * gramosDiaPorAnimal * diasProyeccion) / 1000.0;
+    return (totalKilos / kilosPorBulto).ceil();
+  }
 }
 
 /// Estructura de retorno para el cálculo de fumigación.
