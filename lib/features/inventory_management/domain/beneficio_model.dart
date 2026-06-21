@@ -2,7 +2,8 @@ enum EstadoBeneficio {
   cereza,   // Recién recolectado
   lavado,   // En fermentación/lavado
   secado,   // En la elva/sol
-  listo     // Pergamino seco listo para bodega/venta
+  listo,    // Pergamino seco listo para bodega
+  vendido   // Vendido directamente (mojado o cereza)
 }
 
 class BeneficioEntity {

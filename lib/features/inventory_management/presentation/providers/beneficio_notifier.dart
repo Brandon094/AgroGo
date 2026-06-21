@@ -98,4 +98,19 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     
     ref.invalidateSelf();
   }
+
+  Future<void> venderLote(BeneficioEntity beneficio, double kilosVendidos) async {
+    final isar = ref.read(isarProvider);
+    
+    final actualizado = beneficio.copyWith(
+      estado: EstadoBeneficio.vendido,
+      kilosFinales: kilosVendidos,
+    );
+
+    await isar.writeTxn(() async {
+      await isar.beneficioIsarModels.put(BeneficioIsarModel.fromEntity(actualizado));
+    });
+    
+    ref.invalidateSelf();
+  }
 }

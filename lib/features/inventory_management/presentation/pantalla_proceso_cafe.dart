@@ -15,7 +15,7 @@ class PantallaProcesoCafe extends ConsumerWidget {
       backgroundColor: const Color(0xFFF9FBF9),
       appBar: AppBar(
         title: const Text('Beneficio de Café', style: TextStyle(fontWeight: FontWeight.w900)),
-        backgroundColor: const Color(0xFF3E2723),
+        backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -134,7 +134,9 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: beneficio.estado == EstadoBeneficio.listo ? null : () => _avanzarLote(context, ref),
+                    onPressed: (beneficio.estado == EstadoBeneficio.listo || beneficio.estado == EstadoBeneficio.vendido) 
+                      ? null 
+                      : () => _avanzarLote(context, ref),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal.shade50,
                       foregroundColor: Colors.teal.shade800,
@@ -143,6 +145,15 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
                     child: Text(_getTextoBoton(beneficio.estado)),
                   ),
                 ),
+                if (beneficio.estado != EstadoBeneficio.listo && beneficio.estado != EstadoBeneficio.vendido) ...[
+                  const SizedBox(width: 12),
+                  IconButton.filledTonal(
+                    style: IconButton.styleFrom(backgroundColor: Colors.orange.shade100, foregroundColor: Colors.orange.shade900),
+                    onPressed: () => _mostrarDialogoVenta(context, ref),
+                    icon: const Icon(Icons.monetization_on_rounded),
+                    tooltip: 'Vender ya',
+                  ),
+                ],
               ],
             ),
           ),
@@ -159,6 +170,7 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
       case EstadoBeneficio.lavado: color = Colors.blue; texto = 'LAVADO'; break;
       case EstadoBeneficio.secado: color = Colors.orange; texto = 'SECADO'; break;
       case EstadoBeneficio.listo: color = Colors.green; texto = 'LISTO'; break;
+      case EstadoBeneficio.vendido: color = Colors.purple; texto = 'VENDIDO'; break;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -173,7 +185,55 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
       case EstadoBeneficio.lavado: return 'PASAR A SECADO';
       case EstadoBeneficio.secado: return 'FINALIZAR SECADO (PESAR)';
       case EstadoBeneficio.listo: return 'LISTO EN BODEGA';
+      case EstadoBeneficio.vendido: return 'VENDIDO';
     }
+  }
+
+  void _mostrarDialogoVenta(BuildContext context, WidgetRef ref) {
+    final pesoCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Venta Directa'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('¿Vendió este café mojado o en cereza? Ingrese el peso final de la venta.', style: TextStyle(fontSize: 13, color: Colors.grey)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: pesoCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Kilos Vendidos', suffixText: 'kg', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(12)),
+              child: const Row(
+                children: [
+                  Icon(Icons.local_shipping_rounded, color: Colors.blue),
+                  SizedBox(width: 12),
+                  Expanded(child: Text('¿Necesita transporte para llevarlo? Use ServiCarga.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+          ElevatedButton(
+            onPressed: () async {
+              final peso = double.tryParse(pesoCtrl.text);
+              if (peso != null) {
+                await ref.read(beneficioNotifierProvider.notifier).venderLote(beneficio, peso);
+                if (context.mounted) Navigator.pop(context);
+              }
+            }, 
+            child: const Text('REGISTRAR VENTA')
+          ),
+        ],
+      ),
+    );
   }
 
   void _avanzarLote(BuildContext context, WidgetRef ref) {
