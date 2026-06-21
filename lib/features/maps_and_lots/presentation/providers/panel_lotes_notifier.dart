@@ -22,6 +22,16 @@ class PanelLotesNotifier extends _$PanelLotesNotifier {
     );
   }
 
+  Future<void> eliminarLote(String id) async {
+    state = const AsyncValue.loading();
+    final repositorio = ref.read(repositorioLotesProvider);
+    final resultado = await repositorio.eliminarLote(id);
+    resultado.fold(
+      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
   Future<void> refresh() async {
     ref.invalidateSelf();
     await future;
