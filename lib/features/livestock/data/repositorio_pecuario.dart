@@ -11,6 +11,7 @@ part 'repositorio_pecuario.g.dart';
 abstract class RepositorioPecuario {
   Future<Either<Fallo, List<EspecieEntity>>> obtenerEspecies({int? fincaId});
   Future<Either<Fallo, void>> guardarEspecie(EspecieEntity especie);
+  Future<Either<Fallo, void>> eliminarEspecie(String id);
   
   Future<Either<Fallo, List<ControlSanitarioEntity>>> obtenerControlesPorEspecie(String especieId);
   Future<Either<Fallo, void>> guardarControlSanitario(ControlSanitarioEntity control);
@@ -44,6 +45,17 @@ class RepositorioPecuarioImpl implements RepositorioPecuario {
       return const Right(null);
     } catch (e) {
       return Left(FalloBaseDatos('Error al guardar especie', e));
+    }
+  }
+
+  @override
+  Future<Either<Fallo, void>> eliminarEspecie(String id) async {
+    try {
+      final idInt = int.parse(id);
+      await isar.writeTxn(() async => await isar.especieIsarModels.delete(idInt));
+      return const Right(null);
+    } catch (e) {
+      return Left(FalloBaseDatos('Error al eliminar especie', e));
     }
   }
 

@@ -47,6 +47,26 @@ class PecuarioNotifier extends _$PecuarioNotifier {
     );
   }
 
+  Future<void> actualizarEspecie(EspecieEntity especie) async {
+    state = const AsyncValue.loading();
+    final repositorio = ref.read(repositorioPecuarioProvider);
+    final resultado = await repositorio.guardarEspecie(especie);
+    resultado.fold(
+      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
+  Future<void> eliminarEspecie(String id) async {
+    state = const AsyncValue.loading();
+    final repositorio = ref.read(repositorioPecuarioProvider);
+    final resultado = await repositorio.eliminarEspecie(id);
+    resultado.fold(
+      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
   Future<void> refresh() async {
     ref.invalidateSelf();
     await future;
