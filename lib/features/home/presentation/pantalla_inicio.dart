@@ -8,15 +8,18 @@ import '../../inventory_costs/presentation/providers/costos_notifier.dart';
 import '../../livestock/presentation/providers/pecuario_notifier.dart';
 import '../../farms/presentation/providers/fincas_notifier.dart';
 import '../../inventory_management/presentation/providers/insumos_notifier.dart';
+import '../../inventory_management/presentation/providers/beneficio_notifier.dart';
 import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 import '../../field_workers/presentation/providers/trabajadores_notifier.dart';
 
 import '../../farm_calendar/domain/tarea_model.dart';
 import '../../inventory_management/domain/insumo_model.dart';
+import '../../inventory_management/domain/beneficio_model.dart';
 import '../../maps_and_lots/domain/lote_model.dart';
 import '../../inventory_costs/domain/item_costo_model.dart';
 import '../../livestock/domain/entidades_pecuario.dart';
 import '../../field_workers/domain/trabajador_model.dart';
+import '../../../core/utils/formatters.dart';
 
 class PantallaInicio extends ConsumerStatefulWidget {
   const PantallaInicio({super.key});
@@ -43,6 +46,7 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
     final insumosAsync = ref.watch(insumosNotifierProvider);
     final lotesAsync = ref.watch(panelLotesNotifierProvider);
     final equipoAsync = ref.watch(trabajadoresNotifierProvider);
+    final beneficioAsync = ref.watch(beneficioNotifierProvider);
     
     return Scaffold(
       body: Container(
@@ -111,7 +115,7 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
 
                   // MÉTRICAS EN GRID BENTO PROFESIONAL
                   RepaintBoundary(
-                    child: _buildMetricas(lotesAsync, costosAsync, animalesAsync, equipoAsync, insumosAsync),
+                    child: _buildMetricas(lotesAsync, costosAsync, animalesAsync, equipoAsync, insumosAsync, beneficioAsync),
                   ),
 
                   const SizedBox(height: 40),
@@ -178,8 +182,10 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
     AsyncValue<List<EspecieEntity>> animales, 
     AsyncValue<List<TrabajadorEntity>> equipo,
     AsyncValue<List<InsumoEntity>> insumos,
+    AsyncValue<List<BeneficioEntity>> beneficios,
   ) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    // Ajustamos el ratio y columnas según el tamaño de fuente
     final crossAxisCount = textScale > 1.8 ? 1 : 2;
     final aspectRatio = textScale > 1.4 ? 1.8 : 1.4;
 
@@ -204,11 +210,25 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
         costos.maybeWhen(
           data: (c) => _MetricaCard(
             titulo: 'Finanzas', 
-            valor: '\$${(c.fold<double>(0.0, (a, b) => a + b.precioTotal) / 1000).toStringAsFixed(0)}k', 
+            valor: Formateadores.formatearMonedaCompacta(c.fold<double>(0.0, (a, b) => a + b.precioTotal)),
             subtitulo: 'Inversión acumulada',
             icono: Icons.payments_rounded,
             color: Colors.blue.shade800,
           ),
+          orElse: () => const _MetricaLoading(),
+        ),
+        beneficios.maybeWhen(
+          data: (b) {
+            final activos = b.where((x) => x.estado != EstadoBeneficio.listo).toList();
+            final kilosSecandose = activos.where((x) => x.estado == EstadoBeneficio.secado).fold<double>(0, (sum, x) => sum + x.kilosCereza);
+            return _MetricaCard(
+              titulo: 'Beneficio', 
+              valor: '${activos.length} Lotes', 
+              subtitulo: kilosSecandose > 0 ? '${kilosSecandose.toStringAsFixed(0)}kg en secado' : 'Procesando café',
+              icono: Icons.settings_input_component_rounded,
+              color: Colors.orange.shade800,
+            );
+          },
           orElse: () => const _MetricaLoading(),
         ),
         insumos.maybeWhen(
@@ -258,6 +278,7 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
       children: [
         _BotonMiniBento(titulo: 'Gastos', icono: Icons.add_shopping_cart, color: Colors.blue, onTap: () => context.push('/gastos')),
         _BotonMiniBento(titulo: 'Nómina', icono: Icons.payments, color: Colors.teal, onTap: () => context.push('/trabajadores')),
+        _BotonMiniBento(titulo: 'Beneficio', icono: Icons.settings_input_component_rounded, color: Colors.orange.shade800, onTap: () => context.push('/proceso-cafe')),
         _BotonMiniBento(titulo: 'Animales', icono: Icons.pets, color: Colors.purple, onTap: () => context.go('/dashboard/animales')),
         _BotonMiniBento(titulo: 'Mapa', icono: Icons.map, color: Colors.brown, onTap: () => context.push('/mapa-finca')),
         _BotonMiniBento(titulo: 'Bodega', icono: Icons.inventory_2, color: Colors.blueGrey, onTap: () => context.push('/bodega')),

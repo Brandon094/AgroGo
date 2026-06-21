@@ -14,6 +14,9 @@ import 'package:agrogo/features/farms/presentation/pantalla_mis_fincas.dart';
 import 'package:agrogo/features/farms/presentation/pantalla_onboarding.dart';
 import 'package:agrogo/features/maps_and_lots/presentation/pantalla_mapa_global.dart';
 import 'package:agrogo/features/inventory_management/presentation/pantalla_bodega.dart';
+import 'package:agrogo/features/field_workers/presentation/pantalla_nomina_semanal.dart';
+
+import 'package:agrogo/features/inventory_management/presentation/pantalla_proceso_cafe.dart';
 
 class EnrutadorApp {
   static final GlobalKey<NavigatorState> _navigatorRaizKey = GlobalKey<NavigatorState>(debugLabel: 'raiz');
@@ -97,6 +100,11 @@ class EnrutadorApp {
         builder: (context, state) => const PantallaListaTrabajadores(),
       ),
       GoRoute(
+        path: '/nomina-semanal',
+        parentNavigatorKey: _navigatorRaizKey,
+        builder: (context, state) => const PantallaNominaSemanal(),
+      ),
+      GoRoute(
         path: '/gastos',
         parentNavigatorKey: _navigatorRaizKey,
         builder: (context, state) {
@@ -121,6 +129,11 @@ class EnrutadorApp {
         path: '/bodega',
         parentNavigatorKey: _navigatorRaizKey,
         builder: (context, state) => const PantallaBodega(),
+      ),
+      GoRoute(
+        path: '/proceso-cafe',
+        parentNavigatorKey: _navigatorRaizKey,
+        builder: (context, state) => const PantallaProcesoCafe(),
       ),
     ],
   );
