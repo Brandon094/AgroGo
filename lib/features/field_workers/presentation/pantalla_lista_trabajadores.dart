@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'providers/trabajadores_notifier.dart';
+import 'providers/gestion_administrativa_orchestrator.dart';
+import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
+import '../../maps_and_lots/domain/lote_model.dart';
+import '../domain/trabajador_model.dart';
+import '../data/registro_labor_isar_model.dart';
+import '../../../core/utils/formatters.dart';
 
-/// Pantalla que muestra el listado de trabajadores de la finca y gestiona la nómina del equipo.
 class PantallaListaTrabajadores extends ConsumerWidget {
   const PantallaListaTrabajadores({super.key});
 
@@ -11,322 +17,486 @@ class PantallaListaTrabajadores extends ConsumerWidget {
     final estadoTrabajadores = ref.watch(trabajadoresNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mi Equipo - Nómina'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 28.0),
-            tooltip: 'Actualizar equipo',
-            onPressed: () => ref.read(trabajadoresNotifierProvider.notifier).refresh(),
-          ),
-        ],
-      ),
-      body: estadoTrabajadores.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 64.0),
-                const SizedBox(height: 16.0),
-                Text(
-                  'Error al cargar el equipo:\n${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 24.0),
-                ElevatedButton(
-                  onPressed: () => ref.read(trabajadoresNotifierProvider.notifier).refresh(),
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF9FBF9), Colors.white],
           ),
         ),
-        data: (trabajadores) {
-          if (trabajadores.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    )
+                  ],
+                ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.people_outline, size: 100.0, color: Colors.grey),
-                    SizedBox(height: 24.0),
-                    Text(
-                      'No hay trabajadores registrados en tu equipo.\n¡Toca el botón flotante para agregar uno!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Mi Equipo',
+                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.people_alt_rounded, color: Theme.of(context).primaryColor),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () => context.push('/nomina-semanal'),
+                      icon: const Icon(Icons.receipt_long_rounded),
+                      label: const Text('VER LIQUIDACIÓN SEMANAL', style: TextStyle(fontWeight: FontWeight.w900)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade50,
+                        foregroundColor: const Color(0xFF00695C),
+                        elevation: 0,
+                        minimumSize: const Size(double.infinity, 56),
+                        side: BorderSide(color: const Color(0xFF00695C).withOpacity(0.2)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'GESTIÓN DE NÓMINA Y LABORES',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.teal, letterSpacing: 1.5),
                       ),
                     ),
                   ],
                 ),
               ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            itemCount: trabajadores.length,
-            itemBuilder: (context, indice) {
-              final trabajador = trabajadores[indice];
-              final esRecolector = trabajador.tipoTrabajador == 'Recolector';
-              final formatoTarifa = esRecolector
-                  ? '\$${trabajador.tarifaBase.toStringAsFixed(0)} por Kilo'
-                  : '\$${trabajador.tarifaBase.toStringAsFixed(0)} de Jornal';
-
-              return Card(
-                elevation: 4.0,
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  leading: CircleAvatar(
-                    radius: 28.0,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    child: Icon(
-                      Icons.person,
-                      size: 32.0,
-                      color: Theme.of(context).colorScheme.primary,
+            ),
+            estadoTrabajadores.when(
+              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              error: (error, stack) => SliverFillRemaining(child: Center(child: Text('Error: $error'))),
+              data: (trabajadores) {
+                if (trabajadores.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person_add_alt_1_rounded, size: 80, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('No hay personas en el equipo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => RepaintBoundary(
+                        child: _TarjetaTrabajador(trabajador: trabajadores[index]),
+                      ),
+                      childCount: trabajadores.length,
                     ),
                   ),
-                  title: Text(
-                    trabajador.nombreCompleto,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 6.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Rol: ${trabajador.tipoTrabajador}',
-                          style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 2.0),
-                        Text(
-                          'Tarifa: $formatoTarifa',
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 28.0),
-                    onPressed: () => _confirmarEliminacion(context, ref, trabajador),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _mostrarFormularioAgregar(context, ref),
-        tooltip: 'Registrar Trabajador',
-        child: const Icon(Icons.person_add, size: 28.0),
+        backgroundColor: const Color(0xFF00695C),
+        foregroundColor: Colors.white,
+        label: const Text('NUEVO TRABAJADOR', style: TextStyle(fontWeight: FontWeight.w900)),
+        icon: const Icon(Icons.person_add_rounded),
       ),
     );
   }
 
-  /// Muestra el modal de confirmación antes de eliminar un trabajador
-  void _confirmarEliminacion(BuildContext context, WidgetRef ref, dynamic trabajador) {
-    showDialog(
+  void _mostrarFormularioAgregar(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar trabajador?'),
-        content: Text('¿Estás seguro de que deseas retirar a ${trabajador.nombreCompleto} de la nómina?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(fontSize: 16.0)),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(trabajadoresNotifierProvider.notifier).eliminarTrabajador(trabajador.id);
-              Navigator.pop(context);
-            },
-            child: const Text('Retirar', style: TextStyle(color: Colors.red, fontSize: 16.0, fontWeight: FontWeight.bold)),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) => const _FormularioTrabajadorModal(),
+    );
+  }
+}
+
+class _TarjetaTrabajador extends ConsumerWidget {
+  final TrabajadorEntity trabajador;
+  const _TarjetaTrabajador({required this.trabajador});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final esRecolector = trabajador.tipoTrabajador == 'Recolector';
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: const Border(),
+        leading: CircleAvatar(
+          radius: 28,
+          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+          child: Icon(Icons.person_rounded, color: Theme.of(context).primaryColor, size: 28),
+        ),
+        title: Text(trabajador.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF37474F))),
+        subtitle: Text(
+          esRecolector 
+            ? 'Recolector • ${Formateadores.formatearMoneda(trabajador.tarifaBase)} / Kilo'
+            : 'Jornalero • ${Formateadores.formatearMoneda(trabajador.tarifaBase)} / Día',
+          style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+          onPressed: () => _confirmarEliminacion(context, ref),
+        ),
+        children: [
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF57C00),
+                      minimumSize: const Size(0, 56),
+                    ),
+                    onPressed: () => _mostrarFormLabor(context, ref),
+                    icon: const Icon(Icons.add_task_rounded),
+                    label: const Text('REGISTRAR LABOR'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// Despliega el BottomSheet con el formulario para registrar un nuevo trabajador
-  void _mostrarFormularioAgregar(BuildContext context, WidgetRef ref) {
+  void _mostrarFormLabor(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) => _FormularioRegistroLabor(trabajador: trabajador),
+    );
+  }
+
+  void _confirmarEliminacion(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar trabajador?'),
+        content: Text('Esta acción retirará a ${trabajador.nombreCompleto} de la nómina.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+          TextButton(
+            onPressed: () async {
+              await ref.read(trabajadoresNotifierProvider.notifier).eliminarTrabajador(trabajador.id);
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${trabajador.nombreCompleto} ha sido retirado'),
+                    backgroundColor: Colors.red.shade800,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: const Text('ELIMINAR', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
-      builder: (context) => const _FormularioTrabajadorModal(),
     );
   }
 }
 
-/// Widget interno que representa el formulario modal para registrar trabajadores
+class _FormularioRegistroLabor extends ConsumerStatefulWidget {
+  final TrabajadorEntity trabajador;
+  const _FormularioRegistroLabor({required this.trabajador});
+  @override
+  ConsumerState<_FormularioRegistroLabor> createState() => _FormularioRegistroLaborState();
+}
+
+class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLabor> {
+  final _kilosCtrl = TextEditingController();
+  Lote? _loteSeleccionado;
+  bool _conComida = false;
+  late String _tipoPago;
+  double _pagoEstimado = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tipoPago = widget.trabajador.tipoTrabajador == 'Recolector' ? 'porKilo' : 'jornalFijo';
+    _kilosCtrl.addListener(_recalcularPago);
+    
+    // Mostramos el pago inicial (especialmente útil para jornaleros)
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recalcularPago());
+  }
+
+  void _recalcularPago() {
+    setState(() {
+      _pagoEstimado = RegistroLaborIsarModel.calcularPago(
+        tipo: _tipoPago,
+        kilos: double.tryParse(_kilosCtrl.text),
+        tarifaBase: widget.trabajador.tarifaBase,
+        conAlimentacion: _conComida,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _kilosCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
+    final padding = MediaQuery.of(context).viewInsets.bottom;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Labor: ${widget.trabajador.nombreCompleto}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 24),
+          lotesAsync.maybeWhen(
+            data: (lotes) => DropdownButtonFormField<Lote>(
+              value: _loteSeleccionado,
+              decoration: const InputDecoration(labelText: 'Lote de trabajo', prefixIcon: Icon(Icons.landscape_rounded)),
+              items: lotes.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
+              onChanged: (v) => setState(() => _loteSeleccionado = v),
+            ),
+            orElse: () => const Text('Cargando lotes...'),
+          ),
+          if (widget.trabajador.tipoTrabajador == 'Recolector') ...[
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _tipoPago,
+              decoration: const InputDecoration(labelText: 'Sistema de Pago', prefixIcon: Icon(Icons.payments_rounded)),
+              items: const [
+                DropdownMenuItem(value: 'porKilo', child: Text('Por Kilo')),
+                DropdownMenuItem(value: 'porArroba', child: Text('Por Arroba (12.5 kg)')),
+              ],
+              onChanged: (v) {
+                setState(() => _tipoPago = v!);
+                _recalcularPago();
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _kilosCtrl, 
+              keyboardType: TextInputType.number, 
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                labelText: 'Cantidad recolectada', 
+                prefixIcon: const Icon(Icons.scale_rounded),
+                suffixText: _tipoPago == 'porKilo' ? 'Kilos' : 'Arrobas',
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(color: Colors.blueGrey.shade50, borderRadius: BorderRadius.circular(16)),
+            child: SwitchListTile(
+              title: const Text('¿Incluye Alimentación?', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('Se descuenta \$15,000 del pago'),
+              value: _conComida,
+              activeColor: Colors.teal,
+              onChanged: (v) {
+                setState(() => _conComida = v);
+                _recalcularPago();
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00695C).withOpacity(0.05),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFF00695C).withOpacity(0.2)),
+            ),
+            child: Column(
+              children: [
+                const Text('PAGO NETO PARA EL TRABAJADOR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1)),
+                const SizedBox(height: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    Formateadores.formatearMoneda(_pagoEstimado), 
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF00695C))
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () async {
+              if (_loteSeleccionado == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('⚠️ Por favor seleccione un lote'), backgroundColor: Colors.orange),
+                );
+                return;
+              }
+
+              final kilosStr = _kilosCtrl.text;
+              if (widget.trabajador.tipoTrabajador == 'Recolector' && kilosStr.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('⚠️ Por favor ingrese los kilos recolectados'), backgroundColor: Colors.orange),
+                );
+                return;
+              }
+
+              final kilos = double.tryParse(kilosStr);
+
+              await ref.read(gestionAdministrativaOrchestratorProvider.notifier).liquidarLaborDiaria(
+                trabajadorId: int.parse(widget.trabajador.id),
+                loteId: int.parse(_loteSeleccionado!.id),
+                tipoPago: _tipoPago,
+                kilos: kilos,
+                tarifaBase: widget.trabajador.tarifaBase,
+                conAlimentacion: _conComida,
+              );
+              
+              if (mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Labor diaria registrada con éxito'),
+                    backgroundColor: Color(0xFF00695C),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: const Text('GUARDAR REGISTRO'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FormularioTrabajadorModal extends ConsumerStatefulWidget {
   const _FormularioTrabajadorModal();
-
   @override
   ConsumerState<_FormularioTrabajadorModal> createState() => _FormularioTrabajadorModalState();
 }
 
 class _FormularioTrabajadorModalState extends ConsumerState<_FormularioTrabajadorModal> {
   final _formularioKey = GlobalKey<FormState>();
-  final _nombreControlador = TextEditingController();
-  final _tarifaControlador = TextEditingController();
-  String _tipoTrabajadorSeleccionado = 'Recolector';
+  final _nombreCtrl = TextEditingController();
+  final _tarifaCtrl = TextEditingController();
+  String _tipo = 'Recolector';
 
   @override
   void dispose() {
-    _nombreControlador.dispose();
-    _tarifaControlador.dispose();
+    _nombreCtrl.dispose();
+    _tarifaCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tecladoPadding = MediaQuery.of(context).viewInsets.bottom;
-
+    final padding = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 24.0 + tecladoPadding),
+      padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
       child: Form(
         key: _formularioKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Registrar Trabajador',
-                  style: TextStyle(
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const Divider(),
-            const SizedBox(height: 16.0),
-
-            // Nombre Completo
+            const Text('Nuevo Trabajador', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+            const SizedBox(height: 24),
             TextFormField(
-              controller: _nombreControlador,
-              style: const TextStyle(fontSize: 18.0),
-              decoration: InputDecoration(
-                labelText: 'Nombre Completo',
-                labelStyle: const TextStyle(fontSize: 16.0),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                prefixIcon: const Icon(Icons.person_outline),
-              ),
-              validator: (valor) {
-                if (valor == null || valor.trim().isEmpty) {
-                  return 'Por favor ingresa el nombre completo';
-                }
-                return null;
-              },
+              controller: _nombreCtrl, 
+              decoration: const InputDecoration(labelText: 'Nombre Completo', prefixIcon: Icon(Icons.person_outline_rounded)),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              validator: (v) => v!.isEmpty ? 'Ingrese el nombre' : null,
             ),
-            const SizedBox(height: 20.0),
-
-            // Tipo de Trabajador (Dropdown)
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              initialValue: _tipoTrabajadorSeleccionado,
-              style: const TextStyle(fontSize: 18.0, color: Colors.black87),
-              decoration: InputDecoration(
-                labelText: 'Tipo de Trabajo',
-                labelStyle: const TextStyle(fontSize: 16.0),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                prefixIcon: const Icon(Icons.work_outline),
-              ),
+              value: _tipo,
+              decoration: const InputDecoration(labelText: 'Tipo de Trabajo', prefixIcon: Icon(Icons.work_outline_rounded)),
               items: const [
                 DropdownMenuItem(value: 'Recolector', child: Text('Recolector')),
                 DropdownMenuItem(value: 'Jornalero', child: Text('Jornalero')),
               ],
-              onChanged: (valor) {
-                if (valor != null) {
-                  setState(() {
-                    _tipoTrabajadorSeleccionado = valor;
-                  });
-                }
-              },
+              onChanged: (v) => setState(() => _tipo = v!),
             ),
-            const SizedBox(height: 20.0),
-
-            // Tarifa Base
+            const SizedBox(height: 16),
             TextFormField(
-              controller: _tarifaControlador,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(fontSize: 18.0),
+              controller: _tarifaCtrl,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: _tipoTrabajadorSeleccionado == 'Recolector'
-                    ? 'Tarifa por Kilo (COP)'
-                    : 'Tarifa de Jornal diario (COP)',
-                labelStyle: const TextStyle(fontSize: 16.0),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                prefixIcon: const Icon(Icons.attach_money),
+                labelText: _tipo == 'Recolector' ? 'Tarifa por Kilo (COP)' : 'Tarifa por Día (COP)',
+                prefixIcon: const Icon(Icons.attach_money_rounded),
               ),
-              validator: (valor) {
-                if (valor == null || valor.isEmpty) {
-                  return 'Por favor ingresa la tarifa';
-                }
-                final tarifa = double.tryParse(valor);
-                if (tarifa == null || tarifa <= 0) {
-                  return 'Por favor ingresa un número válido mayor a 0';
-                }
-                return null;
-              },
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              validator: (v) => v!.isEmpty ? 'Ingrese la tarifa' : null,
             ),
-            const SizedBox(height: 28.0),
-
-            // Botón de Guardar
+            const SizedBox(height: 32),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56.0),
-              ),
-              onPressed: () {
+              onPressed: () async {
                 if (_formularioKey.currentState!.validate()) {
-                  ref.read(trabajadoresNotifierProvider.notifier).agregarTrabajador(
-                        nombreCompleto: _nombreControlador.text.trim(),
-                        tipoTrabajador: _tipoTrabajadorSeleccionado,
-                        tarifaBase: double.parse(_tarifaControlador.text),
-                      );
-                  Navigator.pop(context);
+                  await ref.read(trabajadoresNotifierProvider.notifier).agregarTrabajador(
+                    nombreCompleto: _nombreCtrl.text.trim(),
+                    tipoTrabajador: _tipo,
+                    tarifaBase: double.parse(_tarifaCtrl.text),
+                  );
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Trabajador registrado en el equipo'),
+                        backgroundColor: Color(0xFF00695C),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
                 }
               },
-              child: const Text(
-                'Guardar Trabajador',
-                style: TextStyle(fontSize: 18.0),
-              ),
+              child: const Text('GUARDAR TRABAJADOR'),
             ),
           ],
         ),

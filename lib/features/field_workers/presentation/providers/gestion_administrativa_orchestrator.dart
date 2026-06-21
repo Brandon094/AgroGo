@@ -72,21 +72,33 @@ class GestionAdministrativaOrchestrator extends _$GestionAdministrativaOrchestra
     }
   }
 
-  /// Obtiene el total acumulado por un trabajador en la semana actual.
-  Future<double> obtenerLiquidacionSemanal(int trabajadorId) async {
+  /// Obtiene el resumen de nómina de todos los trabajadores para la semana actual.
+  Future<List<ResumenTrabajadorNomina>> obtenerResumenNominaSemanal() async {
     final isar = ref.read(isarProvider);
+    final fincaIdStr = ref.read(fincaSeleccionadaProvider);
+    if (fincaIdStr == null) return [];
+    final fincaId = int.parse(fincaIdStr);
+
     final hoy = DateTime.now();
-    // Calcular el lunes de esta semana
     final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
     final fechaLunes = DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day);
 
     final labores = await isar.registroLaborIsarModels
         .filter()
-        .trabajadorIdEqualTo(trabajadorId)
+        .fincaIdEqualTo(fincaId)
         .fechaRegistroGreaterThan(fechaLunes)
         .findAll();
 
-    return labores.fold<double>(0.0, (sum, labor) => sum + labor.totalPagar);
+    // Agrupar por trabajador
+    final mapaResumen = <int, double>{};
+    for (final labor in labores) {
+      mapaResumen[labor.trabajadorId] = (mapaResumen[labor.trabajadorId] ?? 0.0) + labor.totalPagar;
+    }
+
+    return mapaResumen.entries.map((e) => ResumenTrabajadorNomina(
+      trabajadorId: e.key,
+      totalPagar: e.value,
+    )).toList();
   }
 
   /// PROYECCIÓN FASE 3: Interoperabilidad con ServiCarga
@@ -96,10 +108,17 @@ class GestionAdministrativaOrchestrator extends _$GestionAdministrativaOrchestra
     required double cantidadBultos,
   }) async {
     // TODO: Implementar url_launcher
-    // final fincaId = ref.read(fincaSeleccionadaProvider);
-    // final url = 'https://servicarga.web.app/solicitar?origen=$fincaId&carga=$cargaNombre&cantidad=$cantidadBultos';
-    
     // ignore: avoid_print
     print('LOGÍSTICA: Simulando solicitud a ServiCarga para $cantidadBultos bultos de $cargaNombre');
   }
+}
+
+class ResumenTrabajadorNomina {
+  final int trabajadorId;
+  final double totalPagar;
+
+  const ResumenTrabajadorNomina({
+    required this.trabajadorId,
+    required this.totalPagar,
+  });
 }

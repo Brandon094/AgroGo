@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/trabajadores_notifier.dart';
 import 'providers/gestion_administrativa_orchestrator.dart';
 import '../domain/trabajador_model.dart';
+import '../../../core/utils/formatters.dart';
 
 class PantallaNominaSemanal extends ConsumerWidget {
   const PantallaNominaSemanal({super.key});
@@ -16,7 +17,7 @@ class PantallaNominaSemanal extends ConsumerWidget {
       backgroundColor: const Color(0xFFF9FBF9),
       appBar: AppBar(
         title: const Text('Liquidación Semanal', style: TextStyle(fontWeight: FontWeight.w900)),
-        backgroundColor: const Color(0xFF00695C),
+        backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<ResumenTrabajadorNomina>>(
@@ -56,8 +57,13 @@ class PantallaNominaSemanal extends ConsumerWidget {
                       children: [
                         const Text('TOTAL NÓMINA DE LA SEMANA', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.5)),
                         const SizedBox(height: 8),
-                        Text('\$${totalGlobal.toStringAsFixed(0)}', 
-                          style: const TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Color(0xFF00695C))),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            Formateadores.formatearMoneda(totalGlobal), 
+                            style: const TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Color(0xFF00695C))
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -87,8 +93,10 @@ class PantallaNominaSemanal extends ConsumerWidget {
                             ),
                             title: Text(trabajador.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                             subtitle: const Text('Acumulado semana', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                            trailing: Text('\$${item.totalPagar.toStringAsFixed(0)}', 
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32))),
+                            trailing: Text(
+                              Formateadores.formatearMoneda(item.totalPagar), 
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32))
+                            ),
                           ),
                         );
                       },
