@@ -6,11 +6,9 @@ part of 'lote_mapa_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$loteMapaNotifierHash() => r'c9ed1aacf14cbd46f28174d1ab65744b1d45f75a';
+String _$loteMapaNotifierHash() => r'5484b5847c3b747d0cdc4a193469f42ae336c98a';
 
-/// Notificador de Riverpod que gestiona los puntos de dibujo, marcadores, polígono y cálculos de área.
-///
-/// Copied from [LoteMapaNotifier].
+/// See also [LoteMapaNotifier].
 @ProviderFor(LoteMapaNotifier)
 final loteMapaNotifierProvider =
     AutoDisposeNotifierProvider<LoteMapaNotifier, LoteMapaState>.internal(

@@ -19,7 +19,6 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos los datos reales para saber si el usuario ya cumplió la misión
     final fincas = ref.watch(fincasNotifierProvider).valueOrNull ?? [];
     final lotes = ref.watch(panelLotesNotifierProvider).valueOrNull ?? [];
     final insumos = ref.watch(insumosNotifierProvider).valueOrNull ?? [];
@@ -27,57 +26,72 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
     final equipo = ref.watch(trabajadoresNotifierProvider).valueOrNull ?? [];
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Tutor de Configuración', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF1B5E20),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-      ),
+      backgroundColor: const Color(0xFFF9FBF9),
       body: Column(
         children: [
+          // Header Estilo Premium
           Container(
-            padding: const EdgeInsets.all(20),
-            color: Colors.green.shade50,
+            padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+            ),
             child: Row(
               children: [
-                const Icon(Icons.psychology, size: 40, color: Color(0xFF1B5E20)),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: const Color(0xFF00695C).withOpacity(0.1), shape: BoxShape.circle),
+                  child: const Icon(Icons.psychology_alt_rounded, size: 40, color: Color(0xFF00695C)),
+                ),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    '¡Bienvenido, Patrón! Lo guiaré para dejar su finca lista en 5 minutos.',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Tutor AgroGo', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+                      Text('Configuración paso a paso', style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+
           Expanded(
-            child: Stepper(
-              type: StepperType.vertical,
-              currentStep: _pasoActual,
-              onStepTapped: (step) => setState(() => _pasoActual = step),
-              controlsBuilder: (context, details) => const SizedBox.shrink(), // Quitamos botones por defecto
-              steps: [
-                _pasoFinca(fincas),
-                _pasoLote(fincas, lotes),
-                _pasoBodega(lotes, insumos),
-                _pasoAgenda(insumos, tareas),
-                _pasoEquipo(tareas, equipo),
-              ],
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(primary: const Color(0xFF00695C)),
+              ),
+              child: Stepper(
+                type: StepperType.vertical,
+                currentStep: _pasoActual,
+                onStepTapped: (step) => setState(() => _pasoActual = step),
+                controlsBuilder: (context, details) => const SizedBox.shrink(),
+                elevation: 0,
+                steps: [
+                  _pasoFinca(fincas),
+                  _pasoLote(fincas, lotes),
+                  _pasoBodega(lotes, insumos),
+                  _pasoAgenda(insumos, tareas),
+                  _pasoEquipo(tareas, equipo),
+                ],
+              ),
             ),
           ),
+
           if (equipo.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B5E20),
-                  minimumSize: const Size(double.infinity, 64),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: const Color(0xFF00695C),
+                  minimumSize: const Size(double.infinity, 70),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  elevation: 8,
                 ),
                 onPressed: () => context.go('/dashboard'),
-                child: const Text('¡TERMINAR TUTORIAL Y IR AL INICIO!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: const Text('¡LISTO! IR AL DASHBOARD', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
               ),
             ),
         ],
@@ -86,12 +100,12 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
   }
 
   Step _pasoFinca(List fincas) => Step(
-    title: const Text('Misión 1: Registrar su Finca'),
+    title: const Text('Misión 1: Registro Inicial', style: TextStyle(fontWeight: FontWeight.bold)),
     content: _ContenidoMision(
-      descripcion: 'Toda gran administración empieza por darle nombre y ubicación a la tierra. Vamos a crear su primera propiedad.',
-      icono: Icons.home_work,
+      descripcion: 'Dele un nombre y ubicación a su propiedad para empezar la gestión.',
+      icono: Icons.home_work_rounded,
       completado: fincas.isNotEmpty,
-      botonLabel: 'CREAR MI FINCA',
+      botonLabel: 'CREAR MI PRIMERA FINCA',
       onTap: () => _mostrarDialogoFinca(),
     ),
     isActive: _pasoActual == 0,
@@ -99,12 +113,12 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
   );
 
   Step _pasoLote(List fincas, List lotes) => Step(
-    title: const Text('Misión 2: El Mapa Satelital'),
+    title: const Text('Misión 2: Mapa Satelital', style: TextStyle(fontWeight: FontWeight.bold)),
     content: _ContenidoMision(
-      descripcion: 'Dibuje su primer lote de café o potrero. AgroGo calculará las hectáreas exactas por usted.',
-      icono: Icons.map,
+      descripcion: 'Dibuje su primer lote de café o potrero para calcular las hectáreas.',
+      icono: Icons.map_rounded,
       completado: lotes.isNotEmpty,
-      botonLabel: 'IR AL MAPA Y DIBUJAR',
+      botonLabel: 'DIBUJAR EN EL MAPA',
       onTap: () {
         if (fincas.isEmpty) return;
         ref.read(fincaSeleccionadaProvider.notifier).seleccionar(fincas.first.id);
@@ -116,12 +130,12 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
   );
 
   Step _pasoBodega(List lotes, List insumos) => Step(
-    title: const Text('Misión 3: Cargar la Bodega'),
+    title: const Text('Misión 3: Cargar Inventario', style: TextStyle(fontWeight: FontWeight.bold)),
     content: _ContenidoMision(
-      descripcion: 'Registre los bultos de abono o purina que tiene guardados para controlar su inventario.',
-      icono: Icons.inventory,
+      descripcion: 'Registre los bultos de abono o herramientas que tiene en su bodega.',
+      icono: Icons.inventory_2_rounded,
       completado: insumos.isNotEmpty,
-      botonLabel: 'INGRESAR A BODEGA',
+      botonLabel: 'ABRIR MI BODEGA',
       onTap: () => context.push('/bodega'),
     ),
     isActive: _pasoActual == 2,
@@ -129,12 +143,12 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
   );
 
   Step _pasoAgenda(List insumos, List tareas) => Step(
-    title: const Text('Misión 4: Su primera Tarea'),
+    title: const Text('Misión 4: Programar Labores', style: TextStyle(fontWeight: FontWeight.bold)),
     content: _ContenidoMision(
-      descripcion: 'Agende una fumigación o abonada. El sistema le avisará cuando llegue el día.',
-      icono: Icons.calendar_month,
+      descripcion: 'Agende una fumigación o abonada. El sistema le notificará.',
+      icono: Icons.calendar_month_rounded,
       completado: tareas.isNotEmpty,
-      botonLabel: 'ABRIR AGENDA',
+      botonLabel: 'USAR LA AGENDA',
       onTap: () => context.go('/agenda'),
     ),
     isActive: _pasoActual == 3,
@@ -142,12 +156,12 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
   );
 
   Step _pasoEquipo(List tareas, List equipo) => Step(
-    title: const Text('Misión 5: El Equipo de Trabajo'),
+    title: const Text('Misión 5: Equipo Humano', style: TextStyle(fontWeight: FontWeight.bold)),
     content: _ContenidoMision(
-      descripcion: 'Registre a sus trabajadores. Con ellos podrá llevar el control de kilos y jornales.',
-      icono: Icons.people,
+      descripcion: 'Agregue a sus trabajadores para liquidar sus pagos y recolección.',
+      icono: Icons.people_alt_rounded,
       completado: equipo.isNotEmpty,
-      botonLabel: 'CONFIGURAR EQUIPO',
+      botonLabel: 'REGISTRAR TRABAJADOR',
       onTap: () => context.push('/trabajadores'),
     ),
     isActive: _pasoActual == 4,
@@ -161,38 +175,23 @@ class _PantallaOnboardingState extends ConsumerState<PantallaOnboarding> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Registro de Finca'),
+        title: const Text('Nueva Finca', style: TextStyle(fontWeight: FontWeight.w900)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: nombreCtrl, 
-              decoration: const InputDecoration(
-                labelText: 'Nombre de su Finca',
-                hintText: 'Ej: El Cafetal',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            TextField(controller: nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre de su Finca', prefixIcon: Icon(Icons.business_rounded))),
             const SizedBox(height: 16),
-            TextField(
-              controller: ubicacionCtrl, 
-              decoration: const InputDecoration(
-                labelText: 'Vereda / Ubicación',
-                hintText: 'Ej: Vereda La Linda',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            TextField(controller: ubicacionCtrl, decoration: const InputDecoration(labelText: 'Vereda / Ubicación', prefixIcon: Icon(Icons.location_on_rounded))),
           ],
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(minimumSize: const Size(120, 50)),
             onPressed: () async {
               if (nombreCtrl.text.isNotEmpty) {
-                await ref.read(fincasNotifierProvider.notifier).agregarFinca(
-                  nombre: nombreCtrl.text,
-                  vereda: ubicacionCtrl.text,
-                );
+                await ref.read(fincasNotifierProvider.notifier).agregarFinca(nombre: nombreCtrl.text, vereda: ubicacionCtrl.text);
                 if (mounted) {
                   Navigator.pop(context);
                   setState(() => _pasoActual = 1);
@@ -214,38 +213,37 @@ class _ContenidoMision extends StatelessWidget {
   final String botonLabel;
   final VoidCallback onTap;
 
-  const _ContenidoMision({
-    required this.descripcion,
-    required this.icono,
-    required this.completado,
-    required this.botonLabel,
-    required this.onTap,
-  });
+  const _ContenidoMision({required this.descripcion, required this.icono, required this.completado, required this.botonLabel, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(descripcion, style: const TextStyle(fontSize: 15, color: Colors.black87)),
-        const SizedBox(height: 16),
+        Text(descripcion, style: const TextStyle(fontSize: 16, color: Color(0xFF37474F), fontWeight: FontWeight.w500)),
+        const SizedBox(height: 20),
         if (completado)
-          Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 30),
-              const SizedBox(width: 12),
-              const Text('¡Misión Cumplida!', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 16)),
-            ],
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(16)),
+            child: const Row(
+              children: [
+                Icon(Icons.verified_rounded, color: Colors.green, size: 28),
+                SizedBox(width: 12),
+                Text('¡Misión Cumplida!', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.green)),
+              ],
+            ),
           )
         else
           ElevatedButton.icon(
             onPressed: onTap,
             icon: Icon(icono),
-            label: Text(botonLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(botonLabel, style: const TextStyle(fontWeight: FontWeight.w900)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange.shade800,
+              backgroundColor: const Color(0xFFF57C00),
               foregroundColor: Colors.white,
-              minimumSize: const Size(200, 50),
+              minimumSize: const Size(double.infinity, 60),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
           ),
       ],

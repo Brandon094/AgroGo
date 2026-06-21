@@ -186,10 +186,22 @@ class _FormFincaModalState extends ConsumerState<_FormFincaModal> {
           ),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_nombreCtrl.text.isNotEmpty) {
-                ref.read(fincasNotifierProvider.notifier).agregarFinca(nombre: _nombreCtrl.text, vereda: _veredaCtrl.text);
-                Navigator.pop(context);
+                await ref.read(fincasNotifierProvider.notifier).agregarFinca(
+                  nombre: _nombreCtrl.text, 
+                  vereda: _veredaCtrl.text
+                );
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('¡Finca guardada con éxito!'),
+                      backgroundColor: Color(0xFF00695C),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
             },
             child: const Text('GUARDAR PROPIEDAD'),
