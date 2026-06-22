@@ -10,6 +10,14 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 
 ---
 
+## 🔴 Fase 0: Autenticación e Identidad (SSO)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 0.1 | Login Google | Tocar botón de Google y elegir cuenta. | Redirección automática al Dashboard/Onboarding. |
+| 0.2 | Persistencia | Cerrar app y volver a abrir. | Debe entrar directo sin pedir login de nuevo. |
+| 0.3 | Logout | Cerrar sesión desde el perfil. | Redirección inmediata a la Pantalla de Login. |
+| 0.4 | Guardas de Ruta | Intentar entrar a `/lotes` sin estar logueado. | El sistema debe bloquear el acceso y mandar a `/login`. |
+
 ## 🟢 Fase 1: Mapeo GIS y Precisión
 | ID | Caso de Prueba | Acción | Resultado Esperado |
 |:---|:---|:---|:---|

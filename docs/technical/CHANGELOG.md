@@ -4,6 +4,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.3.0] - 2024-06-21
+### Añadido
+- **Módulo de Autenticación Unificada**: Integración con Firebase Auth y Google Sign-In para el Ecosistema "Go".
+- **Enrutador Inteligente**: Redirección automática al Login basada en el estado de autenticación de Riverpod.
+- **Identidad Única (SSO)**: Preparado para interoperar con RutaGo y CargoGo mediante el mismo UID.
+- **Soporte Multi-Plataforma**: Configuración oficial para Android (llaves SHA) e iOS (Info.plist).
+
+### Cambiado
+- **Estructura de Documentación**: Migración a estándar "Senior" con carpetas `/technical` y `/product`.
+- **Priorización de Plataformas**: Decisión estratégica de enfocar el desarrollo en Android e iOS para optimizar la experiencia GIS y Offline, posponiendo Web debido a compatibilidad de Isar con JavaScript.
+
+---
+
 ## [0.2.5] - 2024-06-20 (Beneficio y Venta)
 ### Añadido
 - **Motor de Venta Directa**: Opción de vender café mojado o en cereza saltando el secado.

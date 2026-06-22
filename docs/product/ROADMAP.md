@@ -20,11 +20,12 @@ Este documento detalla las fases de evolución para convertir a AgroGo en la pla
 
 ---
 
-## ☁️ Fase 3: AgroGo Network (Corto Plazo)
-*Objetivo: Sincronización y colaboración.*
+## ☁️ Fase 3: AgroGo Network & SSO (En Curso)
+*Objetivo: Integración con el ecosistema y sincronización.*
 
-1.  **Sincronización en la Nube**: Respaldo automático en Supabase/Firestore.
-2.  **Modo Administrador vs Dueño**: Permite que el capataz registre y el dueño audite desde otra ciudad.
+1.  [x] **Identidad Única (SSO)**: Login unificado con RutaGo vía Firebase Auth.
+2.  [ ] **Sincronización Firestore**: Respaldo automático de fincas y lotes.
+3.  [ ] **Modo Multi-Rol**: Acceso diferenciado para dueños y capataces.
 3.  **Alertas Push**: Notificaciones de tareas vencidas o clima extremo.
 
 ---

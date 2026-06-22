@@ -21,11 +21,12 @@ Este documento constituye la especificación técnica formal del ERP Agrícola d
 
 ---
 
-## 🛰️ 3. Infraestructura y Sensores
-*   **Posicionamiento:** GPS/GNSS con filtrado de precisión milimétrica.
-*   **Mapas:** Google Maps SDK con soporte para capas híbridas y offline.
-*   **Persistencia:** Sistema de archivos local cifrado (path_provider).
-*   **Voz:** Speech-to-Text integrado para dictado de registros.
+## 🛰️ 3. Infraestructura e Identidad
+*   **Autenticación**: Firebase Auth con Google Sign-In (SSO Unificado).
+*   **Posicionamiento**: GPS/GNSS con filtrado de precisión milimétrica.
+*   **Mapas**: Google Maps SDK con soporte para capas híbridas y offline.
+*   **Persistencia**: Isar Database con almacenamiento local ACID.
+*   **Voz**: Speech-to-Text integrado para dictado de registros.
 
 ---
 

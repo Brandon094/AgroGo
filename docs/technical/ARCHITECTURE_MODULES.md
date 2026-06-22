@@ -4,10 +4,15 @@ Este documento proporciona una visión profunda de la ingeniería detrás de **A
 
 ---
 
-## 🏗️ 1. Arquitectura de Datos Offline-First
-A diferencia de RutaGo que usa RTDB para tiempo real, AgroGo prioriza la supervivencia de los datos en zonas sin señal:
+## 🏗️ 1. Arquitectura de Datos e Identidad
+AgroGo combina la potencia de la nube para identidad con la resiliencia local para datos:
 
-### 1.1 Isar Database (Motor Local)
+### 1.1 Motor de Identidad Unificada (SSO)
+*   **Tecnología**: Firebase Auth + Google Sign-In.
+*   **Propósito**: Garantizar que el usuario tenga una única cuenta para todo el Ecosistema "Go" (RutaGo, AgroGo, CargoGo).
+*   **Seguridad**: Enrutador protegido mediante guardas de Riverpod que impiden el acceso a datos sensibles sin una sesión activa.
+
+### 1.2 Isar Database (Motor Local Offline-First)
 *   **Propósito**: Almacenamiento de alta velocidad para registros financieros, lotes y nómina.
 *   **Justificación**: El caficultor no puede depender de una conexión para anotar sus gastos. Isar ofrece transacciones ACID atómicas.
 *   **Patrón**: Colecciones NoSQL con mappers automáticos a Entidades.

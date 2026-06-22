@@ -118,6 +118,19 @@ Refactorizamos la navegación para priorizar la simplicidad y el control central
 
 ---
 
+## 🔐 Integración de Ecosistema Go & Auth (Nivel Senior)
+
+Hemos unificado AgroGo con la suite "Go" mediante una capa de seguridad profesional:
+- **Firebase Auth & SSO**: Implementación de inicio de sesión único. El usuario utiliza la misma cuenta de Google para RutaGo y AgroGo.
+- **Enrutador con Guardas**: El `EnrutadorApp` ahora protege todas las rutas. Si el usuario no está autenticado, el sistema lo redirige automáticamente a la pantalla de Login.
+- **Configuración Multi-Plataforma**: 
+  - **Android**: Preparado para vinculación de llaves SHA.
+  - **iOS**: Configurado el `Info.plist` con el esquema de URL de Google.
+  - **Web**: Soporte inicial configurado, pospuesto para fase de optimización de base de datos.
+- **UI de Login**: Pantalla de acceso diseñada con el estilo "Emerald Premium" y feedback de carga asíncrono.
+
+---
+
 ## Resultados de Validación y Pruebas
 
 ### 1. Generación de código (`build_runner`)
