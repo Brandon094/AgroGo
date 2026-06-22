@@ -9,6 +9,20 @@ class PantallaLogin extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authController = ref.watch(authControllerProvider);
 
+    // Escuchar errores
+    ref.listen(authControllerProvider, (prev, next) {
+      next.whenOrNull(
+        error: (e, st) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al iniciar sesión: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+      );
+    });
+
     return Scaffold(
       body: Container(
         width: double.infinity,

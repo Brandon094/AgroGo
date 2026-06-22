@@ -5,7 +5,11 @@ import '../domain/usuario_model.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  
+  // Agregamos el clientId de tipo 3 (Web) del google-services.json para asegurar el idToken
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '175264872585-abombvqq36bqqeet86onnhkf7uep6c60.apps.googleusercontent.com',
+  );
 
   @override
   Stream<Usuario?> get alAutenticar {

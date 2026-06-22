@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // Se activará tras correr flutterfire configure
+
 import 'core/routing/enrutador_app.dart';
 import 'core/theme/tema_app.dart';
 
@@ -24,6 +27,12 @@ final isarProvider = Provider<Isar>((ref) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicialización de Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await initializeDateFormatting('es_CO', null);
   
   // Inicialización de la base de datos Isar
@@ -55,15 +64,17 @@ void main() async {
   );
 }
 
-class AgroGoApp extends StatelessWidget {
+class AgroGoApp extends ConsumerWidget {
   const AgroGoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enrutador = ref.watch(enrutadorProvider);
+    
     return MaterialApp.router(
       title: 'AgroGo',
       theme: TemaApp.temaClaro,
-      routerConfig: EnrutadorApp.enrutador,
+      routerConfig: enrutador,
       debugShowCheckedModeBanner: false,
     );
   }
