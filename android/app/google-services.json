@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "175264872585",
+    "firebase_url": "https://trasnporte-nataga---la-plata-default-rtdb.firebaseio.com",
+    "project_id": "trasnporte-nataga---la-plata",
+    "storage_bucket": "trasnporte-nataga---la-plata.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175264872585:android:57492986c90b764af72e58",
+        "android_client_info": {
+          "package_name": "com.chopcode.agrogo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175264872585-l3i7ud8jachcj9bas13bplgkcsd00dak.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chopcode.agrogo",
+            "certificate_hash": "8aaf0e3b3021e6a29792d03586fb0a375c295c64"
+          }
+        },
+        {
+          "client_id": "175264872585-abombvqq36bqqeet86onnhkf7uep6c60.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpxgTKGvh3jJYylT6Qr6p2amgHmMzCTZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175264872585-abombvqq36bqqeet86onnhkf7uep6c60.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "175264872585-7apq8v0tjecg3qqleein6s2n4qfd84ic.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.chopcode.agrogo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175264872585:android:3c22326bb5c7bfcff72e58",
+        "android_client_info": {
+          "package_name": "com.chopcode.rutago.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175264872585-uqisjd3k5jll7860tedkf6cmhsgu69f7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chopcode.rutago.app",
+            "certificate_hash": "8aaf0e3b3021e6a29792d03586fb0a375c295c64"
+          }
+        },
+        {
+          "client_id": "175264872585-abombvqq36bqqeet86onnhkf7uep6c60.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpxgTKGvh3jJYylT6Qr6p2amgHmMzCTZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175264872585-abombvqq36bqqeet86onnhkf7uep6c60.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "175264872585-7apq8v0tjecg3qqleein6s2n4qfd84ic.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.chopcode.agrogo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
