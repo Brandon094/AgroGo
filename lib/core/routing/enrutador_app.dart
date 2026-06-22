@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:agrogo/core/routing/pantalla_principal_shell.dart';
 import 'package:agrogo/features/maps_and_lots/presentation/pantalla_panel_lotes.dart';
 import 'package:agrogo/features/maps_and_lots/presentation/pantalla_mapa_lotes.dart';
@@ -15,16 +16,33 @@ import 'package:agrogo/features/farms/presentation/pantalla_onboarding.dart';
 import 'package:agrogo/features/maps_and_lots/presentation/pantalla_mapa_global.dart';
 import 'package:agrogo/features/inventory_management/presentation/pantalla_bodega.dart';
 import 'package:agrogo/features/field_workers/presentation/pantalla_nomina_semanal.dart';
-
 import 'package:agrogo/features/inventory_management/presentation/pantalla_proceso_cafe.dart';
+import 'package:agrogo/features/auth/presentation/screens/pantalla_login.dart';
+import 'package:agrogo/features/auth/presentation/providers/auth_provider.dart';
 
-class EnrutadorApp {
-  static final GlobalKey<NavigatorState> _navigatorRaizKey = GlobalKey<NavigatorState>(debugLabel: 'raiz');
+part 'enrutador_app.g.dart';
 
-  static final GoRouter enrutador = GoRouter(
-    navigatorKey: _navigatorRaizKey,
-    initialLocation: '/',
+@riverpod
+GoRouter enrutador(EnrutadorRef ref) {
+  final authState = ref.watch(alAutenticarProvider);
+  final GlobalKey<NavigatorState> navigatorRaizKey = GlobalKey<NavigatorState>(debugLabel: 'raiz');
+
+  return GoRouter(
+    navigatorKey: navigatorRaizKey,
+    initialLocation: '/login',
+    redirect: (context, state) {
+      final logueado = authState.valueOrNull != null;
+      final enLogin = state.matchedLocation == '/login';
+
+      if (!logueado && !enLogin) return '/login';
+      if (logueado && enLogin) return '/';
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const PantallaLogin(),
+      ),
       // Selección de Finca (Root)
       GoRoute(
         path: '/',
@@ -96,17 +114,17 @@ class EnrutadorApp {
       // Rutas Independientes (Full Screen)
       GoRoute(
         path: '/trabajadores',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaListaTrabajadores(),
       ),
       GoRoute(
         path: '/nomina-semanal',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaNominaSemanal(),
       ),
       GoRoute(
         path: '/gastos',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) {
           final action = state.uri.queryParameters['action'];
           return PantallaPanelCostos(
@@ -117,22 +135,22 @@ class EnrutadorApp {
       ),
       GoRoute(
         path: '/mapa-finca',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaMapaFinca(),
       ),
       GoRoute(
         path: '/mapa-global',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaMapaGlobal(),
       ),
       GoRoute(
         path: '/bodega',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaBodega(),
       ),
       GoRoute(
         path: '/proceso-cafe',
-        parentNavigatorKey: _navigatorRaizKey,
+        parentNavigatorKey: navigatorRaizKey,
         builder: (context, state) => const PantallaProcesoCafe(),
       ),
     ],
