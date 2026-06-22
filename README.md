@@ -1,81 +1,55 @@
-# 🚜 AgroGo: ERP Agrícola de Grado GIS y Multi-Finca
+# 📖 Enciclopedia Técnica Integral - AgroGo v0.2.5 Stable
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
-![Riverpod](https://img.shields.io/badge/Riverpod-2.x-teal)
-![Isar](https://img.shields.io/badge/Isar_Database-Offline_First-orange)
-![Clean Architecture](https://img.shields.io/badge/Clean-Architecture-success)
-![ChopCode Solutions](https://img.shields.io/badge/By-ChopCode_Solutions-black)
-
-**AgroGo** es un sistema de gestión integral (ERP) móvil diseñado para revolucionar la administración de múltiples fincas y proyectos agropecuarios. Transformamos el "cuaderno de la finca" en un asistente inteligente predictivo que funciona **100% Offline**, integrando tecnología de precisión geográfica (GIS) y automatización de procesos.
+Bienvenido al centro de conocimiento oficial de **ChopCode Solutions**. Este documento sirve como punto de entrada de alto nivel para comprender **AgroGo**, el ERP agrícola diseñado para revolucionar la productividad rural en la región de Natagá y el Huila.
 
 ---
 
-## 🎯 Pilares Estratégicos
-
-1. **Arquitectura Multi-Finca (Multi-Tenant Local):** Administre múltiples propiedades de forma independiente. Los datos están blindados por finca, garantizando un aislamiento total de finanzas y operaciones.
-2. **Motor GIS Profesional:** Mapeo satelital avanzado con cálculos de área reales, zonificación de suelo y portafolio global de propiedades.
-3. **Integración 360° (Cerebro de Datos):** Los módulos se comunican automáticamente. Marcar una labor en la agenda afecta instantáneamente la contabilidad y descuenta insumos del inventario.
-4. **UX de Sol Intenso:** Interfaz de alto contraste, botones gigantes y asistente de voz para operar en el campo con las manos ocupadas.
-
----
-
-## 🚀 Módulos y Capacidades
-
-### 🏘️ Gestión Multi-Finca y Portafolio
-*   **Switch Maestro:** Conmute entre propiedades con un solo toque.
-*   **Visor de Portafolio:** Mapa global con inteligencia de negocios (Agregación BI) que muestra centroides y áreas totales de todas sus tierras.
-
-### 🗺️ Zonificación e Ingeniería de Suelo
-*   **Mapeo Híbrido:** Capture linderos tocando la pantalla o caminando el lote (Modo GPS Campo).
-*   **Guardián de Precisión:** Filtro satelital que bloquea capturas si el margen de error es > 5m.
-*   **Pines Dinámicos:** Marcadores arrastrables para ajustes milimétricos y capas pasivas para evitar solapamiento de lotes.
-*   **Clasificación de Suelo:** Categorización por usos (Agrícola, Pecuario, Forestal, Infraestructura).
-
-### 🧠 Automatización 360 (Fase 2.5)
-*   **Vínculo Financiero:** Registro de gastos "In Situ" al completar tareas de la agenda.
-*   **Bodega Virtual:** Gestión de inventarios con alertas de bajo stock y descuento automático al reportar labores.
-*   **Agenda Inteligente:** Generación automática de recordatorios de salud animal y ciclos de cosecha.
-
-### 🐖 Módulo Pecuario Integral
-*   Control de Cerdos, Aves y Peces.
-*   Historial de sanidad y seguimiento de alimentación vinculado a costos.
-
-### 🎙️ Asistente de Voz (IA Local)
-*   Entrada de datos manos libres mediante procesamiento de lenguaje natural para registros rápidos.
+## 🏗️ 1. Visión y Propósito Estratégico
+AgroGo es una solución de **Gestión Transaccional Offline-First**. Su objetivo es integrar la administración total de la finca bajo un cerebro digital único:
+1.  **Gestión GIS**: Zonificación de tierra y cálculo de áreas de precisión.
+2.  **Automatización 360°**: Vínculo entre Agenda, Gastos e Inventarios.
+3.  **Trazabilidad de Beneficio**: Control total del ciclo del café desde cereza hasta pergamino seco.
 
 ---
 
-## 🏗️ Stack Tecnológico
+## 👥 2. Modelo de Actores y Permisos (RBAC)
+El sistema opera bajo un modelo de **Aislamiento Multi-Finca**, permitiendo que un solo administrador gestione múltiples unidades productivas:
 
-*   **Framework:** Flutter (3.12+).
-*   **Gestión de Estado:** `riverpod` (Generator).
-*   **Persistencia:** `isar` (NoSQL) con transacciones ACID atómicas.
-*   **GIS:** `google_maps_flutter` + `maps_toolkit`.
-*   **Voz:** `speech_to_text`.
-*   **Arquitectura:** Clean Architecture estructurada por Features en español.
+*   **Administrador / Productor**: Control total de lotes, nómina, finanzas y bodega.
+*   **Operador de Campo**: (Fase 3) Visualiza tareas asignadas y reporta avances.
+*   **Ecosistema Go**: (Integración) Identidad única para interoperar con RutaGo y CargoGo.
 
 ---
 
-## ⚙️ Instalación y Compilación
+## 📦 3. Desglose de Motores y Módulos Core
 
-1.  **Dependencias:**
-    ```bash
-    flutter pub get
-    ```
-
-2.  **Generación de Código:**
-    ```bash
-    flutter pub run build_runner build --delete-conflicting-outputs
-    ```
-
-3.  **Ejecutar:**
-    ```bash
-    flutter run
-    ```
-
-*(Nota: Requiere configuración de permisos de ubicación y micrófono, además de la API Key de Google Maps).*
+| Módulo | Responsabilidad Técnica | Aplicación |
+|:---|:---|:---|
+| **GIS Engine** | Mapeo satelital, geocercas y cálculos de área. | Lotes |
+| **Financial Engine** | Cálculo de costos COP, amortización y flujos. | Finanzas |
+| **Inventory Engine** | Bodega triple categoría y alertas de stock. | Insumos |
+| **Beneficio Engine** | Motor de transformación de estados del café. | Producción |
+| **Payroll Engine** | Liquidación dinámica por jornal, kilo o arroba. | Nómina |
+| **Offline Sync** | Persistencia Isar Database con transacciones ACID. | Core |
 
 ---
 
-**Desarrollado por ChopCode Solutions.**  
-*Llevando la ingeniería civil y la inteligencia de datos al corazón del campo.*
+## 🛠️ 4. Ecosistema de Documentación (Nivel Senior)
+
+### 📗 Dominio Técnico (Engineering)
+*   [**Arquitectura Detallada**](./docs/technical/ARCHITECTURE_MODULES.md): Estructura Isar y Clean Architecture.
+*   [**Estándares de Código**](./docs/technical/DEVELOPER_GUIDELINES.md): Reglas de oro (Dart/Flutter) y Clean Code.
+*   [**Diccionario de Datos**](./docs/technical/DICCIONARIO_DATOS.md): Mapeo del esquema Isar NoSQL local.
+*   [**Ficha Técnica**](./docs/technical/FICHA_TECNICA.md): Especificaciones de infraestructura y stack tecnológico.
+*   [**Historial de Cambios**](./docs/technical/CHANGELOG.md): Registro de versiones y evoluciones.
+*   [**Plan de Pruebas**](./docs/technical/QA_PLAN.md): Protocolos de certificación y QA.
+
+### 📘 Dominio de Producto (Business)
+*   [**Master Plan Ecosistema**](./docs/product/ECOSYSTEM_MASTER_PLAN.md): Visión estratégica de AgroGo en la suite Go.
+*   [**Especificación de Requisitos**](./docs/product/REQUISITOS.md): RF, RNF y reglas de negocio.
+*   [**Identidad Visual**](./docs/product/BRANDING.md): Guía de estilo Premium Emerald.
+*   [**Hoja de Ruta (Roadmap)**](./docs/product/ROADMAP.md): Fases de expansión y AgroGo Network.
+
+---
+**© 2026 Chop Code Solutions - Ingeniería para la Productividad Rural**  
+**Desarrollador Lead: Brandon Daza Cerquera**
