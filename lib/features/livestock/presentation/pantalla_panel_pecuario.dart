@@ -13,6 +13,7 @@ class PantallaPanelPecuario extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final estadoEspecies = ref.watch(pecuarioNotifierProvider);
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
 
     return Scaffold(
       body: Container(
@@ -59,33 +60,82 @@ class PantallaPanelPecuario extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    estadoEspecies.maybeWhen(
-                      data: (especies) {
-                        final total = especies.fold(0, (sum, item) => sum + item.cantidadActual);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A1B9A), Color(0xFF8E24AA)],
+
+                    // VALIDACIÓN GLOBAL DE INFRAESTRUCTURA
+                    lotesAsync.when(
+                      data: (lotes) {
+                        final tieneInfra = lotes.any((l) => l.uso == TipoUsoLote.infraestructura || l.uso == TipoUsoLote.pecuario);
+                        
+                        if (!tieneInfra) {
+                          return Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: Colors.orange.shade200),
                             ),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Censo Total',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+                                    const SizedBox(width: 12),
+                                    Text('Misión Pendiente', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange.shade900)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Para tener animales debe existir un lugar donde alojarlos. Primero dibuje sus corrales, cocheras o lagos en el mapa.',
+                                  style: TextStyle(fontSize: 13, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: () => context.push('/lotes/nuevo-lote?tipo=infraestructura'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange, 
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  ),
+                                  icon: const Icon(Icons.map_rounded),
+                                  label: const Text('IR AL MAPA AHORA'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Si tiene infraestructura, mostramos el censo total normal
+                        return estadoEspecies.maybeWhen(
+                          data: (especies) {
+                            final total = especies.fold(0, (sum, item) => sum + item.cantidadActual);
+                            return Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF6A1B9A), Color(0xFF8E24AA)],
+                                ),
+                                borderRadius: BorderRadius.circular(24),
                               ),
-                              Text(
-                                '$total',
-                                style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Censo Total',
+                                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    '$total',
+                                    style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            );
+                          },
+                          orElse: () => const SizedBox.shrink(),
                         );
                       },
-                      orElse: () => const SizedBox.shrink(),
+                      loading: () => const LinearProgressIndicator(),
+                      error: (_, __) => const SizedBox.shrink(),
                     ),
                   ],
                 ),
@@ -156,9 +206,13 @@ class _TarjetaAnimal extends ConsumerWidget {
 
     switch (especie.tipoEspecie) {
       case 'Cerdo': icono = Icons.savings_rounded; color = Colors.pink; break;
-      case 'Gallina':
-      case 'Pollo': icono = Icons.egg_rounded; color = Colors.orange; break;
+      case 'Vaca / Toro': icono = Icons.agriculture_rounded; color = Colors.brown; break;
+      case 'Gallina / Pollo': icono = Icons.egg_rounded; color = Colors.orange; break;
+      case 'Caballo': icono = Icons.directions_run_rounded; color = Colors.amber.shade900; break;
+      case 'Oveja': icono = Icons.cloud_rounded; color = Colors.grey; break;
+      case 'Chivo / Cabra': icono = Icons.terrain_rounded; color = Colors.blueGrey; break;
       case 'Pez': icono = Icons.set_meal_rounded; color = Colors.blue; break;
+      case 'Burro / Mula': icono = Icons.work_rounded; color = Colors.grey.shade700; break;
       default: icono = Icons.pets_rounded; color = Colors.brown;
     }
 
@@ -247,6 +301,8 @@ class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal
   String _tipo = 'Cerdo';
   Lote? _loteSeleccionado;
 
+  final List<String> _infraPecuariaSubCats = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).viewInsets.bottom;
@@ -260,51 +316,117 @@ class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal
         children: [
           const Text('Nuevo Grupo', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
           const SizedBox(height: 24),
-          TextField(controller: _nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre del Grupo', prefixIcon: Icon(Icons.edit_note_rounded))),
+          TextField(controller: _nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre del Grupo', prefixIcon: Icon(Icons.edit_note_rounded), hintText: 'Ej: Cerdos de Engorde')),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             value: _tipo,
-            items: ['Cerdo', 'Gallina', 'Pollo', 'Pez'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+            items: [
+              'Cerdo', 
+              'Vaca / Toro', 
+              'Gallina / Pollo', 
+              'Caballo', 
+              'Oveja', 
+              'Chivo / Cabra', 
+              'Pez', 
+              'Burro / Mula'
+            ].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
             onChanged: (v) => setState(() => _tipo = v!),
             decoration: const InputDecoration(labelText: 'Especie', prefixIcon: Icon(Icons.category_rounded)),
           ),
           const SizedBox(height: 16),
-          lotesAsync.maybeWhen(
-            data: (lotes) => DropdownButtonFormField<Lote>(
-              value: _loteSeleccionado,
-              decoration: const InputDecoration(labelText: '¿En qué lote están?', prefixIcon: Icon(Icons.landscape_rounded)),
-              items: lotes.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
-              onChanged: (v) => setState(() => _loteSeleccionado = v),
-            ),
-            orElse: () => const Text('Cargando lotes...'),
+          lotesAsync.when(
+            data: (lotes) {
+              // FILTRO ESTRICTO: Solo lotes de uso Pecuario o Infraestructura que sean para animales
+              final lotesAptos = lotes.where((l) {
+                if (l.uso == TipoUsoLote.pecuario) return true;
+                if (l.uso == TipoUsoLote.infraestructura) {
+                  return _infraPecuariaSubCats.contains(l.subCategoria);
+                }
+                return false;
+              }).toList();
+
+              if (lotesAptos.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 32),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '¡Atención, Patrón!',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                      ),
+                      const Text(
+                        'Primero debe mapear un corral, potrero o estanque en sus lotes antes de agregar animales.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.push('/lotes/nuevo-lote');
+                        },
+                        icon: const Icon(Icons.map_rounded),
+                        label: const Text('IR A MAPEAR AHORA'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return DropdownButtonFormField<Lote>(
+                value: _loteSeleccionado,
+                decoration: const InputDecoration(labelText: '¿En qué corral o estanque están?', prefixIcon: Icon(Icons.landscape_rounded)),
+                items: lotesAptos.map((l) => DropdownMenuItem(value: l, child: Text('${l.nombre} (${l.subCategoria})'))).toList(),
+                onChanged: (v) => setState(() => _loteSeleccionado = v),
+              );
+            },
+            loading: () => const Center(child: LinearProgressIndicator()),
+            error: (_, __) => const Text('Error al cargar infraestructuras'),
           ),
           const SizedBox(height: 16),
-          TextField(controller: _cantCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Cantidad', prefixIcon: Icon(Icons.numbers_rounded))),
+          TextField(controller: _cantCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Cantidad inicial', prefixIcon: Icon(Icons.numbers_rounded))),
           const SizedBox(height: 32),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6A1B9A)),
-            onPressed: () async { 
-              if (_nombreCtrl.text.isNotEmpty && _cantCtrl.text.isNotEmpty) {
-                await ref.read(pecuarioNotifierProvider.notifier).agregarEspecie(
-                  nombre: _nombreCtrl.text.trim(), 
-                  tipoEspecie: _tipo, 
-                  cantidadActual: int.tryParse(_cantCtrl.text) ?? 0,
-                  loteId: _loteSeleccionado?.id,
-                ); 
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Nuevo grupo animal registrado'),
-                      backgroundColor: Color(0xFF6A1B9A),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
+          lotesAsync.maybeWhen(
+            data: (lotes) {
+              final tieneLotes = lotes.any((l) => l.uso == TipoUsoLote.infraestructura || l.uso == TipoUsoLote.pecuario);
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: tieneLotes ? const Color(0xFF6A1B9A) : Colors.grey,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: tieneLotes && _loteSeleccionado != null
+                  ? () async { 
+                    if (_nombreCtrl.text.isNotEmpty && _cantCtrl.text.isNotEmpty) {
+                      await ref.read(pecuarioNotifierProvider.notifier).agregarEspecie(
+                        nombre: _nombreCtrl.text.trim(), 
+                        tipoEspecie: _tipo, 
+                        cantidadActual: int.tryParse(_cantCtrl.text) ?? 0,
+                        loteId: _loteSeleccionado?.id,
+                      ); 
+                      if (mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Nuevo grupo animal registrado con éxito'),
+                            backgroundColor: Color(0xFF6A1B9A),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                  : null, // Bloqueado si no hay lote seleccionado
+                child: const Text('GUARDAR GRUPO ANIMAL', style: TextStyle(fontWeight: FontWeight.bold))
+              );
             },
-            child: const Text('GUARDAR GRUPO')
-          )
+            orElse: () => const SizedBox.shrink(),
+          ),
         ]
       )
     );

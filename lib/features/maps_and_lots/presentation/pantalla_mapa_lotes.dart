@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +12,8 @@ import '../../farm_calendar/presentation/providers/cronograma_notifier.dart';
 import '../../farms/presentation/providers/fincas_notifier.dart';
 
 class PantallaMapaLotes extends ConsumerStatefulWidget {
-  const PantallaMapaLotes({super.key});
+  final String? tipoPredefinido;
+  const PantallaMapaLotes({super.key, this.tipoPredefinido});
 
   @override
   ConsumerState<PantallaMapaLotes> createState() => _PantallaMapaLotesState();
@@ -31,6 +33,29 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
   void initState() {
     super.initState();
     _verificarPermisosUbicacion();
+    
+    // Configurar si es perímetro en el notifier
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(loteMapaNotifierProvider.notifier).configurarComoPerimetro(widget.tipoPredefinido == 'perimetro');
+    });
+  }
+
+  String _obtenerTituloMision() {
+    switch (widget.tipoPredefinido) {
+      case 'perimetro': return 'Delinear Perímetro Total';
+      case 'infraestructura': return 'Mapear Infraestructura';
+      case 'agricola': return 'Dibujar Lote de Cultivo';
+      default: return 'Mapear Mi Lote';
+    }
+  }
+
+  String _obtenerInstruccionMision() {
+    switch (widget.tipoPredefinido) {
+      case 'perimetro': return 'Toque las esquinas de TODA su finca para definir el borde total.';
+      case 'infraestructura': return 'Dibuje el área de sus corrales, cocheras, casas o lagos.';
+      case 'agricola': return 'Delinee la zona específica donde tiene sus cultivos.';
+      default: return 'Dibuje el polígono del lote en el mapa.';
+    }
   }
 
   Future<void> _verificarPermisosUbicacion() async {
@@ -141,9 +166,10 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Mapear Mi Lote', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(_obtenerTituloMision(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -171,9 +197,36 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             },
           ),
 
-          // Selector de Modo (Híbrido)
+          // Banner de Instrucción Misión
           Positioned(
             top: 100,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00695C).withOpacity(0.9),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _obtenerInstruccionMision(),
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Selector de Modo (Híbrido)
+          Positioned(
+            top: 160,
             left: 0,
             right: 0,
             child: Center(
@@ -212,10 +265,41 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             ),
           ),
 
+          // Banner de Advertencia Perímetro
+          if (estadoMapa.mostrarAdvertenciaPerimetro)
+            Positioned(
+              top: 220,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade800.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.gpp_bad_rounded, color: Colors.white),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        '¡Punto fuera de límites! No puede dibujar fuera del perímetro de su finca.',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                      onPressed: notificador.ocultarAdvertencia,
+                    )
+                  ],
+                ),
+              ),
+            ),
+
           // Banner de Advertencia GPS
           if (estadoMapa.mostrarAdvertenciaGps)
             Positioned(
-              top: 160,
+              top: 280, // Bajamos este banner para que no se pisen
               left: 20,
               right: 20,
               child: Container(
@@ -246,7 +330,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
           // Controles Flotantes Laterales
           Positioned(
             right: 16,
-            top: 220,
+            top: 360,
             child: Column(
               children: [
                 _BotonFlotanteMapa(
@@ -368,7 +452,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32.0))),
-      builder: (context) => _FormularioGuardarLoteModal(estadoMapa: estado),
+      builder: (context) => _FormularioGuardarLoteModal(estadoMapa: estado, tipoPredefinido: widget.tipoPredefinido),
     );
   }
 }
@@ -412,7 +496,8 @@ class _BotonAccion extends StatelessWidget {
 
 class _FormularioGuardarLoteModal extends ConsumerStatefulWidget {
   final LoteMapaState estadoMapa;
-  const _FormularioGuardarLoteModal({required this.estadoMapa});
+  final String? tipoPredefinido;
+  const _FormularioGuardarLoteModal({required this.estadoMapa, this.tipoPredefinido});
   @override
   ConsumerState<_FormularioGuardarLoteModal> createState() => _FormularioGuardarLoteModalState();
 }
@@ -424,7 +509,29 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
   final _matasCtrl = TextEditingController();
   final _capAnimCtrl = TextEditingController();
   
-  TipoUsoLote _usoSeleccionado = TipoUsoLote.agricola;
+  late TipoUsoLote _usoSeleccionado;
+
+  final List<String> _infraestructurasPecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+  final List<String> _infraestructurasGenerales = ['Casa', 'Bodega', 'Secadero', 'Taller', 'Beneficiadero'];
+
+  @override
+  void initState() {
+    super.initState();
+    _usoSeleccionado = _mapearTipoPredefinido(widget.tipoPredefinido);
+    if (_usoSeleccionado == TipoUsoLote.perimetro) {
+      _nombreCtrl.text = 'Perímetro Total';
+      _subCatCtrl.text = 'Propiedad';
+    }
+  }
+
+  TipoUsoLote _mapearTipoPredefinido(String? tipo) {
+    switch (tipo) {
+      case 'perimetro': return TipoUsoLote.perimetro;
+      case 'infraestructura': return TipoUsoLote.infraestructura;
+      case 'agricola': return TipoUsoLote.agricola;
+      default: return TipoUsoLote.agricola;
+    }
+  }
   
   String? _etapaSeleccionada;
   
@@ -486,22 +593,39 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
               value: _usoSeleccionado,
               decoration: const InputDecoration(labelText: 'Tipo de Uso', border: OutlineInputBorder(), prefixIcon: Icon(Icons.category)),
               items: TipoUsoLote.values.map((u) => DropdownMenuItem(value: u, child: Text(u.name.toUpperCase()))).toList(),
-              onChanged: (v) => setState(() {
-                _usoSeleccionado = v!;
-                _subCatCtrl.text = ''; 
-              }),
+              onChanged: widget.tipoPredefinido == null 
+                ? (v) => setState(() {
+                    _usoSeleccionado = v!;
+                    _subCatCtrl.text = ''; 
+                  })
+                : null, // Bloqueado si viene de una misión específica
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _subCatCtrl,
-              decoration: InputDecoration(
-                labelText: _usoSeleccionado == TipoUsoLote.agricola ? '¿Qué cultivo es?' : 'Subcategoría',
-                hintText: _usoSeleccionado == TipoUsoLote.agricola ? 'Ej: Café, Cacao' : 'Ej: Potrero, Estanque',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.eco)
+            if (widget.tipoPredefinido == 'infraestructura')
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Tipo de Infraestructura',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.factory_rounded),
+                ),
+                items: [
+                  ..._infraestructurasPecuarias.map((i) => DropdownMenuItem(value: i, child: Text('$i (Animales)'))),
+                  ..._infraestructurasGenerales.map((i) => DropdownMenuItem(value: i, child: Text(i))),
+                ],
+                onChanged: (v) => setState(() => _subCatCtrl.text = v!),
+                validator: (v) => v == null ? 'Seleccione el tipo' : null,
+              )
+            else
+              TextFormField(
+                controller: _subCatCtrl,
+                decoration: InputDecoration(
+                  labelText: _usoSeleccionado == TipoUsoLote.agricola ? '¿Qué cultivo es?' : 'Subcategoría',
+                  hintText: _usoSeleccionado == TipoUsoLote.agricola ? 'Ej: Café, Cacao' : 'Ej: Potrero, Estanque',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.eco)
+                ),
+                validator: (v) => v!.isEmpty ? 'Ingresa la categoría' : null,
               ),
-              validator: (v) => v!.isEmpty ? 'Ingresa la categoría' : null,
-            ),
             const SizedBox(height: 16),
             
             if (_usoSeleccionado == TipoUsoLote.agricola) ...[
@@ -677,14 +801,29 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                         ref.read(panelLotesNotifierProvider.notifier).refresh();
                         ref.read(cronogramaNotifierProvider.notifier).refresh();
                         ref.read(loteMapaNotifierProvider.notifier).limpiarMapa();
-                        Navigator.pop(context); Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('¡Lote guardado con éxito!'), 
-                            backgroundColor: Color(0xFF00695C),
-                            behavior: SnackBarBehavior.floating,
-                          )
-                        );
+                        
+                        final tipoCreado = _usoSeleccionado;
+                        final nombreLote = _nombreCtrl.text;
+                        final subCat = _subCatCtrl.text;
+                        
+                        Navigator.pop(context); // Cierra Modal
+                        Navigator.pop(context); // Cierra Pantalla Mapa
+
+                        // Si es pecuario o infraestructura pecuaria, preguntar si quiere agregarlos
+                        final esInfraPecuaria = tipoCreado == TipoUsoLote.infraestructura && 
+                                              _infraestructurasPecuarias.contains(subCat);
+                        
+                        if (tipoCreado == TipoUsoLote.pecuario || esInfraPecuaria) {
+                          _mostrarDialogoAccionRapidaAnimales(context, nombreLote);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('¡Lote guardado con éxito!'), 
+                              backgroundColor: Color(0xFF00695C),
+                              behavior: SnackBarBehavior.floating,
+                            )
+                          );
+                        }
                       }
                     );
                   }
@@ -694,6 +833,37 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _mostrarDialogoAccionRapidaAnimales(BuildContext context, String nombreLote) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.pets_rounded, color: Colors.purple),
+            SizedBox(width: 12),
+            Text('¡Lote Creado!', style: TextStyle(fontWeight: FontWeight.w900)),
+          ],
+        ),
+        content: Text('¿Desea ingresar los animales que van a estar en "$nombreLote" ahora mismo?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), 
+            child: const Text('MÁS TARDE', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/dashboard/animales');
+            }, 
+            child: const Text('SÍ, AGREGAR ANIMALES')
+          ),
+        ],
       ),
     );
   }

@@ -43,6 +43,7 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
       case TipoUsoLote.pecuario: return Colors.orange;
       case TipoUsoLote.forestal: return Colors.teal;
       case TipoUsoLote.infraestructura: return Colors.grey;
+      case TipoUsoLote.perimetro: return Colors.brown;
     }
   }
 
@@ -52,6 +53,7 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
       case TipoUsoLote.pecuario: return BitmapDescriptor.hueOrange;
       case TipoUsoLote.forestal: return BitmapDescriptor.hueAzure;
       case TipoUsoLote.infraestructura: return BitmapDescriptor.hueViolet;
+      case TipoUsoLote.perimetro: return BitmapDescriptor.hueRose;
     }
   }
 

@@ -47,6 +47,7 @@ class _PantallaMapaGlobalState extends ConsumerState<PantallaMapaGlobal> {
       case TipoUsoLote.pecuario: return Colors.orange;
       case TipoUsoLote.forestal: return Colors.teal;
       case TipoUsoLote.infraestructura: return Colors.grey;
+      case TipoUsoLote.perimetro: return Colors.brown;
     }
   }
 
@@ -251,6 +252,7 @@ class _PanelResumenFinca extends ConsumerWidget {
       case TipoUsoLote.pecuario: return Colors.orange.shade800;
       case TipoUsoLote.forestal: return Colors.teal.shade800;
       case TipoUsoLote.infraestructura: return Colors.blueGrey;
+      case TipoUsoLote.perimetro: return Colors.brown;
     }
   }
 }
