@@ -22,10 +22,12 @@ Este walkthrough detalla la evolución de **AgroGo** hacia un sistema de gestió
 - **Bifurcación de Camino**: El tutor ahora pregunta: *"¿Maneja animales?"*. Si el usuario dice que no, el sistema oculta inteligentemente los pasos de infraestructura pecuaria y registro animal.
 - **Misión de Sensores**: Se añadió un paso inicial obligatorio para la concesión de permisos GPS, asegurando que los motores de mapeo funcionen sin errores desde el primer minuto.
 - **Auto-Ubicación**: Implementación de `geocoding` para detectar automáticamente la Vereda y Municipio basándose en la posición real del finquero.
+- **Borrado Seguro en Cascada**: Lógica de protección que impide dejar lotes huérfanos; al eliminar el perímetro, se limpian todas las zonas internas con advertencia crítica previa.
 - **Botón SALTAR**: Se habilitó la opción de omitir el tutor para usuarios que ya conocen la plataforma.
 
 ### 4. Reorganización de Zonas (Mis Lotes)
 - **Interfaz por Pestañas**: La pantalla de "Mis Zonas" ahora cuenta con dos pestañas (**CULTIVOS** y **ESTRUCTURAS**), separando los activos productivos de las construcciones físicas.
+- **Ergonomía de Mapeo (Thumb-Reach)**: Rediseño de la UI de dibujo moviendo los selectores de modo y avisos al área inferior para fácil acceso con el pulgar. El área calculada se elevó a un badge minimalista superior.
 - **Filtrado Inteligente**: Cada pestaña filtra automáticamente los lotes por su tipo de uso, manteniendo la limpieza visual.
 
 ### 5. Motor Pecuario Senior

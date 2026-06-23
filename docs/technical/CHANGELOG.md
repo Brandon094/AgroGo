@@ -4,9 +4,24 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.4.5] - 2024-06-21 (Minimalismo y Ergonomía)
+### Añadido
+- **Rediseño de Pantalla de Mapeo**: Reorganización total para facilitar el uso con una sola mano.
+- **Badge de Área Flotante**: Visualización minimalista del área calculada en la parte superior del mapa.
+- **Controles "Thumb-Reach"**: Selectores de modo y banners de instrucción movidos a la zona inferior.
+- **Indicadores de Validación**: Check verde dinámico al alcanzar los puntos mínimos para el polígono.
+
+### Mejorado
+- **Formularios de Lote**: Agrupación de campos en secciones tipo Bento (Identificación, Datos Técnicos, Cronograma).
+- **Consistencia Visual**: Unificación de radios de curvatura (32px) y sombras en todo el módulo de mapas.
+
+---
+
 ## [0.4.0] - 2024-06-21 (Valla Eléctrica y Bento Pro)
 ### Añadido
 - **Motor de Geofencing Estricto**: Validación técnica que prohíbe dibujar cualquier punto fuera del perímetro maestro de la finca.
+- **Eliminación en Cascada**: Lógica de protección que limpia automáticamente todos los sub-lotes e infraestructuras al eliminar el perímetro maestro.
+- **Advertencias Críticas**: Diálogos de confirmación de alto impacto visual para acciones que comprometen la integridad de los datos.
 - **Onboarding Dinámico con Bifurcación**: Tutor secuencial que pregunta por la vocación pecuaria y ajusta las misiones automáticamente.
 - **Dashboard Bento Pro**: Rediseño del panel principal con métricas agrupadas (Patrimonio, Producción, Recursos) y atajos clasificados.
 - **Zonificación por Pestañas**: División del panel "Mis Zonas" en **CULTIVOS** y **ESTRUCTURAS** para una mejor organización.

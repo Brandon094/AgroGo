@@ -26,6 +26,7 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 1.2 | Geovalla Estricta | Intentar poner un punto fuera del perímetro. | El sistema bloquea el punto y muestra aviso rojo. |
 | 1.3 | Pines Arrastrables | Mover un vértice dentro del perímetro. | El área se recalcula automáticamente en vivo. |
 | 1.4 | Filtro Precisión | Capturar punto GPS con error > 5m. | El sistema debe mostrar advertencia y bloquear punto. |
+| 1.5 | Borrado en Cascada | Eliminar el Perímetro Maestro. | El sistema debe advertir en rojo y borrar todos los lotes internos. |
 
 ---
 
@@ -45,6 +46,7 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 3.1 | Grupos Métricas | Observar el tablero principal. | Las métricas están agrupadas por Patrimonio, Café y Recursos. |
 | 3.2 | Pestañas de Zonas | Entrar a "Mis Zonas". | Se ven dos pestañas claras: CULTIVOS y ESTRUCTURAS. |
 | 3.3 | Bloqueo de Lotes | Intentar entrar a "Zonificar" sin perímetro. | Lanza SnackBar de aviso y botón para crear perímetro. |
+| 3.4 | Feedback Mapeo | Alcanzar 3 puntos en el dibujo. | El contador cambia por un check verde de validación. |
 
 ---
 **Elaborado por: Chop Code Solutions - QA Team**

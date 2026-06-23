@@ -48,12 +48,14 @@ La interfaz está optimizada para **Modo Claro (Arena)**:
 
 ---
 
-## 📊 6. Estructura de Dashboard (Bento Pro)
-El Dashboard principal utiliza una composición tipo **Bento Box** para organizar la información crítica:
+## 📊 6. Estructura de Dashboard y Mapeo (Minimalismo Pro)
+La aplicación utiliza una filosofía de diseño **"Thumb-First"** (alcance del pulgar) y composición tipo **Bento Box**:
 
-*   **Grupos de Métricas**: Las estadísticas no están sueltas; se agrupan en dominios (Patrimonio, Producción, Recursos) para una lectura rápida del estado del negocio.
-*   **Atajos Categorizados**: Los botones de acción se dividen por su frecuencia de uso y naturaleza operativa (Gestión Diaria vs. Ingeniería).
-*   **Jerarquía Visual**: Uso de contenedores con diferentes profundidades de sombra para guiar el ojo hacia las alertas más urgentes.
+*   **Dashboard Bento**: Métricas agrupadas en dominios lógicos (Patrimonio, Producción, Recursos) con jerarquía visual clara.
+*   **Mapeo Minimalista**:
+    *   **Indicadores Flotantes**: Área calculada ubicada en la zona superior para no interferir con el dibujo.
+    *   **Controles Inferiores**: Selectores de modo y acciones de guardado agrupados abajo para facilitar la operación con una sola mano en campo.
+    *   **Feedback Dinámico**: Uso de micro-interacciones (checks verdes, bordes de colores) para confirmar estados de validación.
 
 ---
 **Chop Code Solutions - Branding Department 2026**

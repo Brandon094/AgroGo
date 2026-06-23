@@ -18,6 +18,7 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 
 ## ⚡ 2. Reglas de Negocio Críticas
 
+*   **Integridad de Datos (Cascada)**: La eliminación del **Perímetro Maestro** conlleva la eliminación automática e irreversible de todos los lotes de cultivo, infraestructuras y tareas asociadas a la finca actual.
 *   **Pecuario Inteligente**:
     *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que coincidan con la vocación animal.
     *   No se permiten animales en casas o bodegas generales.
@@ -33,7 +34,9 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 *   **RF-UI-01 (Bento Dashboard)**: Métricas agrupadas por dominios: **Patrimonio** (Ha/$), **Producción** (Lotes/Beneficio) y **Recursos** (Animales/Nómina).
 *   **RF-UI-02 (Shortcuts Categorizados)**: División de atajos en: **Gestión Diaria**, **Ingeniería/Mapas** e **Inventarios**.
 *   **RF-UI-03 (Tutor Dinámico)**: El Onboarding debe ofrecer bifurcación por vocación y opción de "SALTAR".
-*   **RF-UI-04 (Instrucciones Dinámicas)**: El motor de mapas debe guiar al usuario con banners informativos según la misión activa.
+*   **RF-UI-04 (Instrucciones Dinámicas)**: El motor de mapas debe guiar al usuario con banners informativos minimalistas.
+*   **RF-UI-05 (Ergonomía de Campo)**: Los controles críticos de dibujo y cambio de modo deben estar situados en el tercio inferior de la pantalla para permitir la operación con el pulgar.
+*   **RF-UI-06 (Visibilidad de Área)**: El cálculo de hectáreas debe ser visible de forma persistente en la parte superior del mapa sin obstruir la vista satelital central.
 
 ---
 **Chop Code Solutions - Product Management 2026**
