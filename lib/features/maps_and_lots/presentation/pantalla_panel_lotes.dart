@@ -11,21 +11,22 @@ class PantallaPanelLotes extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estadoLotes = ref.watch(panelLotesNotifierProvider);
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF9FBF9), Colors.white],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF9FBF9), Colors.white],
+            ),
           ),
-        ),
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
+          child: Column(
+            children: [
+              // HEADER CON TABS
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 70, 24, 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -42,7 +43,7 @@ class PantallaPanelLotes extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Mis Lotes',
+                          'Mis Zonas',
                           style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
                         ),
                         Container(
@@ -55,80 +56,127 @@ class PantallaPanelLotes extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    estadoLotes.maybeWhen(
-                      data: (lotes) {
-                        final areaTotal = lotes.fold<double>(0.0, (a, b) => a + b.areaEnHectareas);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Theme.of(context).primaryColor, const Color(0xFF2E7D32)],
-                            ),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Área Total',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '${areaTotal.toStringAsFixed(1)} Ha',
-                                style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      orElse: () => const SizedBox.shrink(),
+                    const SizedBox(height: 24),
+                    const TabBar(
+                      labelColor: Color(0xFF00695C),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF00695C),
+                      indicatorWeight: 4,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      dividerColor: Colors.transparent,
+                      tabs: [
+                        Tab(text: 'CULTIVOS'),
+                        Tab(text: 'ESTRUCTURAS'),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
-            estadoLotes.when(
-              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
-              error: (error, stack) => SliverFillRemaining(child: Center(child: Text('Error: $error'))),
-              data: (lotes) {
-                if (lotes.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.map_outlined, size: 80, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('No hay lotes dibujados', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
-                        ],
-                      ),
+
+              // CONTENIDO DE TABS
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _ListaLotesFiltrada(
+                      usoFiltro: const [TipoUsoLote.agricola, TipoUsoLote.pecuario, TipoUsoLote.forestal],
+                      mensajeVacio: 'No hay lotes de cultivo dibujados',
                     ),
-                  );
-                }
-                return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => RepaintBoundary(
-                        child: _TarjetaLote(lote: lotes[index]),
-                      ),
-                      childCount: lotes.length,
+                    _ListaLotesFiltrada(
+                      usoFiltro: const [TipoUsoLote.infraestructura, TipoUsoLote.perimetro],
+                      mensajeVacio: 'No hay infraestructuras registradas',
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+        floatingActionButton: estadoLotes.maybeWhen(
+        data: (lotes) {
+          final tienePerimetro = lotes.any((l) => l.uso == TipoUsoLote.perimetro);
+          
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (tienePerimetro) ...[
+                FloatingActionButton.extended(
+                  heroTag: 'add_infra',
+                  onPressed: () => context.push('/lotes/nuevo-lote?tipo=infraestructura'),
+                  backgroundColor: Colors.blueGrey.shade700,
+                  foregroundColor: Colors.white,
+                  label: const Text('INFRAESTRUCTURA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
+                  icon: const Icon(Icons.factory_rounded, size: 20),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'add_lote',
+                  onPressed: () => context.push('/lotes/nuevo-lote?tipo=agricola'),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  label: const Text('DIBUJAR CULTIVO', style: TextStyle(fontWeight: FontWeight.w900)),
+                  icon: const Icon(Icons.add_location_alt_rounded),
+                ),
+              ] else ...[
+                FloatingActionButton.extended(
+                  heroTag: 'add_perimetro',
+                  onPressed: () => context.push('/lotes/nuevo-lote?tipo=perimetro'),
+                  backgroundColor: Colors.brown,
+                  foregroundColor: Colors.white,
+                  label: const Text('DIBUJAR PERÍMETRO', style: TextStyle(fontWeight: FontWeight.w900)),
+                  icon: const Icon(Icons.architecture_rounded),
+                ),
+              ],
+            ],
+          );
+        },
+        orElse: () => const SizedBox.shrink(),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/lotes/nuevo-lote'),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        label: const Text('DIBUJAR LOTE', style: TextStyle(fontWeight: FontWeight.w900)),
-        icon: const Icon(Icons.add_location_alt_rounded),
-      ),
+    ));
+  }
+}
+
+class _ListaLotesFiltrada extends ConsumerWidget {
+  final List<TipoUsoLote> usoFiltro;
+  final String mensajeVacio;
+
+  const _ListaLotesFiltrada({required this.usoFiltro, required this.mensajeVacio});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final estadoLotes = ref.watch(panelLotesNotifierProvider);
+
+    return estadoLotes.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('Error: $error')),
+      data: (lotes) {
+        final filtrados = lotes.where((l) => usoFiltro.contains(l.uso)).toList();
+
+        if (filtrados.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.map_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
+                const SizedBox(height: 16),
+                Text(
+                  mensajeVacio,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+          physics: const BouncingScrollPhysics(),
+          itemCount: filtrados.length,
+          itemBuilder: (context, index) => RepaintBoundary(
+            child: _TarjetaLote(lote: filtrados[index]),
+          ),
+        );
+      },
     );
   }
 }
@@ -147,6 +195,7 @@ class _TarjetaLote extends ConsumerWidget {
       case TipoUsoLote.pecuario: iconoUso = Icons.pets_rounded; colorUso = Colors.orange; break;
       case TipoUsoLote.forestal: iconoUso = Icons.forest_rounded; colorUso = Colors.teal; break;
       case TipoUsoLote.infraestructura: iconoUso = Icons.business_rounded; colorUso = Colors.grey; break;
+      case TipoUsoLote.perimetro: iconoUso = Icons.architecture_rounded; colorUso = Colors.brown; break;
     }
 
     return Container(

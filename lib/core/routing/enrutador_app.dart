@@ -93,7 +93,10 @@ GoRouter enrutador(EnrutadorRef ref) {
                 routes: [
                   GoRoute(
                     path: 'nuevo-lote',
-                    builder: (context, state) => const PantallaMapaLotes(),
+                    builder: (context, state) {
+                      final tipo = state.uri.queryParameters['tipo'];
+                      return PantallaMapaLotes(tipoPredefinido: tipo);
+                    },
                   ),
                 ],
               ),

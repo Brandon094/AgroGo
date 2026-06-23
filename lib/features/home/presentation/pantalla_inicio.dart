@@ -137,8 +137,50 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
   }
 
   Widget _buildAlertas(AsyncValue<List<TareaEntity>> tareas, AsyncValue<List<InsumoEntity>> insumos) {
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
+
     return Column(
       children: [
+        // ALERTA DE CONFIGURACIÓN INICIAL (PERÍMETRO)
+        lotesAsync.maybeWhen(
+          data: (l) {
+            final tienePerimetro = l.any((x) => x.uso == TipoUsoLote.perimetro);
+            if (tienePerimetro) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _CardAlerta(
+                titulo: 'Finca sin límites', 
+                subtitulo: 'Dibuje el perímetro total de su tierra', 
+                icono: Icons.architecture_rounded, 
+                color: Colors.brown.shade700,
+                onTap: () => context.push('/lotes/nuevo-lote?tipo=perimetro'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+
+        // ALERTA DE INFRAESTRUCTURA (Si tiene animales pero no infraestructura)
+        lotesAsync.maybeWhen(
+          data: (l) {
+            final tienePerimetro = l.any((x) => x.uso == TipoUsoLote.perimetro);
+            final tieneInfra = l.any((x) => x.uso == TipoUsoLote.infraestructura || x.uso == TipoUsoLote.pecuario);
+            if (!tienePerimetro || tieneInfra) return const SizedBox.shrink();
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _CardAlerta(
+                titulo: 'Misión: Construcción', 
+                subtitulo: 'Ubique sus corrales, galpones o bodegas', 
+                icono: Icons.factory_rounded, 
+                color: Colors.blueGrey.shade600,
+                onTap: () => context.push('/lotes/nuevo-lote?tipo=infraestructura'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+
         tareas.maybeWhen(
           data: (t) {
             final hoy = DateTime.now();
@@ -184,106 +226,303 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
     AsyncValue<List<InsumoEntity>> insumos,
     AsyncValue<List<BeneficioEntity>> beneficios,
   ) {
-    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-    // Ajustamos el ratio y columnas según el tamaño de fuente
-    final crossAxisCount = textScale > 1.8 ? 1 : 2;
-    final aspectRatio = textScale > 1.4 ? 1.8 : 1.4;
-
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: crossAxisCount,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: aspectRatio,
+    return Column(
       children: [
-        lotes.maybeWhen(
-          data: (l) => _MetricaCard(
-            titulo: 'Tierra', 
-            valor: '${l.fold<double>(0.0, (a, b) => a + b.areaEnHectareas).toStringAsFixed(1)} Ha', 
-            subtitulo: '${l.length} Lotes zonificados',
-            icono: Icons.landscape_rounded,
-            color: Colors.green.shade800,
-          ),
-          orElse: () => const _MetricaLoading(),
+        // CARD 1: PATRIMONIO Y TIERRA
+        _BentoGroupCard(
+          titulo: 'PATRIMONIO Y TIERRA',
+          color: Colors.green,
+          items: [
+            lotes.maybeWhen(
+              data: (l) => _BentoItem(
+                label: 'Área Total', 
+                valor: '${l.fold<double>(0.0, (a, b) => a + b.areaEnHectareas).toStringAsFixed(1)} Ha',
+                subLabel: '${l.length} Zonas',
+                icono: Icons.landscape_rounded,
+              ),
+              orElse: () => const _BentoLoading(),
+            ),
+            costos.maybeWhen(
+              data: (c) => _BentoItem(
+                label: 'Inversión', 
+                valor: Formateadores.formatearMonedaCompacta(c.fold<double>(0.0, (a, b) => a + b.precioTotal)),
+                subLabel: 'Gastos acumulados',
+                icono: Icons.payments_rounded,
+              ),
+              orElse: () => const _BentoLoading(),
+            ),
+          ],
         ),
-        costos.maybeWhen(
-          data: (c) => _MetricaCard(
-            titulo: 'Finanzas', 
-            valor: Formateadores.formatearMonedaCompacta(c.fold<double>(0.0, (a, b) => a + b.precioTotal)),
-            subtitulo: 'Inversión acumulada',
-            icono: Icons.payments_rounded,
-            color: Colors.blue.shade800,
-          ),
-          orElse: () => const _MetricaLoading(),
+        const SizedBox(height: 16),
+
+        // CARD 2: PRODUCCIÓN Y BENEFICIO
+        _BentoGroupCard(
+          titulo: 'PRODUCCIÓN DE CAFÉ',
+          color: Colors.orange,
+          items: [
+            beneficios.maybeWhen(
+              data: (b) {
+                final activos = b.where((x) => x.estado != EstadoBeneficio.listo).toList();
+                return _BentoItem(
+                  label: 'En Proceso', 
+                  valor: '${activos.length} Lotes',
+                  subLabel: 'Beneficio activo',
+                  icono: Icons.settings_input_component_rounded,
+                );
+              },
+              orElse: () => const _BentoLoading(),
+            ),
+            insumos.maybeWhen(
+              data: (i) => _BentoItem(
+                label: 'Bodega', 
+                valor: '${i.length} Ítems',
+                subLabel: '${i.where((x) => x.esEscaso).length} Por agotar',
+                icono: Icons.inventory_2_rounded,
+              ),
+              orElse: () => const _BentoLoading(),
+            ),
+          ],
         ),
-        beneficios.maybeWhen(
-          data: (b) {
-            final activos = b.where((x) => x.estado != EstadoBeneficio.listo).toList();
-            final kilosSecandose = activos.where((x) => x.estado == EstadoBeneficio.secado).fold<double>(0, (sum, x) => sum + x.kilosCereza);
-            return _MetricaCard(
-              titulo: 'Beneficio', 
-              valor: '${activos.length} Lotes', 
-              subtitulo: kilosSecandose > 0 ? '${kilosSecandose.toStringAsFixed(0)}kg en secado' : 'Procesando café',
-              icono: Icons.settings_input_component_rounded,
-              color: Colors.orange.shade800,
-            );
-          },
-          orElse: () => const _MetricaLoading(),
-        ),
-        insumos.maybeWhen(
-          data: (i) => _MetricaCard(
-            titulo: 'Bodega', 
-            valor: '${i.length}', 
-            subtitulo: '${i.where((x) => x.esEscaso).length} con poco stock',
-            icono: Icons.inventory_2_rounded,
-            color: Colors.brown,
-          ),
-          orElse: () => const _MetricaLoading(),
-        ),
-        animales.maybeWhen(
-          data: (a) => _MetricaCard(
-            titulo: 'Pecuario', 
-            valor: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)}', 
-            subtitulo: 'Censo total de animales',
-            icono: Icons.pets_rounded,
-            color: Colors.purple.shade800,
-          ),
-          orElse: () => const _MetricaLoading(),
-        ),
-        equipo.maybeWhen(
-          data: (e) => _MetricaCard(
-            titulo: 'Equipo', 
-            valor: '${e.length}', 
-            subtitulo: 'Personas en nómina',
-            icono: Icons.people_alt_rounded,
-            color: Colors.teal.shade800,
-          ),
-          orElse: () => const _MetricaLoading(),
+        const SizedBox(height: 16),
+
+        // CARD 3: RECURSOS Y TALENTO
+        _BentoGroupCard(
+          titulo: 'RECURSOS Y EQUIPO',
+          color: Colors.teal,
+          items: [
+            animales.maybeWhen(
+              data: (a) => _BentoItem(
+                label: 'Pecuario', 
+                valor: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)}',
+                subLabel: 'Animales totales',
+                icono: Icons.pets_rounded,
+              ),
+              orElse: () => const _BentoLoading(),
+            ),
+            equipo.maybeWhen(
+              data: (e) => _BentoItem(
+                label: 'Nómina', 
+                valor: '${e.length} Pers.',
+                subLabel: 'Equipo activo',
+                icono: Icons.people_alt_rounded,
+              ),
+              orElse: () => const _BentoLoading(),
+            ),
+          ],
         ),
       ],
     );
   }
 
   Widget _buildAtajos(BuildContext context) {
-    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-    final crossAxisCount = textScale > 1.6 ? 2 : 3;
+    final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+    final tienePerimetro = lotes.any((l) => l.uso == TipoUsoLote.perimetro);
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: crossAxisCount,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
+    void verificarPerimetroAntesDeIr(String ruta, String mensaje) {
+      if (tienePerimetro) {
+        context.push(ruta);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(mensaje),
+            backgroundColor: Colors.brown,
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'DIBUJAR',
+              textColor: Colors.white,
+              onPressed: () => context.push('/lotes/nuevo-lote?tipo=perimetro'),
+            ),
+          ),
+        );
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _BotonMiniBento(titulo: 'Gastos', icono: Icons.add_shopping_cart, color: Colors.blue, onTap: () => context.push('/gastos')),
-        _BotonMiniBento(titulo: 'Nómina', icono: Icons.payments, color: Colors.teal, onTap: () => context.push('/trabajadores')),
-        _BotonMiniBento(titulo: 'Beneficio', icono: Icons.settings_input_component_rounded, color: Colors.orange.shade800, onTap: () => context.push('/proceso-cafe')),
-        _BotonMiniBento(titulo: 'Animales', icono: Icons.pets, color: Colors.purple, onTap: () => context.go('/dashboard/animales')),
-        _BotonMiniBento(titulo: 'Mapa', icono: Icons.map, color: Colors.brown, onTap: () => context.push('/mapa-finca')),
-        _BotonMiniBento(titulo: 'Bodega', icono: Icons.inventory_2, color: Colors.blueGrey, onTap: () => context.push('/bodega')),
+        _SeccionAtajos(
+          titulo: 'GESTIÓN DIARIA',
+          atajos: [
+            _BotonAtajo(titulo: 'Gastos', icono: Icons.add_shopping_cart, color: Colors.blue, onTap: () => context.push('/gastos')),
+            _BotonAtajo(titulo: 'Nómina', icono: Icons.payments, color: Colors.teal, onTap: () => context.push('/trabajadores')),
+            _BotonAtajo(titulo: 'Agenda', icono: Icons.calendar_month, color: Colors.orange, onTap: () => context.go('/agenda')),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _SeccionAtajos(
+          titulo: 'INGENIERÍA Y MAPAS',
+          atajos: [
+            _BotonAtajo(titulo: 'Mapa Finca', icono: Icons.map, color: Colors.brown, onTap: () => context.push('/mapa-finca')),
+            _BotonAtajo(
+              titulo: 'Zonificar', 
+              icono: Icons.landscape_rounded, 
+              color: Colors.green, 
+              onTap: () => tienePerimetro ? context.go('/lotes') : verificarPerimetroAntesDeIr('/lotes', 'Cree el perímetro para zonificar.')
+            ),
+            _BotonAtajo(
+              titulo: 'Infraest.', 
+              icono: Icons.factory_rounded, 
+              color: Colors.blueGrey, 
+              onTap: () => verificarPerimetroAntesDeIr(
+                '/lotes/nuevo-lote?tipo=infraestructura', 
+                'Debe dibujar el perímetro antes de ubicar infraestructura.'
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _SeccionAtajos(
+          titulo: 'INVENTARIOS',
+          atajos: [
+            _BotonAtajo(titulo: 'Bodega', icono: Icons.inventory_2, color: Colors.indigo, onTap: () => context.push('/bodega')),
+            _BotonAtajo(titulo: 'Beneficio', icono: Icons.settings_input_component_rounded, color: Colors.deepOrange, onTap: () => context.push('/proceso-cafe')),
+            _BotonAtajo(titulo: 'Animales', icono: Icons.pets, color: Colors.purple, onTap: () => context.go('/dashboard/animales')),
+          ],
+        ),
       ],
     );
+  }
+}
+
+class _BentoGroupCard extends StatelessWidget {
+  final String titulo;
+  final List<Widget> items;
+  final Color color;
+
+  const _BentoGroupCard({required this.titulo, required this.items, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [BoxShadow(color: color.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
+        border: Border.all(color: color.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(titulo, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color, letterSpacing: 1.2)),
+          const SizedBox(height: 16),
+          Row(
+            children: items.asMap().entries.map((e) {
+              final isLast = e.key == items.length - 1;
+              return Expanded(
+                child: Row(
+                  children: [
+                    Expanded(child: e.value),
+                    if (!isLast) Container(height: 40, width: 1, color: Colors.grey.withOpacity(0.2), margin: const EdgeInsets.symmetric(horizontal: 16)),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BentoItem extends StatelessWidget {
+  final String label;
+  final String valor;
+  final String subLabel;
+  final IconData icono;
+
+  const _BentoItem({required this.label, required this.valor, required this.subLabel, required this.icono});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icono, size: 14, color: Colors.grey),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(valor, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+        ),
+        Text(subLabel, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+}
+
+class _SeccionAtajos extends StatelessWidget {
+  final String titulo;
+  final List<Widget> atajos;
+
+  const _SeccionAtajos({required this.titulo, required this.atajos});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(titulo, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.blueGrey, letterSpacing: 1.5)),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: atajos.asMap().entries.map((e) {
+            return Expanded(child: Padding(
+              padding: EdgeInsets.only(right: e.key == atajos.length - 1 ? 0 : 12),
+              child: e.value,
+            ));
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _BotonAtajo extends StatelessWidget {
+  final String titulo;
+  final IconData icono;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _BotonAtajo({required this.titulo, required this.icono, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+          border: Border.all(color: Colors.black.withOpacity(0.02)),
+        ),
+        child: Column(
+          children: [
+            Icon(icono, color: color, size: 26),
+            const SizedBox(height: 8),
+            Text(titulo, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF37474F))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BentoLoading extends StatelessWidget {
+  const _BentoLoading();
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)));
   }
 }
 
