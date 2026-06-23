@@ -253,20 +253,53 @@ class _TarjetaLote extends ConsumerWidget {
   }
 
   void _confirmarEliminacion(BuildContext context, WidgetRef ref, Lote lote) {
+    final esPerimetro = lote.uso == TipoUsoLote.perimetro;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar lote?', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text('¿Desea eliminar el lote "${lote.nombre}"? Esto no se puede deshacer.'),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: esPerimetro ? Colors.red : Colors.orange),
+            const SizedBox(width: 12),
+            Text(esPerimetro ? '¡ADVERTENCIA CRÍTICA!' : '¿Eliminar zona?', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('¿Desea eliminar "${lote.nombre}"?'),
+            if (esPerimetro) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.red.shade200)),
+                child: const Text(
+                  'ATENCIÓN: Si elimina el Perímetro Maestro, se borrarán AUTOMÁTICAMENTE todos los lotes de cultivo e infraestructuras de esta finca.',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ] else 
+              const Text('Esto borrará el polígono y las tareas asociadas.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+          ],
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           TextButton(
             onPressed: () async {
-              await ref.read(panelLotesNotifierProvider.notifier).eliminarLote(lote.id);
+              if (esPerimetro) {
+                await ref.read(panelLotesNotifierProvider.notifier).eliminarTodoElMapa();
+              } else {
+                await ref.read(panelLotesNotifierProvider.notifier).eliminarLote(lote.id);
+              }
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('ELIMINAR', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: Text(
+              esPerimetro ? 'BORRAR TODO' : 'ELIMINAR', 
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)
+            ),
           ),
         ],
       ),

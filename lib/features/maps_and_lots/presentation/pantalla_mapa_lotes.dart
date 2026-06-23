@@ -166,7 +166,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(_obtenerTituloMision(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(_obtenerTituloMision(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -175,7 +175,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+              colors: [Colors.black.withOpacity(0.8), Colors.transparent],
             ),
           ),
         ),
@@ -197,69 +197,29 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             },
           ),
 
-          // Banner de Instrucción Misión
+          // 1. ÁREA CALCULADA (ARRIBA - MINIMALISTA)
           Positioned(
-            top: 100,
-            left: 20,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00695C).withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _obtenerInstruccionMision(),
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Selector de Modo (Híbrido)
-          Positioned(
-            top: 160,
+            top: 110,
             left: 0,
             right: 0,
             child: Center(
-              child: SegmentedButton<ModoMapeo>(
-                segments: const [
-                  ButtonSegment(
-                    value: ModoMapeo.manual,
-                    label: Text('Manual'),
-                    icon: Icon(Icons.touch_app),
-                  ),
-                  ButtonSegment(
-                    value: ModoMapeo.gpsCampo,
-                    label: Text('GPS Campo'),
-                    icon: Icon(Icons.satellite_alt),
-                  ),
-                ],
-                selected: {estadoMapa.modo},
-                onSelectionChanged: (Set<ModoMapeo> newSelection) {
-                  notificador.cambiarModo(newSelection.first);
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.selected)) return const Color(0xFF00695C);
-                      return Colors.white.withOpacity(0.9);
-                    },
-                  ),
-                  foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.selected)) return Colors.white;
-                      return Colors.black87;
-                    },
-                  ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00695C).withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.area_chart_rounded, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${estadoMapa.areaEnHectareas.toStringAsFixed(3)} Ha',
+                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -268,7 +228,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
           // Banner de Advertencia Perímetro
           if (estadoMapa.mostrarAdvertenciaPerimetro)
             Positioned(
-              top: 220,
+              top: 170,
               left: 20,
               right: 20,
               child: Container(
@@ -283,7 +243,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
-                        '¡Punto fuera de límites! No puede dibujar fuera del perímetro de su finca.',
+                        '¡Punto fuera de límites!',
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
@@ -299,7 +259,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
           // Banner de Advertencia GPS
           if (estadoMapa.mostrarAdvertenciaGps)
             Positioned(
-              top: 280, // Bajamos este banner para que no se pisen
+              top: 170,
               left: 20,
               right: 20,
               child: Container(
@@ -312,10 +272,10 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                   children: [
                     const Icon(Icons.warning, color: Colors.white),
                     const SizedBox(width: 12),
-                    Expanded(
+                    const Expanded(
                       child: Text(
-                        '⚠️ Señal GPS inestable (Margen: ${estadoMapa.ultimoMargenError?.toStringAsFixed(1)}m). Por favor espere en la esquina o use Modo Manual.',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                        '⚠️ Señal GPS inestable',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
                     IconButton(
@@ -330,7 +290,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
           // Controles Flotantes Laterales
           Positioned(
             right: 16,
-            top: 360,
+            top: 220,
             child: Column(
               children: [
                 _BotonFlotanteMapa(
@@ -347,98 +307,121 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                   color: Colors.white,
                   iconColor: const Color(0xFF00695C),
                 ),
-                const SizedBox(height: 12),
-                if (estadoMapa.puntos.isNotEmpty) ...[
-                  _BotonFlotanteMapa(
-                    icono: Icons.delete_sweep,
-                    onTap: () => notificador.limpiarMapa(),
-                    color: Colors.red.shade100,
-                    iconColor: Colors.red,
-                  ),
-                ],
               ],
             ),
           ),
 
-          // Botón Gigante de Captura GPS
-          if (estadoMapa.modo == ModoMapeo.gpsCampo)
-            Positioned(
-              bottom: 160,
-              left: 40,
-              right: 40,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00695C),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(0, 80),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                  elevation: 10,
-                ),
-                onPressed: _capturarEsquinaGps,
-                icon: const Icon(Icons.gps_fixed, size: 32),
-                label: const Text('CAPTURAR ESQUINA ACTUAL', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-              ),
-            ),
-
-          // Panel de Control Inferior (Resumen)
+          // Panel de Control Inferior (Todo abajo para acceso rápido)
           Positioned(
             bottom: 30,
             left: 20,
             right: 20,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 2. INSTRUCCIÓN (MINIMALISTA)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                  ),
+                  child: Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF00695C)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _obtenerInstruccionMision(),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF37474F)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // PANEL BENTO MAESTRO
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20, offset: const Offset(0, 10))],
+                  ),
+                  child: Column(
+                    children: [
+                      // 3. SELECTOR DE MODO (ACCESO RÁPIDO)
+                      SegmentedButton<ModoMapeo>(
+                        segments: const [
+                          ButtonSegment(value: ModoMapeo.manual, label: Text('MANUAL'), icon: Icon(Icons.touch_app_rounded, size: 16)),
+                          ButtonSegment(value: ModoMapeo.gpsCampo, label: Text('GPS CAMPO'), icon: Icon(Icons.satellite_alt_rounded, size: 16)),
+                        ],
+                        selected: {estadoMapa.modo},
+                        onSelectionChanged: (Set<ModoMapeo> newSelection) => notificador.cambiarModo(newSelection.first),
+                        style: SegmentedButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          selectedBackgroundColor: const Color(0xFF00695C),
+                          selectedForegroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // BOTONES DE ACCIÓN
+                      Row(
                         children: [
-                          Text('ÁREA CALCULADA', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                          Text('${estadoMapa.areaEnHectareas.toStringAsFixed(3)} Ha', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF00695C))),
+                          if (estadoMapa.puntos.isNotEmpty) ...[
+                            _BotonAccionMini(
+                              icono: Icons.undo_rounded,
+                              onTap: notificador.deshacerUltimoPunto,
+                              color: Colors.grey.shade100,
+                            ),
+                            const SizedBox(width: 12),
+                            _BotonAccionMini(
+                              icono: Icons.delete_outline_rounded,
+                              onTap: notificador.limpiarMapa,
+                              color: Colors.red.shade50,
+                              iconColor: Colors.red,
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00695C),
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(0, 56),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                              ),
+                              onPressed: estadoMapa.puntos.length >= 3 ? () => _mostrarFormularioGuardar(context, estadoMapa) : null,
+                              child: const Text('CONTINUAR', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                            ),
+                          ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFF57C00).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                        child: const Text('Mapeando...', style: TextStyle(color: Color(0xFFF57C00), fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      if (estadoMapa.puntos.isNotEmpty) ...[
-                        _BotonAccion(
-                          icono: Icons.undo_rounded,
-                          color: Colors.grey.shade100,
-                          onTap: notificador.deshacerUltimoPunto,
-                        ),
-                        const SizedBox(width: 12),
-                      ],
-                      Expanded(
-                        child: ElevatedButton(
+                      
+                      // BOTÓN GIGANTE GPS (Si está en ese modo)
+                      if (estadoMapa.modo == ModoMapeo.gpsCampo) ...[
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00695C),
+                            backgroundColor: Colors.orange.shade800,
                             foregroundColor: Colors.white,
-                            minimumSize: const Size(0, 64),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
-                          onPressed: estadoMapa.puntos.length >= 3 ? () => _mostrarFormularioGuardar(context, estadoMapa) : null,
-                          child: const Text('FINALIZAR Y GUARDAR', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                          onPressed: _capturarEsquinaGps,
+                          icon: const Icon(Icons.gps_fixed),
+                          label: const Text('CAPTURAR ESQUINA', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -453,6 +436,26 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32.0))),
       builder: (context) => _FormularioGuardarLoteModal(estadoMapa: estado, tipoPredefinido: widget.tipoPredefinido),
+    );
+  }
+}
+
+class _BotonAccionMini extends StatelessWidget {
+  final IconData icono;
+  final VoidCallback onTap;
+  final Color color;
+  final Color? iconColor;
+  const _BotonAccionMini({required this.icono, required this.onTap, required this.color, this.iconColor});
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 56, height: 56,
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(16)),
+        child: Icon(icono, color: iconColor ?? Colors.blueGrey, size: 22),
+      ),
     );
   }
 }
@@ -581,169 +584,175 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Detalles del Lote', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _nombreCtrl, 
-              decoration: const InputDecoration(labelText: 'Nombre del Lote', border: OutlineInputBorder(), prefixIcon: Icon(Icons.landscape)), 
-              validator: (v) => v!.isEmpty ? 'Ingresa un nombre' : null
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<TipoUsoLote>(
-              value: _usoSeleccionado,
-              decoration: const InputDecoration(labelText: 'Tipo de Uso', border: OutlineInputBorder(), prefixIcon: Icon(Icons.category)),
-              items: TipoUsoLote.values.map((u) => DropdownMenuItem(value: u, child: Text(u.name.toUpperCase()))).toList(),
-              onChanged: widget.tipoPredefinido == null 
-                ? (v) => setState(() {
-                    _usoSeleccionado = v!;
-                    _subCatCtrl.text = ''; 
-                  })
-                : null, // Bloqueado si viene de una misión específica
-            ),
-            const SizedBox(height: 16),
-            if (widget.tipoPredefinido == 'infraestructura')
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de Infraestructura',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.factory_rounded),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: const Color(0xFF00695C).withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
+                  child: const Icon(Icons.edit_location_alt_rounded, color: Color(0xFF00695C), size: 28),
                 ),
-                items: [
-                  ..._infraestructurasPecuarias.map((i) => DropdownMenuItem(value: i, child: Text('$i (Animales)'))),
-                  ..._infraestructurasGenerales.map((i) => DropdownMenuItem(value: i, child: Text(i))),
-                ],
-                onChanged: (v) => setState(() => _subCatCtrl.text = v!),
-                validator: (v) => v == null ? 'Seleccione el tipo' : null,
-              )
-            else
-              TextFormField(
-                controller: _subCatCtrl,
-                decoration: InputDecoration(
-                  labelText: _usoSeleccionado == TipoUsoLote.agricola ? '¿Qué cultivo es?' : 'Subcategoría',
-                  hintText: _usoSeleccionado == TipoUsoLote.agricola ? 'Ej: Café, Cacao' : 'Ej: Potrero, Estanque',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.eco)
-                ),
-                validator: (v) => v!.isEmpty ? 'Ingresa la categoría' : null,
-              ),
-            const SizedBox(height: 16),
+                const SizedBox(width: 16),
+                const Text('Detalles del Lote', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+              ],
+            ),
+            const SizedBox(height: 32),
             
-            if (_usoSeleccionado == TipoUsoLote.agricola) ...[
-              TextFormField(
-                controller: _matasCtrl, 
-                keyboardType: TextInputType.number, 
-                decoration: const InputDecoration(labelText: 'Número de Matas', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pin), suffixText: 'plantas'), 
-                validator: (v) => v!.isEmpty ? 'Ingresa cantidad' : null
+            // SECCIÓN 1: IDENTIFICACIÓN (Tipo Bento)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _etapaSeleccionada,
-                decoration: const InputDecoration(labelText: 'Etapa del Cultivo', border: OutlineInputBorder(), prefixIcon: Icon(Icons.psychology_alt_rounded)),
-                items: _etapasCafe.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (v) => setState(() => _etapaSeleccionada = v),
-                validator: (v) => v == null ? 'Selecciona una etapa' : null,
-              ),
-            ],
-            
-            if (_usoSeleccionado == TipoUsoLote.pecuario)
-              TextFormField(
-                controller: _capAnimCtrl, 
-                keyboardType: TextInputType.number, 
-                decoration: const InputDecoration(labelText: 'Capacidad de Animales', border: OutlineInputBorder(), prefixIcon: Icon(Icons.pets), suffixText: 'cabezas'),
-                validator: (v) => v!.isEmpty ? 'Ingresa capacidad' : null
-              ),
-
-            const SizedBox(height: 24),
-            if (_usoSeleccionado == TipoUsoLote.agricola) ...[
-              const Text('CRONOGRAMA INICIAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Divider(),
-              _DatePickerTile(titulo: 'Próxima Abonada', fecha: _fechaAbonada, onTap: () => _pickDate('Abonada', (d) => _fechaAbonada = d)),
-              
-              if (_fechaAbonada != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: DropdownButtonFormField<int>(
-                    value: _mesesFrecuenciaAbono,
-                    decoration: const InputDecoration(
-                      labelText: 'Frecuencia de Abonada', 
-                      prefixIcon: Icon(Icons.repeat_rounded),
-                      helperText: 'Cenicafé: Levante cada 3 meses, Producción cada 4-6 meses.',
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nombreCtrl, 
+                    decoration: const InputDecoration(labelText: 'Nombre del Lote', prefixIcon: Icon(Icons.landscape)), 
+                    validator: (v) => v!.isEmpty ? 'Ingresa un nombre' : null
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<TipoUsoLote>(
+                    value: _usoSeleccionado,
+                    decoration: const InputDecoration(labelText: 'Tipo de Uso', prefixIcon: Icon(Icons.category)),
+                    items: TipoUsoLote.values.map((u) => DropdownMenuItem(value: u, child: Text(u.name.toUpperCase()))).toList(),
+                    onChanged: widget.tipoPredefinido == null 
+                      ? (v) => setState(() {
+                          _usoSeleccionado = v!;
+                          _subCatCtrl.text = ''; 
+                        })
+                      : null,
+                  ),
+                  const SizedBox(height: 16),
+                  if (widget.tipoPredefinido == 'infraestructura')
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: 'Tipo de Infraestructura', prefixIcon: Icon(Icons.factory_rounded)),
+                      items: [
+                        ..._infraestructurasPecuarias.map((i) => DropdownMenuItem(value: i, child: Text('$i (Animales)'))),
+                        ..._infraestructurasGenerales.map((i) => DropdownMenuItem(value: i, child: Text(i))),
+                      ],
+                      onChanged: (v) => setState(() => _subCatCtrl.text = v!),
+                      validator: (v) => v == null ? 'Seleccione el tipo' : null,
+                    )
+                  else
+                    TextFormField(
+                      controller: _subCatCtrl,
+                      decoration: InputDecoration(
+                        labelText: _usoSeleccionado == TipoUsoLote.agricola ? '¿Qué cultivo es?' : 'Subcategoría',
+                        hintText: _usoSeleccionado == TipoUsoLote.agricola ? 'Ej: Café, Cacao' : 'Ej: Potrero, Estanque',
+                        prefixIcon: const Icon(Icons.eco)
+                      ),
+                      validator: (v) => v!.isEmpty ? 'Ingresa la categoría' : null,
                     ),
-                    items: [
-                      const DropdownMenuItem(value: 2, child: Text('Cada 2 meses (Intensivo)')),
-                      const DropdownMenuItem(value: 3, child: Text('Cada 3 meses (Levante/Soca)')),
-                      const DropdownMenuItem(value: 4, child: Text('Cada 4 meses (Producción Pro)')),
-                      const DropdownMenuItem(value: 6, child: Text('Cada 6 meses (Tradicional)')),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+
+            // SECCIÓN 2: DATOS TÉCNICOS
+            if (_usoSeleccionado == TipoUsoLote.agricola || _usoSeleccionado == TipoUsoLote.pecuario)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    if (_usoSeleccionado == TipoUsoLote.agricola) ...[
+                      TextFormField(
+                        controller: _matasCtrl, 
+                        keyboardType: TextInputType.number, 
+                        decoration: const InputDecoration(labelText: 'Número de Matas', prefixIcon: Icon(Icons.pin), suffixText: 'plantas'), 
+                        validator: (v) => v!.isEmpty ? 'Ingresa cantidad' : null
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _etapaSeleccionada,
+                        decoration: const InputDecoration(labelText: 'Etapa del Cultivo', prefixIcon: Icon(Icons.psychology_alt_rounded)),
+                        items: _etapasCafe.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                        onChanged: (v) => setState(() => _etapaSeleccionada = v),
+                        validator: (v) => v == null ? 'Selecciona una etapa' : null,
+                      ),
                     ],
-                    onChanged: (v) => setState(() => _mesesFrecuenciaAbono = v!),
-                  ),
+                    if (_usoSeleccionado == TipoUsoLote.pecuario)
+                      TextFormField(
+                        controller: _capAnimCtrl, 
+                        keyboardType: TextInputType.number, 
+                        decoration: const InputDecoration(labelText: 'Capacidad de Animales', prefixIcon: Icon(Icons.pets), suffixText: 'cabezas'),
+                        validator: (v) => v!.isEmpty ? 'Ingresa capacidad' : null
+                      ),
+                  ],
                 ),
-              
-              const SizedBox(height: 16),
-              const Text('Cosecha Principal (Rango)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: _mesInicioCosecha,
-                      decoration: const InputDecoration(labelText: 'Inicia en', prefixIcon: Icon(Icons.play_arrow_rounded)),
-                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
-                      onChanged: (v) => setState(() => _mesInicioCosecha = v),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: _mesFinCosecha,
-                      decoration: const InputDecoration(labelText: 'Termina en', prefixIcon: Icon(Icons.stop_rounded)),
-                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
-                      onChanged: (v) => setState(() => _mesFinCosecha = v),
-                    ),
-                  ),
-                ],
               ),
 
-              const SizedBox(height: 16),
-              const Text('Temporada Mitaca (Rango)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: _mesInicioMitaca,
-                      decoration: const InputDecoration(labelText: 'Inicia en', prefixIcon: Icon(Icons.play_arrow_rounded)),
-                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
-                      onChanged: (v) => setState(() => _mesInicioMitaca = v),
+            const SizedBox(height: 24),
+
+            // SECCIÓN 3: CRONOGRAMA (Tipo Bento)
+            if (_usoSeleccionado == TipoUsoLote.agricola)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('CRONOGRAMA TÉCNICO', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.blueGrey, letterSpacing: 1.2)),
+                    const SizedBox(height: 16),
+                    _DatePickerTile(titulo: 'Próxima Abonada', fecha: _fechaAbonada, onTap: () => _pickDate('Abonada', (d) => _fechaAbonada = d)),
+                    
+                    if (_fechaAbonada != null)
+                      DropdownButtonFormField<int>(
+                        value: _mesesFrecuenciaAbono,
+                        decoration: const InputDecoration(
+                          labelText: 'Frecuencia', 
+                          prefixIcon: Icon(Icons.repeat_rounded),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 2, child: Text('Cada 2 meses (Intensivo)')),
+                          DropdownMenuItem(value: 3, child: Text('Cada 3 meses (Levante)')),
+                          DropdownMenuItem(value: 4, child: Text('Cada 4 meses (Producción)')),
+                          DropdownMenuItem(value: 6, child: Text('Cada 6 meses (Tradicional)')),
+                        ],
+                        onChanged: (v) => setState(() => _mesesFrecuenciaAbono = v!),
+                      ),
+                    
+                    const Divider(height: 32),
+                    const Text('Temporada de Cosecha', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            value: _mesInicioCosecha,
+                            decoration: const InputDecoration(labelText: 'Inicia', prefixIcon: Icon(Icons.play_arrow_rounded)),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                            onChanged: (v) => setState(() => _mesInicioCosecha = v),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            value: _mesFinCosecha,
+                            decoration: const InputDecoration(labelText: 'Fin', prefixIcon: Icon(Icons.stop_rounded)),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                            onChanged: (v) => setState(() => _mesFinCosecha = v),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: _mesFinMitaca,
-                      decoration: const InputDecoration(labelText: 'Termina en', prefixIcon: Icon(Icons.stop_rounded)),
-                      items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
-                      onChanged: (v) => setState(() => _mesFinMitaca = v),
-                    ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    _DatePickerTile(titulo: 'Próxima Fumigación', fecha: _fechaFumigada, onTap: () => _pickDate('Fumigación', (d) => _fechaFumigada = d)),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 16),
-              _DatePickerTile(titulo: 'Próxima Fumigación', fecha: _fechaFumigada, onTap: () => _pickDate('Fumigación', (d) => _fechaFumigada = d)),
-
-              if (_fechaFumigada != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: DropdownButtonFormField<int>(
-                    value: _mesesFrecuenciaFumiga,
-                    decoration: const InputDecoration(labelText: 'Frecuencia de Fumigación', prefixIcon: Icon(Icons.repeat_rounded)),
-                    items: [2, 3, 4, 6].map((m) => DropdownMenuItem(value: m, child: Text('Cada $m meses'))).toList(),
-                    onChanged: (v) => setState(() => _mesesFrecuenciaFumiga = v!),
-                  ),
-                ),
-            ],
-            
             const SizedBox(height: 32),
             ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(0, 64), backgroundColor: const Color(0xFF00695C), foregroundColor: Colors.white),
