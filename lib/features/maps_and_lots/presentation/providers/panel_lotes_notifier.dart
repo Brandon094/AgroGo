@@ -32,6 +32,28 @@ class PanelLotesNotifier extends _$PanelLotesNotifier {
     );
   }
 
+  Future<void> eliminarTodoElMapa() async {
+    state = const AsyncValue.loading();
+    final fincaIdStr = ref.read(fincaSeleccionadaProvider);
+    if (fincaIdStr == null) return;
+    
+    final fincaId = int.parse(fincaIdStr);
+    final repositorio = ref.read(repositorioLotesProvider);
+    
+    // Obtenemos todos los lotes de esta finca para borrarlos uno por uno o vía query
+    final lotesRes = await repositorio.obtenerLotes(fincaId: fincaId);
+    
+    await lotesRes.fold(
+      (fallo) async => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
+      (lotes) async {
+        for (final lote in lotes) {
+          await repositorio.eliminarLote(lote.id);
+        }
+        ref.invalidateSelf();
+      },
+    );
+  }
+
   Future<void> refresh() async {
     ref.invalidateSelf();
     await future;
