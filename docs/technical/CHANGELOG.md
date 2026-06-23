@@ -4,45 +4,42 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
-## [0.3.0] - 2024-06-21
+## [0.4.0] - 2024-06-21 (Valla Eléctrica y Bento Pro)
 ### Añadido
-- **Módulo de Autenticación Unificada**: Integración con Firebase Auth y Google Sign-In para el Ecosistema "Go".
-- **Enrutador Inteligente**: Redirección automática al Login basada en el estado de autenticación de Riverpod.
-- **Identidad Única (SSO)**: Preparado para interoperar con RutaGo y CargoGo mediante el mismo UID.
-- **Soporte Multi-Plataforma**: Configuración oficial para Android (llaves SHA) e iOS (Info.plist).
+- **Motor de Geofencing Estricto**: Validación técnica que prohíbe dibujar cualquier punto fuera del perímetro maestro de la finca.
+- **Onboarding Dinámico con Bifurcación**: Tutor secuencial que pregunta por la vocación pecuaria y ajusta las misiones automáticamente.
+- **Dashboard Bento Pro**: Rediseño del panel principal con métricas agrupadas (Patrimonio, Producción, Recursos) y atajos clasificados.
+- **Zonificación por Pestañas**: División del panel "Mis Zonas" en **CULTIVOS** y **ESTRUCTURAS** para una mejor organización.
+- **Validación de Infraestructura**: Los animales ahora requieren obligatoriamente una ubicación válida (Cochera, Galpón, etc.) filtrada por subcategoría.
+- **Especies Expandidas**: Soporte para Bovinos, Equinos, Ovinos, Caprinos y más, con iconografía y colores dedicados.
+- **Auto-Ubicación GPS**: Integración de Reverse Geocoding para detectar municipio y departamento automáticamente.
+- **Botón SALTAR**: Opción para omitir el onboarding para usuarios expertos.
 
-### Cambiado
-- **Estructura de Documentación**: Migración a estándar "Senior" con carpetas `/technical` y `/product`.
-- **Priorización de Plataformas**: Decisión estratégica de enfocar el desarrollo en Android e iOS para optimizar la experiencia GIS y Offline, posponiendo Web debido a compatibilidad de Isar con JavaScript.
+### Mejorado
+- **Cerebro de Mapeo**: Banner de instrucciones dinámicas y visualización del perímetro maestro como guía visual.
+- **Navegación**: Implementación de guardas de seguridad y redirección automática al Login (Firebase Auth).
+
+---
+
+## [0.3.0] - 2024-06-21 (Identidad Unificada)
+### Añadido
+- **Módulo de Autenticación Unificada**: Integración con Firebase Auth y Google Sign-In.
+- **Identidad Única (SSO)**: UID compartido con el Ecosistema "Go".
+- **Soporte Multi-Plataforma**: Configuración oficial para Android e iOS.
 
 ---
 
 ## [0.2.5] - 2024-06-20 (Beneficio y Venta)
 ### Añadido
-- **Motor de Venta Directa**: Opción de vender café mojado o en cereza saltando el secado.
-- **Integración Logística**: Banner de ServiCarga en diálogos de venta.
-- **Auditoría Senior**: Reestructuración total de la documentación al estándar "Go Ecosystem".
-- **Estado Púrpura**: Nuevo identificador visual para lotes de producción vendidos.
-
-### Cambiado
-- **Refactor de Tema**: Conexión de todos los módulos al `Theme.of(context).primaryColor` para evitar colores quemados.
-- **Nómina Inteligente**: El cálculo de pago ahora es reactivo desde la apertura del formulario.
-
----
-
-## [0.2.0] - 2024-06-15 (Premium Emerald)
-### Añadido
-- **Identidad Visual**: Implementación del tema Emerald Premium con Glassmorphism.
-- **Bento Dashboard**: Rediseño del inicio con tarjetas de métricas 3x2.
-- **Mapeo Híbrido**: Soporte para capas satelitales y normales en tiempo real.
+- **Motor de Venta Directa**: Opción de vender café mojado saltando el secado.
+- **Integración Logística**: Preparación para CargaGo.
 
 ---
 
 ## [0.1.0] - 2024-06-01 (MVP)
 ### Añadido
-- **Persistencia Isar**: Implementación de base de datos local Offline-First.
-- **Clean Architecture**: Estructura de carpetas por features.
-- **Módulo GIS**: Creación y cálculo de áreas de lotes.
+- **Persistencia Isar**: Base de datos local Offline-First.
+- **Clean Architecture**: Estructura modular por features.
 
 ---
 **Chop Code Solutions - Ingeniería para el campo.**

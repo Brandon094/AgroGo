@@ -1,46 +1,39 @@
-# 📋 Especificación de Requisitos - AgroGo
+# 📋 Especificación de Requisitos y Flujo Lógico - AgroGo
 
-Detalle de las capacidades funcionales y estándares de calidad del ERP Agrícola.
-
-### Identidad y Seguridad (SSO)
-*   **RF-07:** El sistema debe integrarse con Firebase Auth para permitir el inicio de sesión con Google.
-*   **RF-08:** Los datos del usuario deben estar vinculados a un UID único compartido con el Ecosistema Go.
-*   **RF-09:** El acceso a las pantallas de gestión de finca debe estar restringido a usuarios autenticados.
+Este documento detalla la jerarquía operativa y las reglas de negocio que garantizan la integridad de los datos en AgroGo.
 
 ---
 
-## 🛠️ 1. Requisitos Funcionales (RF)
+## 🏗️ 1. Jerarquía de Configuración (Setup Mandatorio)
 
-### Gestión de Tierra (GIS)
-*   **RF-01:** El sistema debe permitir dibujar polígonos sobre mapas satelitales.
-*   **RF-02:** El app debe calcular el área en hectáreas con precisión de dos decimales.
+El sistema aplica una secuencia lógica para evitar errores estructurales:
 
-### Finanzas y Bodega
-*   **RF-03:** El sistema debe alertar cuando el stock de un insumo esté por debajo del umbral mínimo.
-*   **RF-04:** Todo registro de gasto debe permitir asociarse a un lote específico para medir rentabilidad.
-
-### Nómina y Producción
-*   **RF-05:** El sistema debe liquidar jornales y kilos de café recolectado.
-*   **RF-06:** Se debe permitir el registro de alimentación diaria para descuento automático en nómina.
-
-### Identidad y Seguridad (SSO)
-*   **RF-07:** El sistema debe integrarse con Firebase Auth para permitir el inicio de sesión con Google.
-*   **RF-08:** Los datos del usuario deben estar vinculados a un UID único compartido con el Ecosistema Go.
-*   **RF-09:** El acceso a las pantallas de gestión de finca debe estar restringido a usuarios autenticados.
+1.  **Misión: Sensores**: Acceso obligatorio a GPS/GNSS antes de cualquier registro geográfico.
+2.  **Finca (Padre)**: Registro de identidad de la propiedad con auto-detección de ubicación.
+3.  **Perímetro Obligatorio**: Bloqueo total de creación de lotes e infraestructura hasta que el **Perímetro Total** esté definido.
+4.  **Geovalla (Geofencing)**: Restricción técnica que impide dibujar cualquier punto fuera del perímetro maestro.
+5.  **Infraestructura Previa**: Los animales solo pueden registrarse si existe una estructura (Cochera, Galpón, etc.) apta para su alojamiento.
 
 ---
 
-## ⚡ 2. Requisitos No Funcionales (RNF)
+## ⚡ 2. Reglas de Negocio Críticas
 
-*   **RNF-01 (Offline):** El 100% de las funciones de registro deben operar sin conexión a internet.
-*   **RNF-02 (Performance):** La carga del Dashboard con más de 10 lotes no debe superar los 500ms.
-*   **RNF-03 (UI):** La interfaz debe usar la paleta Esmeralda/Bosque definida en el manual de Branding.
-*   **RNF-04 (Seguridad):** Los datos de diferentes fincas deben estar aislados a nivel de consulta en la base de datos local.
+*   **Pecuario Inteligente**:
+    *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que coincidan con la vocación animal.
+    *   No se permiten animales en casas o bodegas generales.
+*   **Gestión de Zonas**:
+    *   Separación visual obligatoria en el panel "Mis Zonas": Pestaña de **CULTIVOS** (Producción) vs Pestaña de **ESTRUCTURAS** (Activos).
+*   **Bodega Virtual**: Impedir el registro de labores si el stock del insumo requerido es cero.
+*   **Nómina**: Liquidación admisible en Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
 
-### Identidad y Seguridad (SSO)
-*   **RF-07:** El sistema debe integrarse con Firebase Auth para permitir el inicio de sesión con Google.
-*   **RF-08:** Los datos del usuario deben estar vinculados a un UID único compartido con el Ecosistema Go.
-*   **RF-09:** El acceso a las pantallas de gestión de finca debe estar restringido a usuarios autenticados.
+---
+
+## 🎨 3. Estándares de Interfaz y UX
+
+*   **RF-UI-01 (Bento Dashboard)**: Métricas agrupadas por dominios: **Patrimonio** (Ha/$), **Producción** (Lotes/Beneficio) y **Recursos** (Animales/Nómina).
+*   **RF-UI-02 (Shortcuts Categorizados)**: División de atajos en: **Gestión Diaria**, **Ingeniería/Mapas** e **Inventarios**.
+*   **RF-UI-03 (Tutor Dinámico)**: El Onboarding debe ofrecer bifurcación por vocación y opción de "SALTAR".
+*   **RF-UI-04 (Instrucciones Dinámicas)**: El motor de mapas debe guiar al usuario con banners informativos según la misión activa.
 
 ---
 **Chop Code Solutions - Product Management 2026**

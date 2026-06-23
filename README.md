@@ -1,55 +1,69 @@
-# 📖 Enciclopedia Técnica Integral - AgroGo v0.2.5 Stable
+# 🚜 AgroGo: ERP Agrícola de Grado Senior y Multi-Finca
 
-Bienvenido al centro de conocimiento oficial de **ChopCode Solutions**. Este documento sirve como punto de entrada de alto nivel para comprender **AgroGo**, el ERP agrícola diseñado para revolucionar la productividad rural en la región de Natagá y el Huila.
+![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
+![Riverpod](https://img.shields.io/badge/Riverpod-2.x-teal)
+![Firebase](https://img.shields.io/badge/Firebase-Auth_&_Firestore-orange?logo=firebase)
+![Clean Architecture](https://img.shields.io/badge/Clean-Architecture-success)
+![ChopCode Solutions](https://img.shields.io/badge/By-ChopCode_Solutions-black)
 
----
-
-## 🏗️ 1. Visión y Propósito Estratégico
-AgroGo es una solución de **Gestión Transaccional Offline-First**. Su objetivo es integrar la administración total de la finca bajo un cerebro digital único:
-1.  **Gestión GIS**: Zonificación de tierra y cálculo de áreas de precisión.
-2.  **Automatización 360°**: Vínculo entre Agenda, Gastos e Inventarios.
-3.  **Trazabilidad de Beneficio**: Control total del ciclo del café desde cereza hasta pergamino seco.
+**AgroGo** es un sistema de gestión integral (ERP) móvil de grado profesional diseñado para revolucionar la administración de fincas cafeteras y ganaderas. Transformamos la gestión tradicional en un proceso inteligente, geográfico y **100% Offline-First**, integrado en el **Ecosistema "Go"**.
 
 ---
 
-## 👥 2. Modelo de Actores y Permisos (RBAC)
-El sistema opera bajo un modelo de **Aislamiento Multi-Finca**, permitiendo que un solo administrador gestione múltiples unidades productivas:
+## 🎯 Pilares Estratégicos
 
-*   **Administrador / Productor**: Control total de lotes, nómina, finanzas y bodega.
-*   **Operador de Campo**: (Fase 3) Visualiza tareas asignadas y reporta avances.
-*   **Ecosistema Go**: (Integración) Identidad única para interoperar con RutaGo y CargoGo.
-
----
-
-## 📦 3. Desglose de Motores y Módulos Core
-
-| Módulo | Responsabilidad Técnica | Aplicación |
-|:---|:---|:---|
-| **GIS Engine** | Mapeo satelital, geocercas y cálculos de área. | Lotes |
-| **Financial Engine** | Cálculo de costos COP, amortización y flujos. | Finanzas |
-| **Inventory Engine** | Bodega triple categoría y alertas de stock. | Insumos |
-| **Beneficio Engine** | Motor de transformación de estados del café. | Producción |
-| **Payroll Engine** | Liquidación dinámica por jornal, kilo o arroba. | Nómina |
-| **Offline Sync** | Persistencia Isar Database con transacciones ACID. | Core |
+1.  **Identidad Unificada (SSO)**: Acceso mediante cuenta única de Google compartida con RutaGo y CargoGo.
+2.  **Ingeniería de Tierra (GIS)**: Mapeo de precisión con **Geovallas (Geofencing)** que prohíben el dibujo fuera del perímetro real de la finca.
+3.  **Flujo Lógico Secuencial**: Sistema guiado que obliga a definir el Perímetro -> Infraestructura -> Cultivos -> Animales.
+4.  **Dashboard Bento Pro**: Interfaz ejecutiva con métricas agrupadas por dominios de negocio (Patrimonio, Producción, Recursos).
+5.  **Offline-First Rural**: Operación total sin señal celular mediante base de datos Isar con sincronización selectiva a la nube.
 
 ---
 
-## 🛠️ 4. Ecosistema de Documentación (Nivel Senior)
+## 🚀 Módulos y Capacidades
 
-### 📗 Dominio Técnico (Engineering)
-*   [**Arquitectura Detallada**](./docs/technical/ARCHITECTURE_MODULES.md): Estructura Isar y Clean Architecture.
-*   [**Estándares de Código**](./docs/technical/DEVELOPER_GUIDELINES.md): Reglas de oro (Dart/Flutter) y Clean Code.
-*   [**Diccionario de Datos**](./docs/technical/DICCIONARIO_DATOS.md): Mapeo del esquema Isar NoSQL local.
-*   [**Ficha Técnica**](./docs/technical/FICHA_TECNICA.md): Especificaciones de infraestructura y stack tecnológico.
-*   [**Historial de Cambios**](./docs/technical/CHANGELOG.md): Registro de versiones y evoluciones.
-*   [**Plan de Pruebas**](./docs/technical/QA_PLAN.md): Protocolos de certificación y QA.
+### 🏘️ Gestión Estructural y GIS
+*   **Perímetro Maestro**: Definición del límite total de la propiedad como marco de contención.
+*   **Zonificación por Tabs**: Separación clara entre **Lotes de Cultivo** y **Estructuras Físicas** (Casas, Bodegas, Corrales).
+*   **Mapeo Híbrido**: Captura manual o vía GPS Campo con filtro de precisión de 5 metros.
 
-### 📘 Dominio de Producto (Business)
-*   [**Master Plan Ecosistema**](./docs/product/ECOSYSTEM_MASTER_PLAN.md): Visión estratégica de AgroGo en la suite Go.
-*   [**Especificación de Requisitos**](./docs/product/REQUISITOS.md): RF, RNF y reglas de negocio.
-*   [**Identidad Visual**](./docs/product/BRANDING.md): Guía de estilo Premium Emerald.
-*   [**Hoja de Ruta (Roadmap)**](./docs/product/ROADMAP.md): Fases de expansión y AgroGo Network.
+### 🐖 Motor Pecuario Integral
+*   **Validación de Alojamiento**: No se permiten animales sin infraestructura previa.
+*   **Especies Soportadas**: Cerdos, Vacas, Caballos, Ovejas, Cabras, Peces, Aves y Mulas.
+*   **Asistente de Carga**: Diálogos de acción rápida tras crear un corral.
+
+### 🧠 Automatización y Operación
+*   **Bodega Virtual**: Gestión de stock categorizada vinculada a bodegas físicas.
+*   **Nómina Dinámica**: Liquidación por Kilo, Arroba o Jornal con descuentos automáticos.
+*   **Trazabilidad de Café**: Control del proceso desde Cereza hasta Venta Directa o Secado.
 
 ---
-**© 2026 Chop Code Solutions - Ingeniería para la Productividad Rural**  
-**Desarrollador Lead: Brandon Daza Cerquera**
+
+## ⚙️ Instalación y Compilación
+
+Para detalles técnicos y guías, consulte la carpeta `/docs`:
+- [🏗️ Arquitectura y Stack](./docs/technical/ARCHITECTURE_MODULES.md)
+- [🎨 Diseño y UX](./docs/product/BRANDING.md)
+- [🚀 Módulos y Funcionalidades](./docs/product/REQUISITOS.md)
+- [🗺️ Hoja de Ruta](./docs/product/ROADMAP.md)
+- [🛠️ Guía de Desarrollo](./docs/technical/DEVELOPER_GUIDELINES.md)
+- [📝 Changelog](./docs/technical/CHANGELOG.md)
+
+1.  **Dependencias:**
+    ```bash
+    flutter pub get
+    ```
+
+2.  **Generación de Código:**
+    ```bash
+    flutter pub run build_runner build --delete-conflicting-outputs
+    ```
+
+3.  **Configuración de Firebase:**
+    ```bash
+    flutterfire configure
+    ```
+
+---
+**Desarrollado por ChopCode Solutions.**  
+*Ingeniería para la productividad rural.*

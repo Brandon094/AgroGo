@@ -47,4 +47,13 @@ La interfaz está optimizada para **Modo Claro (Arena)**:
 *   Superficies: Blanco puro `#FFFFFF` para tarjetas de datos.
 
 ---
+
+## 📊 6. Estructura de Dashboard (Bento Pro)
+El Dashboard principal utiliza una composición tipo **Bento Box** para organizar la información crítica:
+
+*   **Grupos de Métricas**: Las estadísticas no están sueltas; se agrupan en dominios (Patrimonio, Producción, Recursos) para una lectura rápida del estado del negocio.
+*   **Atajos Categorizados**: Los botones de acción se dividen por su frecuencia de uso y naturaleza operativa (Gestión Diaria vs. Ingeniería).
+*   **Jerarquía Visual**: Uso de contenedores con diferentes profundidades de sombra para guiar el ojo hacia las alertas más urgentes.
+
+---
 **Chop Code Solutions - Branding Department 2026**

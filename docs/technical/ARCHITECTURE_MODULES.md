@@ -17,7 +17,7 @@ AgroGo combina la potencia de la nube para identidad con la resiliencia local pa
 *   **Justificación**: El caficultor no puede depender de una conexión para anotar sus gastos. Isar ofrece transacciones ACID atómicas.
 *   **Patrón**: Colecciones NoSQL con mappers automáticos a Entidades.
 
-### 1.2 Transaccionalidad 360°
+### 1.3 Transaccionalidad 360°
 Hemos implementado un flujo de datos reactivo:
 1.  **Activación**: Se completa una tarea en la agenda.
 2.  **Transacción**: Una única transacción Isar descuenta stock de la colección `Insumo` y crea un registro en `ItemCosto`.
@@ -38,13 +38,15 @@ El proyecto se divide en capas estrictas para garantizar mantenibilidad:
 
 ### 2.3 Presentation (Riverpod Reactivo)
 *   **Notifiers**: Gestores de estado que escuchan cambios en Isar.
-*   **Widgets**: Componentes de UI optimizados con `RepaintBoundary`.
+*   **Widgets**: Componentes de UI optimizados con `RepaintBoundary` y diseño **Bento Dashboard**.
 
 ---
 
-## 📍 3. Motor GIS e Ingeniería de Tierra
-*   **Cálculo Esférico**: Uso de `SphericalUtil` para calcular áreas sobre la curvatura terrestre.
-*   **Filtro de Precisión**: Algoritmo que bloquea capturas GPS con precisión menor a 5 metros para garantizar hectáreas reales.
+## 📍 3. Motores de Inteligencia Geográfica y Lógica
+*   **Cálculo Esférico**: Uso de `SphericalUtil` para cálculo de áreas reales (Ha).
+*   **Geofencing Engine (Valla Eléctrica)**: Validador de puntos `containsLocation` que impide la creación de lotes o infraestructuras fuera del perímetro `perimetro`.
+*   **Vocación Mapper**: Lógica de bifurcación de UI que adapta el Stepper del Onboarding según el perfil productivo del usuario (SÍ/NO animales).
+*   **Reverse Geocoding**: Conversión de coordenadas lat/lng a direcciones humanas (Vereda, Municipio) mediante el paquete `geocoding`.
 
 ---
 

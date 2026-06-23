@@ -1,46 +1,48 @@
-# 🗺️ Hoja de Ruta y Futuro - AgroGo
+# 🗺️ Hoja de Ruta: El Ciclo de Vida del Caficultor Digital
 
-Este documento detalla las fases de evolución para convertir a AgroGo en la plataforma líder de gestión rural.
-
----
-
-## ✅ Fase 1: Cimientos GIS (Completado)
-*   [x] Arquitectura Clean Features.
-*   [x] Motor de dibujo de lotes por GPS y Manual.
-*   [x] Persistencia Isar Database 100% Offline.
-*   [x] Soporte Multi-Finca.
+AgroGo no es solo una app; es un proceso guiado. Este roadmap define la secuencia lógica de configuración y operación para garantizar el éxito del finquero.
 
 ---
 
-## ☕ Fase 2: Automatización y Beneficio (En Curso)
-*   [x] Calculadora Predictiva de Insumos.
-*   [x] Gestión de Nómina Dinámica (Kilo/Arroba).
-*   [x] Trazabilidad de Transformación del Café (Cereza a Seco).
-*   [x] Inyección automática de gastos y stock.
+## ✅ Fase 1: Ingeniería de Tierra (Completado)
+*   [x] **Pilar 1: Perímetro de Finca**: Definición del terreno completo (El "cascarón"). **Bloqueo Mandatorio**: Nada se dibuja sin perímetro.
+*   [x] **Pilar 2: Geovalla Activa**: Protección técnica contra dibujos fuera de límites.
+*   [x] **Pilar 3: Infraestructura**: Mapeo de Corrales, Cocheras, Lagos y Bodegas.
+*   [x] **Pilar 4: Lotes Productivos**: División por cultivos (Café, Cacao, etc.).
 
 ---
 
-## ☁️ Fase 3: AgroGo Network & SSO (En Curso)
-*Objetivo: Integración con el ecosistema y sincronización.*
-
-1.  [x] **Identidad Única (SSO)**: Login unificado con RutaGo vía Firebase Auth.
-2.  [ ] **Sincronización Firestore**: Respaldo automático de fincas y lotes.
-3.  [ ] **Modo Multi-Rol**: Acceso diferenciado para dueños y capataces.
-3.  **Alertas Push**: Notificaciones de tareas vencidas o clima extremo.
+## ✅ Fase 2: Configuración Estructural (Completado)
+*   [x] **Onboarding Dinámico**: Tutor que se adapta a la vocación (Agrícola vs Pecuaria).
+*   [x] **Dashboard Bento Pro**: Interfaz ejecutiva por dominios de negocio.
+*   [x] **Zonificación por Tabs**: Organización de activos en Cultivos vs Estructuras.
+*   [x] **Motor de Identidad**: Login unificado con Google (Ecosistema Go).
 
 ---
 
-## 🤝 Fase 4: Marketplace de Empleo (Mediano Plazo)
-1.  **Bolsa de Recolectores**: Conexión entre fincas que necesitan personal y trabajadores disponibles.
-2.  **Reputación Digital**: Calificación de trabajadores basada en su historial de recolección.
-3.  **Seguro Digital**: Micro-seguros de accidentes laborales por jornal.
+## ☕ Fase 2.5: Activos e Inventario (En Curso)
+*Objetivo: Llenar la finca de recursos antes de empezar a trabajar.*
+
+1.  **Bodega Virtual Inteligente**: 
+    *   **Categorización Real**: Maquinaria, Insumos y Producción.
+    *   **Vínculo Físico**: Los insumos se guardan en bodegas mapeadas.
+2.  **Motor de Capital Humano**: Registro de trabajadores y tarifas (Kilo, Arroba, Jornal).
+3.  **Integración Pecuaria**: Registro de animales vinculados a infraestructuras filtradas.
 
 ---
 
-## 📈 Fase 5: Inteligencia de Datos y Exportación (Largo Plazo)
-1.  **IA Agrónoma**: Sugerencias de fertilización basadas en historial de cosechas anteriores.
-2.  **Reportes PDF Pro**: Generación automática de libros de campo para certificaciones internacionales.
-3.  **Integración CargoGo**: Subastas de fletes pesados para venta masiva.
+## ☁️ Fase 3: Operación y Beneficio 360° (En Desarrollo)
+*Objetivo: La vida diaria de la finca y el puente a la venta.*
+
+1.  **Ejecución de Agenda**: Asignación de tareas basada en el catálogo de labores.
+2.  **Cerebro de Beneficio**: Recolección (Cereza) -> Secado -> Venta.
+3.  **AgroGo Network**: Sincronización selectiva y respaldo en la nube.
+
+---
+
+## 🚛 Fase 4: Ecosistema Go & Marketplace
+1.  **Integración CargaGo**: Venta directa con solicitud de transporte automática.
+2.  **Marketplace de Empleo**: Bolsa de trabajo rural geolocalizada.
 
 ---
 **© 2026 Chop Code Solutions**

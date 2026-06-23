@@ -16,32 +16,35 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 0.1 | Login Google | Tocar botón de Google y elegir cuenta. | Redirección automática al Dashboard/Onboarding. |
 | 0.2 | Persistencia | Cerrar app y volver a abrir. | Debe entrar directo sin pedir login de nuevo. |
 | 0.3 | Logout | Cerrar sesión desde el perfil. | Redirección inmediata a la Pantalla de Login. |
-| 0.4 | Guardas de Ruta | Intentar entrar a `/lotes` sin estar logueado. | El sistema debe bloquear el acceso y mandar a `/login`. |
-
-## 🟢 Fase 1: Mapeo GIS y Precisión
-| ID | Caso de Prueba | Acción | Resultado Esperado |
-|:---|:---|:---|:---|
-| 1.1 | Captura Manual | Tocar 4 esquinas en el mapa. | Se forma el polígono y calcula hectáreas coherentes. |
-| 1.2 | Filtro Precisión | Intentar capturar con mala señal. | El sistema debe mostrar advertencia y bloquear punto. |
-| 1.3 | Pines Arrastrables | Mover un vértice del lote. | El área se recalcula automáticamente en vivo. |
 
 ---
 
-## 🔵 Fase 2: Automatización 360°
+## 🟢 Fase 1: Mapeo GIS y Geovalla
 | ID | Caso de Prueba | Acción | Resultado Esperado |
 |:---|:---|:---|:---|
-| 2.1 | Gasto de Tarea | Marcar abonada como "Completada". | Se abre diálogo de gasto y descuenta stock de bodega. |
-| 2.2 | Calculadora Pro | Proyectar abono por matas. | El resultado de bultos debe redondear hacia arriba. |
-| 2.3 | Inyección Stock | Guardar compra en calculadora. | Se crea ítem en bodega y registro en finanzas. |
+| 1.1 | Perímetro Maestro | Dibujar el borde total de la finca. | Se guarda como tipo `perimetro` y sirve de contención. |
+| 1.2 | Geovalla Estricta | Intentar poner un punto fuera del perímetro. | El sistema bloquea el punto y muestra aviso rojo. |
+| 1.3 | Pines Arrastrables | Mover un vértice dentro del perímetro. | El área se recalcula automáticamente en vivo. |
+| 1.4 | Filtro Precisión | Capturar punto GPS con error > 5m. | El sistema debe mostrar advertencia y bloquear punto. |
 
 ---
 
-## 🟡 Fase 3: Nómina y Beneficio
+## 🔵 Fase 2: Onboarding y Flujo Lógico
 | ID | Caso de Prueba | Acción | Resultado Esperado |
 |:---|:---|:---|:---|
-| 3.1 | Liquidación Arroba | Registrar 25kg (2 arrobas). | El pago debe ser tarifa * 2. |
-| 3.2 | Flujo Beneficio | Avanzar lote de Lavado a Secado. | El estado visual cambia de azul a naranja. |
-| 3.3 | Cierre de Lote | Finalizar secado con peso final. | Se crea automáticamente registro de "Producción" en Bodega. |
+| 2.1 | Vocación Dinámica | Elegir "NO TENGO" animales. | Los pasos de infraestructura pecuaria se ocultan. |
+| 2.2 | Validación Pecuaria | Intentar crear un cerdo sin cochera previa. | El panel muestra aviso de "Misión Pendiente". |
+| 2.3 | Atajo Post-Mapeo | Guardar un corral en el mapa. | Dispara diálogo: "¿Desea ingresar animales ahora?". |
+| 2.4 | Auto-Ubicación | Presionar botón GPS en registro finca. | Detecta automáticamente Vereda/Municipio. |
+
+---
+
+## 🟡 Fase 3: Dashboard Bento y Navegación
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 3.1 | Grupos Métricas | Observar el tablero principal. | Las métricas están agrupadas por Patrimonio, Café y Recursos. |
+| 3.2 | Pestañas de Zonas | Entrar a "Mis Zonas". | Se ven dos pestañas claras: CULTIVOS y ESTRUCTURAS. |
+| 3.3 | Bloqueo de Lotes | Intentar entrar a "Zonificar" sin perímetro. | Lanza SnackBar de aviso y botón para crear perímetro. |
 
 ---
 **Elaborado por: Chop Code Solutions - QA Team**
