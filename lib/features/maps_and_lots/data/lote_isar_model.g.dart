@@ -197,12 +197,14 @@ const _LoteIsarModelusoEnumValueMap = {
   'pecuario': 1,
   'forestal': 2,
   'infraestructura': 3,
+  'perimetro': 4,
 };
 const _LoteIsarModelusoValueEnumMap = {
   0: TipoUsoLote.agricola,
   1: TipoUsoLote.pecuario,
   2: TipoUsoLote.forestal,
   3: TipoUsoLote.infraestructura,
+  4: TipoUsoLote.perimetro,
 };
 
 Id _loteIsarModelGetId(LoteIsarModel object) {

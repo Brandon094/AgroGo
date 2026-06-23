@@ -19,6 +19,8 @@ class LoteMapaState {
   final ModoMapeo modo;
   final double? ultimoMargenError;
   final bool mostrarAdvertenciaGps;
+  final bool mostrarAdvertenciaPerimetro;
+  final bool esCreacionDePerimetro;
 
   const LoteMapaState({
     required this.puntos,
@@ -29,6 +31,8 @@ class LoteMapaState {
     this.modo = ModoMapeo.manual,
     this.ultimoMargenError,
     this.mostrarAdvertenciaGps = false,
+    this.mostrarAdvertenciaPerimetro = false,
+    this.esCreacionDePerimetro = false,
   });
 
   LoteMapaState copyWith({
@@ -40,6 +44,8 @@ class LoteMapaState {
     ModoMapeo? modo,
     double? ultimoMargenError,
     bool? mostrarAdvertenciaGps,
+    bool? mostrarAdvertenciaPerimetro,
+    bool? esCreacionDePerimetro,
   }) {
     return LoteMapaState(
       puntos: puntos ?? this.puntos,
@@ -50,6 +56,8 @@ class LoteMapaState {
       modo: modo ?? this.modo,
       ultimoMargenError: ultimoMargenError ?? this.ultimoMargenError,
       mostrarAdvertenciaGps: mostrarAdvertenciaGps ?? this.mostrarAdvertenciaGps,
+      mostrarAdvertenciaPerimetro: mostrarAdvertenciaPerimetro ?? this.mostrarAdvertenciaPerimetro,
+      esCreacionDePerimetro: esCreacionDePerimetro ?? this.esCreacionDePerimetro,
     );
   }
 }
@@ -72,11 +80,15 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
   }
 
   void cambiarModo(ModoMapeo nuevoModo) {
-    state = state.copyWith(modo: nuevoModo, mostrarAdvertenciaGps: false);
+    state = state.copyWith(modo: nuevoModo, mostrarAdvertenciaGps: false, mostrarAdvertenciaPerimetro: false);
   }
 
-  /// Añade una coordenada capturada por GPS con filtro de precisión.
-  /// Retorna true si el punto fue aceptado, false si el margen de error es muy alto.
+  void configurarComoPerimetro(bool esPerimetro) {
+    state = state.copyWith(esCreacionDePerimetro: esPerimetro);
+  }
+
+  /// Añade una coordenada capturada por GPS con filtro de precisión y validación de perímetro.
+  /// Retorna true si el punto fue aceptado, false si el margen de error es muy alto o está fuera de los límites.
   bool agregarPuntoGps(LatLng punto, double accuracy) {
     if (accuracy > 5.0) {
       state = state.copyWith(
@@ -86,29 +98,71 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
       return false;
     }
 
+    if (!_validarPuntoEnPerimetro(punto)) {
+      state = state.copyWith(mostrarAdvertenciaPerimetro: true);
+      return false;
+    }
+
     final puntosActualizados = List<LatLng>.from(state.puntos)..add(punto);
     state = _calcularEstadoActualizado(puntosActualizados).copyWith(
       mostrarAdvertenciaGps: false,
+      mostrarAdvertenciaPerimetro: false,
       ultimoMargenError: accuracy,
     );
     return true;
   }
 
   void ocultarAdvertencia() {
-    state = state.copyWith(mostrarAdvertenciaGps: false);
+    state = state.copyWith(mostrarAdvertenciaGps: false, mostrarAdvertenciaPerimetro: false);
   }
 
   void agregarPunto(LatLng punto) {
     if (state.modo != ModoMapeo.manual) return;
+    
+    if (!_validarPuntoEnPerimetro(punto)) {
+      state = state.copyWith(mostrarAdvertenciaPerimetro: true);
+      return;
+    }
+
     final puntosActualizados = List<LatLng>.from(state.puntos)..add(punto);
-    state = _calcularEstadoActualizado(puntosActualizados);
+    state = _calcularEstadoActualizado(puntosActualizados).copyWith(mostrarAdvertenciaPerimetro: false);
   }
 
   void actualizarPunto(int indice, LatLng nuevoPunto) {
     if (indice < 0 || indice >= state.puntos.length) return;
+
+    if (!_validarPuntoEnPerimetro(nuevoPunto)) {
+      state = state.copyWith(mostrarAdvertenciaPerimetro: true);
+      // Revertimos la posición en la UI forzando un redibujado con los puntos actuales
+      state = _calcularEstadoActualizado(List<LatLng>.from(state.puntos));
+      return;
+    }
+
     final puntosActualizados = List<LatLng>.from(state.puntos);
     puntosActualizados[indice] = nuevoPunto;
-    state = _calcularEstadoActualizado(puntosActualizados);
+    state = _calcularEstadoActualizado(puntosActualizados).copyWith(mostrarAdvertenciaPerimetro: false);
+  }
+
+  bool _validarPuntoEnPerimetro(LatLng punto) {
+    // Si estamos creando el perímetro, no validamos contra nada
+    if (state.esCreacionDePerimetro) return true;
+
+    final lotesExistentes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+    final perimetro = lotesExistentes.firstWhere(
+      (l) => l.uso == TipoUsoLote.perimetro,
+      orElse: () => Lote(id: '', nombre: '', uso: TipoUsoLote.perimetro, subCategoria: '', areaEnHectareas: 0, numeroMatas: 0, coordenadas: []),
+    );
+
+    // REGLA DE ORO: Si no hay perímetro guardado y NO estamos en modo creación de perímetro,
+    // NO permitimos marcar puntos (estamos en el aire).
+    if (perimetro.coordenadas.isEmpty) return false;
+
+    final puntosPerimetro = perimetro.coordenadas.map((c) => mt.LatLng(c.latitud, c.longitud)).toList();
+    return mt.PolygonUtil.containsLocation(
+      mt.LatLng(punto.latitude, punto.longitude),
+      puntosPerimetro,
+      true, // Geodesic
+    );
   }
 
   void deshacerUltimoPunto() {
@@ -130,12 +184,14 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
   Set<Polygon> _generarPoligonosPasivos(List<Lote> lotes) {
     return lotes.map((lote) {
       final color = _obtenerColorUso(lote.uso);
+      final esPerimetro = lote.uso == TipoUsoLote.perimetro;
+      
       return Polygon(
         polygonId: PolygonId('pasivo_${lote.id}'),
         points: lote.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(),
-        strokeWidth: 1,
-        strokeColor: color.withOpacity(0.6),
-        fillColor: color.withOpacity(0.2),
+        strokeWidth: esPerimetro ? 3 : 1,
+        strokeColor: esPerimetro ? color : color.withOpacity(0.6),
+        fillColor: esPerimetro ? Colors.transparent : color.withOpacity(0.2),
         consumeTapEvents: false,
       );
     }).toSet();
@@ -147,6 +203,7 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
       case TipoUsoLote.pecuario: return Colors.orange;
       case TipoUsoLote.forestal: return Colors.teal;
       case TipoUsoLote.infraestructura: return Colors.grey;
+      case TipoUsoLote.perimetro: return Colors.brown;
     }
   }
 
