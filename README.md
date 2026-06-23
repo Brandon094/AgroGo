@@ -12,58 +12,40 @@
 
 ## 🎯 Pilares Estratégicos
 
-1.  **Identidad Unificada (SSO)**: Acceso mediante cuenta única de Google compartida con RutaGo y CargoGo.
-2.  **Ingeniería de Tierra (GIS)**: Mapeo de precisión con **Geovallas (Geofencing)** que prohíben el dibujo fuera del perímetro real de la finca.
-3.  **Flujo Lógico Secuencial**: Sistema guiado que obliga a definir el Perímetro -> Infraestructura -> Cultivos -> Animales.
-4.  **Dashboard Bento Pro**: Interfaz ejecutiva con métricas agrupadas por dominios de negocio (Patrimonio, Producción, Recursos).
-5.  **Offline-First Rural**: Operación total sin señal celular mediante base de datos Isar con sincronización selectiva a la nube.
+1.  **Identidad Unificada (SSO)**: Acceso mediante cuenta única de Google compartida con la suite "Go".
+2.  **Inteligencia Contextual**: Dashboard Bento Pro con misiones integradas que guían al usuario según el estado real de su finca.
+3.  **Ingeniería de Tierra (GIS)**: Mapeo de precisión con **Geovallas (Geofencing)** y pines informativos que muestran censo, animales y beneficio activo.
+4.  **Flujo Lógico Estricto**: Integridad de datos mediante perímetros obligatorios y borrado seguro en cascada.
+5.  **Offline-First Rural**: Operación total sin señal celular mediante base de datos Isar con transacciones ACID.
 
 ---
 
 ## 🚀 Módulos y Capacidades
 
 ### 🏘️ Gestión Estructural y GIS
-*   **Perímetro Maestro**: Definición del límite total de la propiedad como marco de contención.
-*   **Zonificación por Tabs**: Separación clara entre **Lotes de Cultivo** y **Estructuras Físicas** (Casas, Bodegas, Corrales).
-*   **Mapeo Híbrido**: Captura manual o vía GPS Campo con filtro de precisión de 5 metros.
+*   **Perímetro Maestro**: Límite total de la propiedad como marco de contención técnica.
+*   **Pines de Rayos X**: Los marcadores en el mapa muestran censo de matas, grupos animales y lotes de café en beneficio.
+*   **Zonificación por Tabs**: Separación clara entre activos de **Cultivo** y **Estructuras Físicas**.
 
-### 🐖 Motor Pecuario Integral
-*   **Validación de Alojamiento**: No se permiten animales sin infraestructura previa.
-*   **Especies Soportadas**: Cerdos, Vacas, Caballos, Ovejas, Cabras, Peces, Aves y Mulas.
-*   **Asistente de Carga**: Diálogos de acción rápida tras crear un corral.
+### 🐖 Motor Pecuario Senior
+*   **Validación de Alojamiento**: Filtros inteligentes que solo muestran infraestructuras aptas para cada especie.
+*   **Especies Expandidas**: Soporte completo para Bovinos, Equinos, Ovinos, Caprinos, Porcinos, Peces y Aves.
 
-### 🧠 Automatización y Operación
-*   **Bodega Virtual**: Gestión de stock categorizada vinculada a bodegas físicas.
-*   **Nómina Dinámica**: Liquidación por Kilo, Arroba o Jornal con descuentos automáticos.
-*   **Trazabilidad de Café**: Control del proceso desde Cereza hasta Venta Directa o Secado.
+### 🧠 Centro de Mando (Bento)
+*   **Métricas Agrupadas**: Patrimonio (Ha/$), Producción (Café/Bodega) y Recursos (Equipo/Animales).
+*   **Tutor Integrado**: Las alertas del Dashboard actúan como misiones dinámicas de configuración.
 
 ---
 
 ## ⚙️ Instalación y Compilación
 
-Para detalles técnicos y guías, consulte la carpeta `/docs`:
+Consulte la carpeta `/docs` para la enciclopedia técnica completa:
 - [🏗️ Arquitectura y Stack](./docs/technical/ARCHITECTURE_MODULES.md)
 - [🎨 Diseño y UX](./docs/product/BRANDING.md)
 - [🚀 Módulos y Funcionalidades](./docs/product/REQUISITOS.md)
 - [🗺️ Hoja de Ruta](./docs/product/ROADMAP.md)
-- [🛠️ Guía de Desarrollo](./docs/technical/DEVELOPER_GUIDELINES.md)
 - [📝 Changelog](./docs/technical/CHANGELOG.md)
 
-1.  **Dependencias:**
-    ```bash
-    flutter pub get
-    ```
-
-2.  **Generación de Código:**
-    ```bash
-    flutter pub run build_runner build --delete-conflicting-outputs
-    ```
-
-3.  **Configuración de Firebase:**
-    ```bash
-    flutterfire configure
-    ```
-
 ---
-**Desarrollado por ChopCode Solutions.**  
+**© 2026 ChopCode Solutions.**
 *Ingeniería para la productividad rural.*

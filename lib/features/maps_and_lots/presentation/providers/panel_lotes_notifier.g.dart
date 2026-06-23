@@ -7,7 +7,7 @@ part of 'panel_lotes_notifier.dart';
 // **************************************************************************
 
 String _$panelLotesNotifierHash() =>
-    r'3db3b52ad11e26c9a86d52221ebc6586c8abc10e';
+    r'0ed27a06db0eb421299c526b0dd3a91996c6777d';
 
 /// See also [PanelLotesNotifier].
 @ProviderFor(PanelLotesNotifier)

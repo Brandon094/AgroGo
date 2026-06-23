@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'providers/panel_lotes_notifier.dart';
 import '../domain/lote_model.dart';
+import '../../livestock/presentation/providers/pecuario_notifier.dart';
+import '../../inventory_management/presentation/providers/beneficio_notifier.dart';
+import '../../inventory_management/domain/beneficio_model.dart';
 
 class PantallaMapaFinca extends ConsumerStatefulWidget {
   const PantallaMapaFinca({super.key});
@@ -60,6 +63,8 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
   @override
   Widget build(BuildContext context) {
     final estadoLotes = ref.watch(panelLotesNotifierProvider);
+    final estadoAnimales = ref.watch(pecuarioNotifierProvider);
+    final estadoBeneficio = ref.watch(beneficioNotifierProvider);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -74,8 +79,48 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
         data: (lotes) {
-          final poligonos = lotes.map((l) => Polygon(polygonId: PolygonId(l.id), points: l.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(), fillColor: _obtenerColorUso(l.uso).withOpacity(0.35), strokeColor: _obtenerColorUso(l.uso), strokeWidth: 3)).toSet();
-          final marcadores = lotes.map((l) => Marker(markerId: MarkerId(l.id), position: _obtenerCentroLote(l.coordenadas), infoWindow: InfoWindow(title: l.nombre, snippet: '${l.subCategoria} • ${l.areaEnHectareas.toStringAsFixed(2)} Ha'), icon: BitmapDescriptor.defaultMarkerWithHue(_obtenerHueUso(l.uso)))).toSet();
+          final animales = estadoAnimales.valueOrNull ?? [];
+          final beneficios = estadoBeneficio.valueOrNull ?? [];
+
+          final poligonos = lotes.map((l) => Polygon(
+            polygonId: PolygonId(l.id), 
+            points: l.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(), 
+            fillColor: _obtenerColorUso(l.uso).withOpacity(0.35), 
+            strokeColor: _obtenerColorUso(l.uso), 
+            strokeWidth: l.uso == TipoUsoLote.perimetro ? 4 : 2
+          )).toSet();
+
+          final marcadores = lotes.map((l) {
+            String infoAdicional = '';
+            
+            // Si es pecuario, buscar animales
+            if (l.uso == TipoUsoLote.pecuario || l.uso == TipoUsoLote.infraestructura) {
+              final animalesAqui = animales.where((a) => a.loteId == l.id).toList();
+              if (animalesAqui.isNotEmpty) {
+                final total = animalesAqui.fold(0, (sum, a) => sum + a.cantidadActual);
+                infoAdicional = '\n🐾 $total animales (${animalesAqui.map((a) => a.tipoEspecie).toSet().join(', ')})';
+              }
+            }
+
+            // Si es agrícola, buscar beneficio activo o censo
+            if (l.uso == TipoUsoLote.agricola) {
+              final beneficioLote = beneficios.where((b) => b.loteOrigenNombre == l.nombre && b.estado != EstadoBeneficio.listo).toList();
+              infoAdicional = '\n🌳 ${l.numeroMatas} matas | ${l.etapaCultivo ?? 'En levante'}';
+              if (beneficioLote.isNotEmpty) {
+                infoAdicional += '\n☕ Beneficio en curso: ${beneficioLote.length} lotes';
+              }
+            }
+
+            return Marker(
+              markerId: MarkerId(l.id), 
+              position: _obtenerCentroLote(l.coordenadas), 
+              infoWindow: InfoWindow(
+                title: l.nombre, 
+                snippet: '${l.subCategoria} • ${l.areaEnHectareas.toStringAsFixed(2)} Ha$infoAdicional'
+              ), 
+              icon: BitmapDescriptor.defaultMarkerWithHue(_obtenerHueUso(l.uso))
+            );
+          }).toSet();
           return Stack(
             children: [
               GoogleMap(

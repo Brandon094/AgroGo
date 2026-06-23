@@ -13,10 +13,11 @@ AgroGo no es solo una app; es un proceso guiado. Este roadmap define la secuenci
 ---
 
 ## ✅ Fase 2: Configuración Estructural (Completado)
-*   [x] **Onboarding Dinámico**: Tutor que se adapta a la vocación (Agrícola vs Pecuaria).
-*   [x] **Dashboard Bento Pro**: Interfaz ejecutiva por dominios de negocio.
+*   [x] **Dashboard Bento Pro**: Interfaz ejecutiva con misiones contextuales integradas.
+*   [x] **Inteligencia GIS**: Pines con reporte de censo, animales y beneficio.
 *   [x] **Zonificación por Tabs**: Organización de activos en Cultivos vs Estructuras.
 *   [x] **Motor de Identidad**: Login unificado con Google (Ecosistema Go).
+*   [x] **Borrado en Cascada**: Sistema de protección de integridad de datos.
 
 ---
 

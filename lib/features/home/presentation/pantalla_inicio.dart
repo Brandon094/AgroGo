@@ -138,10 +138,11 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
 
   Widget _buildAlertas(AsyncValue<List<TareaEntity>> tareas, AsyncValue<List<InsumoEntity>> insumos) {
     final lotesAsync = ref.watch(panelLotesNotifierProvider);
+    final equipoAsync = ref.watch(trabajadoresNotifierProvider);
 
     return Column(
       children: [
-        // ALERTA DE CONFIGURACIÓN INICIAL (PERÍMETRO)
+        // 1. MISIÓN: PERÍMETRO (MANDATORIO)
         lotesAsync.maybeWhen(
           data: (l) {
             final tienePerimetro = l.any((x) => x.uso == TipoUsoLote.perimetro);
@@ -149,8 +150,8 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _CardAlerta(
-                titulo: 'Finca sin límites', 
-                subtitulo: 'Dibuje el perímetro total de su tierra', 
+                titulo: 'Misión 1: Fronteras', 
+                subtitulo: 'Dibuje el límite total de su finca', 
                 icono: Icons.architecture_rounded, 
                 color: Colors.brown.shade700,
                 onTap: () => context.push('/lotes/nuevo-lote?tipo=perimetro'),
@@ -160,18 +161,18 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
           orElse: () => const SizedBox.shrink(),
         ),
 
-        // ALERTA DE INFRAESTRUCTURA (Si tiene animales pero no infraestructura)
+        // 2. MISIÓN: INFRAESTRUCTURA (Si ya tiene perímetro)
         lotesAsync.maybeWhen(
           data: (l) {
             final tienePerimetro = l.any((x) => x.uso == TipoUsoLote.perimetro);
-            final tieneInfra = l.any((x) => x.uso == TipoUsoLote.infraestructura || x.uso == TipoUsoLote.pecuario);
+            final tieneInfra = l.any((x) => x.uso == TipoUsoLote.infraestructura);
             if (!tienePerimetro || tieneInfra) return const SizedBox.shrink();
             
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _CardAlerta(
-                titulo: 'Misión: Construcción', 
-                subtitulo: 'Ubique sus corrales, galpones o bodegas', 
+                titulo: 'Misión 2: Construcción', 
+                subtitulo: 'Ubique casas, corrales o bodegas', 
                 icono: Icons.factory_rounded, 
                 color: Colors.blueGrey.shade600,
                 onTap: () => context.push('/lotes/nuevo-lote?tipo=infraestructura'),
@@ -181,6 +182,64 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
           orElse: () => const SizedBox.shrink(),
         ),
 
+        // 3. MISIÓN: CULTIVOS (Si ya tiene perímetro)
+        lotesAsync.maybeWhen(
+          data: (l) {
+            final tienePerimetro = l.any((x) => x.uso == TipoUsoLote.perimetro);
+            final tieneCultivos = l.any((x) => x.uso == TipoUsoLote.agricola);
+            if (!tienePerimetro || tieneCultivos) return const SizedBox.shrink();
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _CardAlerta(
+                titulo: 'Misión 3: Siembra', 
+                subtitulo: 'Dibuje sus lotes de café o cacao', 
+                icono: Icons.eco_rounded, 
+                color: Colors.green.shade700,
+                onTap: () => context.push('/lotes/nuevo-lote?tipo=agricola'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+
+        // 4. MISIÓN: BODEGA (Si hay lotes)
+        insumos.maybeWhen(
+          data: (i) {
+            if (i.isNotEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _CardAlerta(
+                titulo: 'Misión 4: Inventario', 
+                subtitulo: 'Cargue el stock inicial de su bodega', 
+                icono: Icons.inventory_2_rounded, 
+                color: Colors.indigo.shade600,
+                onTap: () => context.push('/bodega'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+
+        // 5. MISIÓN: EQUIPO (Si hay bodega)
+        equipoAsync.maybeWhen(
+          data: (e) {
+            if (e.isNotEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _CardAlerta(
+                titulo: 'Misión 5: Nómina', 
+                subtitulo: 'Registre a su equipo de trabajo', 
+                icono: Icons.people_alt_rounded, 
+                color: Colors.teal.shade700,
+                onTap: () => context.push('/trabajadores'),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
+
+        // ALERTAS OPERATIVAS (Solo si ya pasó las misiones básicas)
         tareas.maybeWhen(
           data: (t) {
             final hoy = DateTime.now();

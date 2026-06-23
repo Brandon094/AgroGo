@@ -21,6 +21,8 @@ class LoteMapaState {
   final bool mostrarAdvertenciaGps;
   final bool mostrarAdvertenciaPerimetro;
   final bool esCreacionDePerimetro;
+  final bool estaArrastrando;
+  final int? indicePuntoArrastrado;
 
   const LoteMapaState({
     required this.puntos,
@@ -33,6 +35,8 @@ class LoteMapaState {
     this.mostrarAdvertenciaGps = false,
     this.mostrarAdvertenciaPerimetro = false,
     this.esCreacionDePerimetro = false,
+    this.estaArrastrando = false,
+    this.indicePuntoArrastrado,
   });
 
   LoteMapaState copyWith({
@@ -46,6 +50,8 @@ class LoteMapaState {
     bool? mostrarAdvertenciaGps,
     bool? mostrarAdvertenciaPerimetro,
     bool? esCreacionDePerimetro,
+    bool? estaArrastrando,
+    int? indicePuntoArrastrado,
   }) {
     return LoteMapaState(
       puntos: puntos ?? this.puntos,
@@ -58,6 +64,8 @@ class LoteMapaState {
       mostrarAdvertenciaGps: mostrarAdvertenciaGps ?? this.mostrarAdvertenciaGps,
       mostrarAdvertenciaPerimetro: mostrarAdvertenciaPerimetro ?? this.mostrarAdvertenciaPerimetro,
       esCreacionDePerimetro: esCreacionDePerimetro ?? this.esCreacionDePerimetro,
+      estaArrastrando: estaArrastrando ?? this.estaArrastrando,
+      indicePuntoArrastrado: indicePuntoArrastrado ?? this.indicePuntoArrastrado,
     );
   }
 }
@@ -128,11 +136,24 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
     state = _calcularEstadoActualizado(puntosActualizados).copyWith(mostrarAdvertenciaPerimetro: false);
   }
 
+  void iniciarArrastre(int indice) {
+    state = state.copyWith(
+      estaArrastrando: true,
+      indicePuntoArrastrado: indice,
+    );
+    // Redibujamos para que cambie el color del marcador inmediatamente
+    state = _calcularEstadoActualizado(state.puntos);
+  }
+
   void actualizarPunto(int indice, LatLng nuevoPunto) {
     if (indice < 0 || indice >= state.puntos.length) return;
 
     if (!_validarPuntoEnPerimetro(nuevoPunto)) {
-      state = state.copyWith(mostrarAdvertenciaPerimetro: true);
+      state = state.copyWith(
+        mostrarAdvertenciaPerimetro: true,
+        estaArrastrando: false,
+        indicePuntoArrastrado: null,
+      );
       // Revertimos la posición en la UI forzando un redibujado con los puntos actuales
       state = _calcularEstadoActualizado(List<LatLng>.from(state.puntos));
       return;
@@ -140,7 +161,11 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
 
     final puntosActualizados = List<LatLng>.from(state.puntos);
     puntosActualizados[indice] = nuevoPunto;
-    state = _calcularEstadoActualizado(puntosActualizados).copyWith(mostrarAdvertenciaPerimetro: false);
+    state = _calcularEstadoActualizado(puntosActualizados).copyWith(
+      mostrarAdvertenciaPerimetro: false,
+      estaArrastrando: false,
+      indicePuntoArrastrado: null,
+    );
   }
 
   bool _validarPuntoEnPerimetro(LatLng punto) {
@@ -211,13 +236,18 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
     final marcadores = puntos.asMap().entries.map((entrada) {
       final indice = entrada.key;
       final punto = entrada.value;
+      final esArrastrado = state.estaArrastrando && state.indicePuntoArrastrado == indice;
+
       return Marker(
         markerId: MarkerId('marcador_$indice'),
         position: punto,
         draggable: state.modo == ModoMapeo.manual,
+        onDragStart: (_) => iniciarArrastre(indice),
         onDragEnd: (nuevaPosicion) => actualizarPunto(indice, nuevaPosicion),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-        infoWindow: InfoWindow(title: 'Esquina ${indice + 1}', snippet: 'Ajuste manual permitido'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          esArrastrado ? BitmapDescriptor.hueAzure : BitmapDescriptor.hueOrange,
+        ),
+        infoWindow: InfoWindow(title: 'Esquina ${indice + 1}', snippet: 'Mantén presionado para mover'),
       );
     }).toSet();
 

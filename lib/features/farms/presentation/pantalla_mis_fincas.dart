@@ -56,10 +56,26 @@ class PantallaMisFincas extends ConsumerWidget {
             sliver: fincasAsync.when(
               data: (fincas) {
                 if (fincas.isEmpty) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/onboarding');
-                  });
-                  return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.house_siding_rounded, size: 80, color: Colors.grey.withOpacity(0.5)),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'No tiene fincas registradas',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Presione el botón + para empezar su primer proyecto.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(

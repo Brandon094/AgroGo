@@ -6,6 +6,8 @@ import 'providers/fincas_resumen_provider.dart';
 import 'providers/lotes_globales_provider.dart';
 import '../domain/lote_model.dart';
 import '../../farms/presentation/providers/fincas_notifier.dart';
+import '../../livestock/presentation/providers/pecuario_notifier.dart';
+import '../../inventory_management/presentation/providers/insumos_notifier.dart';
 
 class PantallaMapaGlobal extends ConsumerStatefulWidget {
   const PantallaMapaGlobal({super.key});
@@ -160,6 +162,31 @@ class _PantallaMapaGlobalState extends ConsumerState<PantallaMapaGlobal> {
   }
 }
 
+class _MiniStat extends StatelessWidget {
+  final String label;
+  final String valor;
+  final IconData icono;
+  final Color color;
+
+  const _MiniStat({required this.label, required this.valor, required this.icono, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+          child: Icon(icono, color: color, size: 20),
+        ),
+        const SizedBox(height: 6),
+        Text(valor, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+}
+
 class _PanelResumenFinca extends ConsumerWidget {
   final FincaResumenGeografico finca;
   final VoidCallback onAdministrar;
@@ -169,6 +196,8 @@ class _PanelResumenFinca extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lotesAsync = ref.watch(lotesGlobalesProvider);
+    final animalesAsync = ref.watch(pecuarioNotifierProvider);
+    final insumosAsync = ref.watch(insumosNotifierProvider);
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -201,6 +230,39 @@ class _PanelResumenFinca extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: 20),
+          
+          // RESUMEN TÉCNICO (NUEVO)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _MiniStat(
+                label: 'Animales', 
+                valor: animalesAsync.maybeWhen(
+                  data: (a) => a.where((x) => x.loteId != null).fold(0, (sum, x) => sum + x.cantidadActual).toString(),
+                  orElse: () => '...',
+                ),
+                icono: Icons.pets_rounded,
+                color: Colors.purple,
+              ),
+              _MiniStat(
+                label: 'Bodega', 
+                valor: insumosAsync.maybeWhen(
+                  data: (i) => i.length.toString(),
+                  orElse: () => '...',
+                ),
+                icono: Icons.inventory_2_rounded,
+                color: Colors.indigo,
+              ),
+              _MiniStat(
+                label: 'Tierra', 
+                valor: '${finca.areaTotal.toStringAsFixed(1)}Ha',
+                icono: Icons.landscape_rounded,
+                color: Colors.green,
+              ),
+            ],
+          ),
+
           const SizedBox(height: 24),
           const Text('DISTRIBUCIÓN DE TIERRA', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2, color: Colors.grey)),
           const SizedBox(height: 12),

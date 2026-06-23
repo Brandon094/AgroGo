@@ -18,9 +18,12 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 
 ## ⚡ 2. Reglas de Negocio Críticas
 
-*   **Integridad de Datos (Cascada)**: La eliminación del **Perímetro Maestro** conlleva la eliminación automática e irreversible de todos los lotes de cultivo, infraestructuras y tareas asociadas a la finca actual.
+*   **Integridad de Datos (Cascada)**: La eliminación del **Perímetro Maestro** conlleva la eliminación automática e irreversible de todos los lotes de cultivo, infraestructuras y tareas asociadas.
+*   **Inteligencia Contextual (Misiones)**: El sistema debe presentar misiones de configuración prioritarias en el Dashboard hasta que la finca cuente con Perímetro, Infraestructura, Lotes, Stock y Equipo.
 *   **Pecuario Inteligente**:
-    *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que coincidan con la vocación animal.
+    *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que sean compatibles con alojamiento animal (Cochera, Galpón, etc.).
+    *   No se permiten animales en casas o bodegas generales.
+*   **BI Geográfica**: Los marcadores del mapa deben servir como puntos de inspección, mostrando datos agregados de otros módulos (Animales, Beneficio).
     *   No se permiten animales en casas o bodegas generales.
 *   **Gestión de Zonas**:
     *   Separación visual obligatoria en el panel "Mis Zonas": Pestaña de **CULTIVOS** (Producción) vs Pestaña de **ESTRUCTURAS** (Activos).

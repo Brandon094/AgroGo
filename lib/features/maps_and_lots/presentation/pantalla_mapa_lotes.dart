@@ -191,6 +191,9 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             myLocationButtonEnabled: false,
             myLocationEnabled: _permisoUbicacionConcedido,
             zoomControlsEnabled: false,
+            scrollGesturesEnabled: !estadoMapa.estaArrastrando,
+            rotateGesturesEnabled: !estadoMapa.estaArrastrando,
+            tiltGesturesEnabled: !estadoMapa.estaArrastrando,
             onMapCreated: (c) {
               _controladorMapa = c;
               _iniciarPosicionamientoContextual();

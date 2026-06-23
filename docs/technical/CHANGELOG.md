@@ -4,6 +4,22 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.5.0] - 2024-06-21 (Inteligencia Contextual y BI Geográfica)
+### Añadido
+- **Misiones Integradas al Dashboard**: Eliminación del onboarding estático; ahora el panel principal guía al usuario con banners dinámicos (Perímetro, Infraestructura, Cultivos, Bodega, Nómina).
+- **Pines Informativos (Rayos X)**: Los marcadores en el mapa de finca muestran ahora: censo de matas, etapa de cultivo, cantidad de animales por especie y procesos de beneficio activos.
+- **BI Global de Portafolio**: El mapa global de fincas incluye un panel de resumen técnico con totales de animales, ítems de bodega y área total.
+- **Ajuste Manual de Precisión**: Marcadores con cambio de color (Azure) al arrastrar y bloqueo automático de gestos del mapa para facilitar la edición milimétrica.
+- **Especies Pecuarias Senior**: Soporte para Bovinos, Equinos, Ovinos, Caprinos y Mulas con iconografía y colores dedicados.
+- **Seguridad en Cascada**: Lógica de borrado seguro que limpia sub-lotes e infraestructuras al eliminar el perímetro maestro, con advertencias de alto impacto.
+
+### Mejorado
+- **Zonificación UI**: Pantalla "Mis Zonas" dividida en pestañas **CULTIVOS** y **ESTRUCTURAS**.
+- **Filtros de Ubicación**: El registro de animales ahora filtra infraestructuras por subcategoría (solo muestra cocheras, galpones, etc.).
+- **Ergonomía de Mapeo**: Controles situados en zona de alcance del pulgar y badge de área flotante superior.
+
+---
+
 ## [0.4.5] - 2024-06-21 (Minimalismo y Ergonomía)
 ### Añadido
 - **Rediseño de Pantalla de Mapeo**: Reorganización total para facilitar el uso con una sola mano.

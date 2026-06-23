@@ -1,51 +1,45 @@
-# Walkthrough: Consolidación de Inteligencia Geográfica y Rediseño de Flujo (Senior Refactor)
+# Walkthrough: Inteligencia Contextual y BI Geográfica (AgroGo v0.5.0)
 
-Este walkthrough detalla la evolución de **AgroGo** hacia un sistema de gestión profesional, implementando geovallas estricta, un dashboard ejecutivo tipo Bento y un flujo de configuración dinámico.
+Este walkthrough detalla la transformación de **AgroGo** en un ERP inteligente con capacidades de Business Intelligence geográfica y un flujo operativo dinámico.
 
 ---
 
 ## Lo Completado Hoy
 
-### 1. Motor de Geofencing y Perímetro Maestro
-- **Perímetro Obligatorio**: Se implementó la lógica que prohíbe crear cualquier lote o infraestructura si no se ha definido primero el límite total de la finca (`TipoUsoLote.perimetro`).
-- **Valla Eléctrica (Geovalla)**: Integración de `PolygonUtil.containsLocation` en el `LoteMapaNotifier`. Ahora el sistema bloquea cualquier punto marcado fuera del perímetro, mostrando un banner de advertencia rojo.
-- **Visualización de Guía**: Durante el dibujo de sub-lotes, el perímetro maestro permanece visible (línea café) para servir de marco de referencia.
+### 1. Inteligencia Contextual (Misiones en Dashboard)
+- **Eliminación del Onboarding Estático**: Ya no existe un tutor de pasos fijos. Ahora, el Dashboard escanea el estado de la finca y lanza misiones dinámicas como alertas (Perímetro, Infraestructura, Lotes, Bodega, Equipo).
+- **Flujo Guiado**: Las misiones desaparecen automáticamente al ser completadas, guiando al usuario de forma no intrusiva.
 
-### 2. Dashboard Bento Pro
-- **Rediseño Estructural**: El tablero principal ahora utiliza un diseño tipo **Bento Box**, agrupando estadísticas en 3 grandes dominios:
-    - **Patrimonio y Tierra**: Área Total e Inversión Acumulada.
-    - **Producción de Café**: Lotes en beneficio y estado de Bodega.
-    - **Recursos y Equipo**: Censo Pecuario y Personal de Nómina.
-- **Atajos Categorizados**: Los botones de acción se dividieron en **Gestión Diaria**, **Ingeniería y Mapas** e **Inventarios**, reduciendo la fatiga visual.
+### 2. BI Geográfica y Pines Inteligentes
+- **Pines con Reporte Técnico**: Los marcadores en el mapa ahora actúan como puntos de inspección. Muestran el censo de matas, etapa del cultivo, cantidad de animales por especie y procesos de beneficio de café activos.
+- **Resumen Global de Portafolio**: Al tocar una finca en el mapa global, se despliega un panel con el conteo total de animales, ítems en bodega y hectáreas de esa propiedad.
 
-### 3. Onboarding Dinámico y Vocación
-- **Bifurcación de Camino**: El tutor ahora pregunta: *"¿Maneja animales?"*. Si el usuario dice que no, el sistema oculta inteligentemente los pasos de infraestructura pecuaria y registro animal.
-- **Misión de Sensores**: Se añadió un paso inicial obligatorio para la concesión de permisos GPS, asegurando que los motores de mapeo funcionen sin errores desde el primer minuto.
-- **Auto-Ubicación**: Implementación de `geocoding` para detectar automáticamente la Vereda y Municipio basándose en la posición real del finquero.
-- **Borrado Seguro en Cascada**: Lógica de protección que impide dejar lotes huérfanos; al eliminar el perímetro, se limpian todas las zonas internas con advertencia crítica previa.
-- **Botón SALTAR**: Se habilitó la opción de omitir el tutor para usuarios que ya conocen la plataforma.
+### 3. Edición de Precisión (Drag & Drop)
+- **Feedback Visual**: Al arrastrar un marcador, este cambia a color azul (Azure) para confirmar la selección.
+- **Bloqueo de Navegación**: Se inhabilitan los gestos de movimiento del mapa mientras se ajusta un punto manualmente, garantizando precisión milimétrica.
+- **Respeto a la Geovalla**: El sistema impide soltar puntos fuera del perímetro de la finca incluso en el modo de ajuste manual.
 
-### 4. Reorganización de Zonas (Mis Lotes)
-- **Interfaz por Pestañas**: La pantalla de "Mis Zonas" ahora cuenta con dos pestañas (**CULTIVOS** y **ESTRUCTURAS**), separando los activos productivos de las construcciones físicas.
-- **Ergonomía de Mapeo (Thumb-Reach)**: Rediseño de la UI de dibujo moviendo los selectores de modo y avisos al área inferior para fácil acceso con el pulgar. El área calculada se elevó a un badge minimalista superior.
-- **Filtrado Inteligente**: Cada pestaña filtra automáticamente los lotes por su tipo de uso, manteniendo la limpieza visual.
+### 4. Robustez de Datos y Seguridad
+- **Borrado en Cascada**: Implementación de una capa de integridad que limpia automáticamente sub-lotes e infraestructuras al eliminar el perímetro maestro.
+- **Advertencias de Alto Impacto**: Diálogos rojos con botones de "BORRAR TODO" para acciones que comprometen la estructura de la finca.
 
-### 5. Motor Pecuario Senior
-- **Especies Expandidas**: Se añadieron Caballos, Vacas, Ovejas, Chivos y Mulas con íconos y colores personalizados.
-- **Validación de Destino**: El selector de ubicación ahora solo muestra infraestructuras aptas para animales (Cocheras, Galpones, Estanques), ocultando casas o bodegas generales.
+### 5. Reorganización y Experiencia (UX)
+- **Zonificación por Pestañas**: La pantalla de "Mis Zonas" separa los activos productivos (**CULTIVOS**) de las construcciones físicas (**ESTRUCTURAS**).
+- **Especies Senior**: Expansión del catálogo pecuario con Bovinos, Equinos, Ovinos, Caprinos y más, incluyendo iconografía personalizada.
+- **Validación de Alojamiento**: Los animales ahora solo pueden asignarse a infraestructuras compatibles (Cocheras, Galpones, etc.).
 
 ---
 
 ## Resultados de Validación y Pruebas
 
 ### 1. Integridad de Datos
-- El sistema impide exitosamente la creación de lotes "huérfanos" (sin perímetro).
+- El sistema protege exitosamente la jerarquía: Finca -> Perímetro -> Lotes/Infra -> Animales/Stock.
 - **Resultado**: `Succeeded`
 
-### 2. Experiencia de Usuario (UX)
-- La bifurcación del onboarding reduce el tiempo de configuración inicial en un 40% para finqueros puramente agrícolas.
+### 2. Rendimiento (BI)
+- El cálculo y cruce de datos entre módulos para mostrar reportes en los pines del mapa se ejecuta en menos de 100ms.
 - **Resultado**: `Optimized`
 
-### 3. Rendimiento
-- El Dashboard Bento carga las 6 métricas agrupadas en menos de 200ms gracias al uso de `AsyncValue` de Riverpod.
-- **Resultado**: `High Performance`
+### 3. Ergonomía
+- El diseño "Thumb-Reach" en el mapa permite completar el dibujo de un lote con una sola mano sin dificultad.
+- **Resultado**: `High Ergonomics`
