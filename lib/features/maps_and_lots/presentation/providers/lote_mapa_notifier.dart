@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mt;
+import 'package:turf/turf.dart' as turf;
 import 'panel_lotes_notifier.dart';
 import '../../domain/lote_model.dart';
 
@@ -23,6 +24,7 @@ class LoteMapaState {
   final bool esCreacionDePerimetro;
   final bool estaArrastrando;
   final int? indicePuntoArrastrado;
+  final bool tieneSuperposicion;
 
   const LoteMapaState({
     required this.puntos,
@@ -37,6 +39,7 @@ class LoteMapaState {
     this.esCreacionDePerimetro = false,
     this.estaArrastrando = false,
     this.indicePuntoArrastrado,
+    this.tieneSuperposicion = false,
   });
 
   LoteMapaState copyWith({
@@ -52,6 +55,7 @@ class LoteMapaState {
     bool? esCreacionDePerimetro,
     bool? estaArrastrando,
     int? indicePuntoArrastrado,
+    bool? tieneSuperposicion,
   }) {
     return LoteMapaState(
       puntos: puntos ?? this.puntos,
@@ -66,6 +70,7 @@ class LoteMapaState {
       esCreacionDePerimetro: esCreacionDePerimetro ?? this.esCreacionDePerimetro,
       estaArrastrando: estaArrastrando ?? this.estaArrastrando,
       indicePuntoArrastrado: indicePuntoArrastrado ?? this.indicePuntoArrastrado,
+      tieneSuperposicion: tieneSuperposicion ?? this.tieneSuperposicion,
     );
   }
 }
@@ -208,31 +213,66 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
 
   Set<Polygon> _generarPoligonosPasivos(List<Lote> lotes) {
     return lotes.map((lote) {
-      final color = _obtenerColorUso(lote.uso);
+      final color = _obtenerColorLote(lote);
       final esPerimetro = lote.uso == TipoUsoLote.perimetro;
+      final esInfra = lote.uso == TipoUsoLote.infraestructura;
       
       return Polygon(
         polygonId: PolygonId('pasivo_${lote.id}'),
         points: lote.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(),
-        strokeWidth: esPerimetro ? 3 : 1,
-        strokeColor: esPerimetro ? color : color.withOpacity(0.6),
-        fillColor: esPerimetro ? Colors.transparent : color.withOpacity(0.2),
+        strokeWidth: esPerimetro ? 4 : 2,
+        strokeColor: esPerimetro ? color : (esInfra ? Colors.white : color.withValues(alpha: 0.8)),
+        fillColor: esPerimetro ? Colors.transparent : color.withValues(alpha: 0.4),
         consumeTapEvents: false,
       );
     }).toSet();
   }
 
-  Color _obtenerColorUso(TipoUsoLote uso) {
-    switch (uso) {
+  Color _obtenerColorLote(Lote lote) {
+    if (lote.uso == TipoUsoLote.infraestructura) {
+      final pecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+      if (pecuarias.contains(lote.subCategoria)) return Colors.orange;
+      return Colors.purple;
+    }
+    switch (lote.uso) {
       case TipoUsoLote.agricola: return Colors.green;
       case TipoUsoLote.pecuario: return Colors.orange;
-      case TipoUsoLote.forestal: return Colors.teal;
-      case TipoUsoLote.infraestructura: return Colors.grey;
+      case TipoUsoLote.forestal: return const Color(0xFF1B5E20); // Verde oscuro para bosque
+      case TipoUsoLote.ornamental: return Colors.deepOrange.shade300; // Tono huerta/floral
       case TipoUsoLote.perimetro: return Colors.brown;
+      default: return Colors.grey;
     }
   }
 
+  bool _detectarSuperposicion(List<LatLng> puntosActuales) {
+    if (puntosActuales.length < 3) return false;
+    if (state.esCreacionDePerimetro) return false;
+
+    final lotesExistentes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+    
+    // Preparar el polígono actual para turf
+    final List<turf.Position> coordsActual = puntosActuales.map((p) => turf.Position(p.longitude, p.latitude)).toList();
+    coordsActual.add(coordsActual.first); // Cerrar polígono
+    final polyActual = turf.Polygon(coordinates: [coordsActual]);
+
+    for (final lote in lotesExistentes) {
+      if (lote.uso == TipoUsoLote.perimetro) continue;
+      
+      final List<turf.Position> coordsExistente = lote.coordenadas.map((c) => turf.Position(c.longitud, c.latitud)).toList();
+      coordsExistente.add(coordsExistente.first); // Cerrar polígono
+      final polyExistente = turf.Polygon(coordinates: [coordsExistente]);
+
+      // Verificamos si hay intersección usando turf
+      if (turf.booleanIntersects(polyActual, polyExistente)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   LoteMapaState _calcularEstadoActualizado(List<LatLng> puntos) {
+    final tieneSuperposicion = _detectarSuperposicion(puntos);
+    
     final marcadores = puntos.asMap().entries.map((entrada) {
       final indice = entrada.key;
       final punto = entrada.value;
@@ -264,8 +304,8 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
           polygonId: const PolygonId('poligono_lote_activo'),
           points: puntos,
           strokeWidth: 4,
-          strokeColor: const Color(0xFF2E7D32),
-          fillColor: const Color(0x664CAF50),
+          strokeColor: tieneSuperposicion ? Colors.red : const Color(0xFF2E7D32),
+          fillColor: tieneSuperposicion ? Colors.red.withValues(alpha: 0.3) : const Color(0x664CAF50),
           geodesic: true,
         ),
       );
@@ -276,6 +316,7 @@ class LoteMapaNotifier extends _$LoteMapaNotifier {
       marcadores: marcadores,
       poligonos: poligonos,
       areaEnHectareas: areaEnHectareas,
+      tieneSuperposicion: tieneSuperposicion,
     );
   }
 }

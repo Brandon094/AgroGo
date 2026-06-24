@@ -3,7 +3,8 @@ enum TipoUsoLote {
   pecuario,
   forestal,
   infraestructura,
-  perimetro // Representa el límite total de la finca (el cascarón)
+  perimetro, // Representa el límite total de la finca (el cascarón)
+  ornamental
 }
 
 /// Modelo de dominio que representa un Lote o Zona de la finca.
