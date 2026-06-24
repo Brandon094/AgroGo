@@ -4,6 +4,56 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.8.0] - 2024-06-24 (Agroturismo y Recreación)
+### Añadido
+- **Infraestructura Recreativa**: Nuevas categorías de mapeo: 'Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol' y 'Mirador/Observatorio'.
+- **Identidad Visual Turística**: Color Azul Claro e iconografía dedicada para diferenciar activos recreativos de la producción y vivienda.
+- **Formularios Adaptativos**: Lógica simplificada para infraestructura recreativa, eliminando requerimientos técnicos agrícolas.
+
+---
+
+## [0.7.5] - 2024-06-24 (Gestión Ambiental y Ornamental)
+### Añadido
+- **Nuevas Categorías de Lote**: Incorporación de 'Forestal/Conservación' y 'Ornamental/Huerta' para un mapeo integral de la finca.
+- **Flujo de Registro Simplificado**: Las zonas no comerciales cuentan con formularios minimalistas que omiten la configuración de cronogramas y datos técnicos productivos.
+- **Identidad Visual Extendida**: Asignación de colores distintivos (Verde Bosque y Salmón/Floral) e iconografía dedicada para áreas de conservación y jardines.
+- **Acceso Rápido**: Inclusión de atajos dedicados en el panel de gestión de zonas para la creación de áreas ambientales.
+
+---
+
+## [0.7.0] - 2024-06-24 (Contraste y Referencia Espacial)
+### Añadido
+- **Resaltado de Infraestructura Existente**: Los polígonos de estructuras ya guardadas ahora utilizan bordes blancos sólidos y mayor opacidad de relleno (40%) durante el proceso de mapeo, facilitando su uso como referencia espacial.
+- **Jerarquía Visual de Dibujo**: Ajuste de grosores de línea para diferenciar claramente entre el perímetro maestro (4px), infraestructuras pasivas (2px) y el trazo activo del usuario.
+
+---
+
+## [0.6.5] - 2024-06-24 (Automatización UX)
+### Añadido
+- **Nomenclatura Secuencial Automática**: Al seleccionar una categoría de infraestructura (ej: Casa, Corral), el sistema sugiere automáticamente el siguiente nombre disponible (ej: "Casa 1", "Casa 2") consultando la base de datos local.
+- **Auto-completado de Subcategoría**: El selector de infraestructura ahora inyecta automáticamente el valor técnico en el modelo, reduciendo la carga de teclado del usuario.
+
+### Mejorado
+- **Inteligencia de Formulario**: La sugerencia de nombre respeta las ediciones manuales previas si el usuario ya ingresó un nombre personalizado que no sigue el patrón secuencial.
+
+---
+
+## [0.6.0] - 2024-06-24 (Identidad Visual Pecuaria)
+### Añadido
+- **Diferenciación de Infraestructura**: Implementación de un nuevo esquema de colores para separar visualmente las estructuras pecuarias (Corrales, Galpones, etc.) de la infraestructura general.
+- **Pines Ámbar/Naranja**: Asignación de color naranja a los marcadores y polígonos de zonas destinadas a animales para mejorar la lectura rápida del mapa.
+- **Consistencia en Listas**: Actualización de la iconografía y colores en el panel de lotes para reflejar la vocación pecuaria de cada zona.
+
+---
+
+## [0.5.5] - 2024-06-24 (Validación Geométrica Estricta)
+### Añadido
+- **Motor de Intersección de Polígonos**: Integración de `turf_dart` para detectar superposiciones de lotes en tiempo real.
+- **Validación de Exclusividad Espacial**: Bloqueo automático del botón "Continuar" si el nuevo lote se traslapa con uno existente.
+- **Feedback Visual de Conflicto**: El polígono activo cambia a color rojo intenso y muestra un banner de advertencia cuando se detecta una superposición.
+
+---
+
 ## [0.5.0] - 2024-06-21 (Inteligencia Contextual y BI Geográfica)
 ### Añadido
 - **Misiones Integradas al Dashboard**: Eliminación del onboarding estático; ahora el panel principal guía al usuario con banners dinámicos (Perímetro, Infraestructura, Cultivos, Bodega, Nómina).

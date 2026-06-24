@@ -12,7 +12,8 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 2.  **Finca (Padre)**: Registro de identidad de la propiedad con auto-detección de ubicación.
 3.  **Perímetro Obligatorio**: Bloqueo total de creación de lotes e infraestructura hasta que el **Perímetro Total** esté definido.
 4.  **Geovalla (Geofencing)**: Restricción técnica que impide dibujar cualquier punto fuera del perímetro maestro.
-5.  **Infraestructura Previa**: Los animales solo pueden registrarse si existe una estructura (Cochera, Galpón, etc.) apta para su alojamiento.
+5.  **Exclusividad Espacial (Intersección)**: Se prohíbe la superposición de polígonos. El sistema bloquea el guardado si el área intercepta total o parcialmente con un lote ya existente, garantizando la precisión del área total.
+6.  **Infraestructura Previa**: Los animales solo pueden registrarse si existe una estructura (Cochera, Galpón, etc.) apta para su alojamiento.
 
 ---
 
@@ -38,8 +39,11 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 *   **RF-UI-02 (Shortcuts Categorizados)**: División de atajos en: **Gestión Diaria**, **Ingeniería/Mapas** e **Inventarios**.
 *   **RF-UI-03 (Tutor Dinámico)**: El Onboarding debe ofrecer bifurcación por vocación y opción de "SALTAR".
 *   **RF-UI-04 (Instrucciones Dinámicas)**: El motor de mapas debe guiar al usuario con banners informativos minimalistas.
+*   **RF-UI-07 (Nomenclatura Inteligente)**: Al seleccionar una categoría predefinida de infraestructura, el sistema debe sugerir un nombre secuencial correlativo a los registros existentes (Categoría + N).
 *   **RF-UI-05 (Ergonomía de Campo)**: Los controles críticos de dibujo y cambio de modo deben estar situados en el tercio inferior de la pantalla para permitir la operación con el pulgar.
 *   **RF-UI-06 (Visibilidad de Área)**: El cálculo de hectáreas debe ser visible de forma persistente en la parte superior del mapa sin obstruir la vista satelital central.
+*   **RF-GIS-06 (Zonificación No Comercial)**: El sistema debe permitir el mapeo de áreas de conservación (bosques) y uso doméstico (huertas), utilizando formularios minimalistas sin ciclos productivos.
+*   **RF-GIS-07 (Infraestructura Recreativa)**: Inclusión de categorías de agroturismo (piscinas, miradores, áreas sociales) con visualización diferenciada y formularios simplificados.
 
 ---
 **Chop Code Solutions - Product Management 2026**

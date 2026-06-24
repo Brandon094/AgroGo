@@ -27,6 +27,9 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 1.3 | Pines Arrastrables | Mover un vértice dentro del perímetro. | El área se recalcula automáticamente en vivo. |
 | 1.4 | Filtro Precisión | Capturar punto GPS con error > 5m. | El sistema debe mostrar advertencia y bloquear punto. |
 | 1.5 | Borrado en Cascada | Eliminar el Perímetro Maestro. | El sistema debe advertir en rojo y borrar todos los lotes internos. |
+| 1.6 | Superposición | Intentar dibujar o mover un lote sobre otro ya existente. | El polígono se pone rojo, sale aviso de traslape y bloquea el botón 'ÁREA OCUPADA'. |
+| 1.7 | Categorías Ambientales | Crear un 'Bosque' o 'Jardín'. | El formulario debe ser minimalista y el color en mapa debe ser Verde Bosque o Salmón. |
+| 1.8 | Infraestructura Turística | Crear una 'Piscina' o 'Mirador'. | El pin debe ser Azul Claro y el formulario debe omitir datos agrícolas. |
 
 ---
 

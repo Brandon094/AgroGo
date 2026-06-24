@@ -14,26 +14,31 @@
 
 1.  **Identidad Unificada (SSO)**: Acceso mediante cuenta única de Google compartida con la suite "Go".
 2.  **Inteligencia Contextual**: Dashboard Bento Pro con misiones integradas que guían al usuario según el estado real de su finca.
-3.  **Ingeniería de Tierra (GIS)**: Mapeo de precisión con **Geovallas (Geofencing)** y pines informativos que muestran censo, animales y beneficio activo.
-4.  **Flujo Lógico Estricto**: Integridad de datos mediante perímetros obligatorios y borrado seguro en cascada.
+3.  **Ingeniería de Tierra (GIS)**: Mapeo de precisión con **Geovallas (Geofencing)**, validación de **No Superposición** (exclusividad espacial) y pines informativos con reportes técnicos.
+4.  **Flujo Lógico Estricto**: Integridad de datos mediante perímetros obligatorios, exclusividad de áreas y borrado seguro en cascada.
 5.  **Offline-First Rural**: Operación total sin señal celular mediante base de datos Isar con transacciones ACID.
 
 ---
 
 ## 🚀 Módulos y Capacidades
 
-### 🏘️ Gestión Estructural y GIS
+### 🏘️ Gestión Estructural y GIS Pro
 *   **Perímetro Maestro**: Límite total de la propiedad como marco de contención técnica.
-*   **Pines de Rayos X**: Los marcadores en el mapa muestran censo de matas, grupos animales y lotes de café en beneficio.
-*   **Zonificación por Tabs**: Separación clara entre activos de **Cultivo** y **Estructuras Físicas**.
+*   **Exclusividad Espacial**: Motor de intersecciones que impide físicamente el traslape de lotes.
+*   **Catálogo Expandido**: Categorización completa que incluye:
+    *   **Producción**: Cultivos, Potreros, Estanques.
+    *   **Infraestructura**: Casas, Bodegas, Beneficiaderos.
+    *   **Ambiental**: Bosques nativos, Guaduales, Zonas de conservación.
+    *   **Agroturismo**: Piscinas, Kioscos, Miradores, Alojamientos temáticos.
+*   **Pines de Rayos X**: Los marcadores en el mapa muestran censo de matas, grupos animales y procesos de beneficio activos.
 
 ### 🐖 Motor Pecuario Senior
 *   **Validación de Alojamiento**: Filtros inteligentes que solo muestran infraestructuras aptas para cada especie.
-*   **Especies Expandidas**: Soporte completo para Bovinos, Equinos, Ovinos, Caprinos, Porcinos, Peces y Aves.
+*   **Identidad Visual**: Código de colores naranja/ámbar para distinguir rápidamente las zonas de animales sobre el mapa satelital.
 
 ### 🧠 Centro de Mando (Bento)
 *   **Métricas Agrupadas**: Patrimonio (Ha/$), Producción (Café/Bodega) y Recursos (Equipo/Animales).
-*   **Tutor Integrado**: Las alertas del Dashboard actúan como misiones dinámicas de configuración.
+*   **Nomenclatura Inteligente**: Sugerencia automática de nombres secuenciales para agilizar el registro en campo.
 
 ---
 

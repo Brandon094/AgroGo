@@ -1,6 +1,6 @@
-# Walkthrough: Inteligencia Contextual y BI Geográfica (AgroGo v0.5.0)
+# Walkthrough: Consolidación GIS y Diversificación de Activos (AgroGo v0.8.0)
 
-Este walkthrough detalla la transformación de **AgroGo** en un ERP inteligente con capacidades de Business Intelligence geográfica y un flujo operativo dinámico.
+Este walkthrough detalla la transformación de **AgroGo** en un ERP inteligente con capacidades de Business Intelligence geográfica, un flujo operativo dinámico y blindaje espacial estricto, incluyendo la diversificación hacia el agroturismo y conservación.
 
 ---
 
@@ -21,11 +21,15 @@ Este walkthrough detalla la transformación de **AgroGo** en un ERP inteligente 
 
 ### 4. Robustez de Datos y Seguridad
 - **Borrado en Cascada**: Implementación de una capa de integridad que limpia automáticamente sub-lotes e infraestructuras al eliminar el perímetro maestro.
+- **Validación de Intersección**: Integración de `turf_dart` para impedir físicamente que los lotes se superpongan. El sistema bloquea el guardado y resalta el conflicto en rojo.
 - **Advertencias de Alto Impacto**: Diálogos rojos con botones de "BORRAR TODO" para acciones que comprometen la estructura de la finca.
 
 ### 5. Reorganización y Experiencia (UX)
 - **Zonificación por Pestañas**: La pantalla de "Mis Zonas" separa los activos productivos (**CULTIVOS**) de las construcciones físicas (**ESTRUCTURAS**).
 - **Especies Senior**: Expansión del catálogo pecuario con Bovinos, Equinos, Ovinos, Caprinos y más, incluyendo iconografía personalizada.
+- **Identidad Visual Pecuaria**: Implementación de un esquema de colores naranja/ámbar para distinguir infraestructuras de animales en el mapa, separándolas visualmente de casas y bodegas (morado).
+- **Automatización de Nomenclatura**: El sistema ahora sugiere nombres secuenciales (ej: "Corral 1", "Corral 2") al seleccionar una categoría de infraestructura, minimizando el uso del teclado en campo.
+- **Zonas Ambientales y Domésticas**: Extensión del catálogo GIS para incluir áreas forestales (conservación) y ornamentales (huertas/jardines), con formularios simplificados y colores diferenciados para un mapeo 100% fiel a la realidad de la finca.
 - **Validación de Alojamiento**: Los animales ahora solo pueden asignarse a infraestructuras compatibles (Cocheras, Galpones, etc.).
 
 ---
