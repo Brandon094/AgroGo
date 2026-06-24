@@ -117,6 +117,27 @@ class PantallaPanelLotes extends ConsumerWidget {
                   label: const Text('DIBUJAR CULTIVO', style: TextStyle(fontWeight: FontWeight.w900)),
                   icon: const Icon(Icons.add_location_alt_rounded),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloatingActionButton.small(
+                      heroTag: 'add_forestal',
+                      onPressed: () => context.push('/lotes/nuevo-lote?tipo=forestal'),
+                      backgroundColor: const Color(0xFF1B5E20),
+                      foregroundColor: Colors.white,
+                      child: const Icon(Icons.park_rounded),
+                    ),
+                    const SizedBox(width: 12),
+                    FloatingActionButton.small(
+                      heroTag: 'add_ornamental',
+                      onPressed: () => context.push('/lotes/nuevo-lote?tipo=ornamental'),
+                      backgroundColor: Colors.deepOrange.shade300,
+                      foregroundColor: Colors.white,
+                      child: const Icon(Icons.local_florist_rounded),
+                    ),
+                  ],
+                ),
               ] else ...[
                 FloatingActionButton.extended(
                   heroTag: 'add_perimetro',
@@ -190,12 +211,29 @@ class _TarjetaLote extends ConsumerWidget {
     IconData iconoUso;
     Color colorUso;
 
-    switch (lote.uso) {
-      case TipoUsoLote.agricola: iconoUso = Icons.eco_rounded; colorUso = Colors.green; break;
-      case TipoUsoLote.pecuario: iconoUso = Icons.pets_rounded; colorUso = Colors.orange; break;
-      case TipoUsoLote.forestal: iconoUso = Icons.forest_rounded; colorUso = Colors.teal; break;
-      case TipoUsoLote.infraestructura: iconoUso = Icons.business_rounded; colorUso = Colors.grey; break;
-      case TipoUsoLote.perimetro: iconoUso = Icons.architecture_rounded; colorUso = Colors.brown; break;
+    if (lote.uso == TipoUsoLote.infraestructura) {
+      final pecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+      final recreativas = ['Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol', 'Mirador/Observatorio'];
+
+      if (pecuarias.contains(lote.subCategoria)) {
+        iconoUso = Icons.pets_rounded;
+        colorUso = Colors.orange;
+      } else if (recreativas.contains(lote.subCategoria)) {
+        iconoUso = Icons.celebration_rounded;
+        colorUso = Colors.lightBlueAccent;
+      } else {
+        iconoUso = Icons.business_rounded;
+        colorUso = Colors.purple;
+      }
+    } else {
+      switch (lote.uso) {
+        case TipoUsoLote.agricola: iconoUso = Icons.eco_rounded; colorUso = Colors.green; break;
+        case TipoUsoLote.pecuario: iconoUso = Icons.pets_rounded; colorUso = Colors.orange; break;
+        case TipoUsoLote.forestal: iconoUso = Icons.park_rounded; colorUso = const Color(0xFF1B5E20); break;
+        case TipoUsoLote.ornamental: iconoUso = Icons.local_florist_rounded; colorUso = Colors.deepOrange.shade300; break;
+        case TipoUsoLote.infraestructura: iconoUso = Icons.business_rounded; colorUso = Colors.purple; break; // No debería entrar aquí por el if de arriba
+        case TipoUsoLote.perimetro: iconoUso = Icons.architecture_rounded; colorUso = Colors.brown; break;
+      }
     }
 
     return Container(

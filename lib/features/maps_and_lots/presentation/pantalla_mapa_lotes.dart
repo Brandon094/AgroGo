@@ -45,6 +45,8 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
       case 'perimetro': return 'Delinear Perímetro Total';
       case 'infraestructura': return 'Mapear Infraestructura';
       case 'agricola': return 'Dibujar Lote de Cultivo';
+      case 'forestal': return 'Zona de Conservación';
+      case 'ornamental': return 'Huerta o Jardín';
       default: return 'Mapear Mi Lote';
     }
   }
@@ -54,6 +56,8 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
       case 'perimetro': return 'Toque las esquinas de TODA su finca para definir el borde total.';
       case 'infraestructura': return 'Dibuje el área de sus corrales, cocheras, casas o lagos.';
       case 'agricola': return 'Delinee la zona específica donde tiene sus cultivos.';
+      case 'forestal': return 'Delimite sus bosques, guaduales o áreas protegidas.';
+      case 'ornamental': return 'Marque sus jardines, huertas caseras o zonas verdes.';
       default: return 'Dibuje el polígono del lote en el mapa.';
     }
   }
@@ -147,9 +151,11 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
         HapticFeedback.vibrate();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al obtener señal GPS')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al obtener señal GPS')),
+        );
+      }
     }
   }
 
@@ -175,7 +181,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+              colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
             ),
           ),
         ),
@@ -209,7 +215,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00695C).withOpacity(0.9),
+                  color: const Color(0xFF00695C).withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
                 ),
@@ -228,8 +234,8 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
             ),
           ),
 
-          // Banner de Advertencia Perímetro
-          if (estadoMapa.mostrarAdvertenciaPerimetro)
+          // Banner de Advertencia Perímetro o Superposición (Unificado para no pisarse)
+          if (estadoMapa.mostrarAdvertenciaPerimetro || estadoMapa.tieneSuperposicion)
             Positioned(
               top: 170,
               left: 20,
@@ -237,30 +243,36 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade800.withOpacity(0.9),
+                  color: (estadoMapa.tieneSuperposicion ? Colors.red.shade900 : Colors.red.shade800).withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.gpp_bad_rounded, color: Colors.white),
+                    Icon(
+                      estadoMapa.tieneSuperposicion ? Icons.layers_clear_rounded : Icons.gpp_bad_rounded, 
+                      color: Colors.white
+                    ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        '¡Punto fuera de límites!',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                        estadoMapa.tieneSuperposicion 
+                          ? '¡Área superpuesta! El lote choca con otro ya registrado.'
+                          : '¡Punto fuera de límites!',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                      onPressed: notificador.ocultarAdvertencia,
-                    )
+                    if (estadoMapa.mostrarAdvertenciaPerimetro)
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                        onPressed: notificador.ocultarAdvertencia,
+                      )
                   ],
                 ),
               ),
             ),
 
           // Banner de Advertencia GPS
-          if (estadoMapa.mostrarAdvertenciaGps)
+          if (estadoMapa.mostrarAdvertenciaGps && !estadoMapa.tieneSuperposicion && !estadoMapa.mostrarAdvertenciaPerimetro)
             Positioned(
               top: 170,
               left: 20,
@@ -268,7 +280,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade800.withOpacity(0.9),
+                  color: Colors.orange.shade800.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -327,7 +339,7 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
                   ),
@@ -393,14 +405,19 @@ class _PantallaMapaLotesState extends ConsumerState<PantallaMapaLotes> {
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00695C),
+                                backgroundColor: estadoMapa.tieneSuperposicion ? Colors.grey : const Color(0xFF00695C),
                                 foregroundColor: Colors.white,
                                 minimumSize: const Size(0, 56),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                 elevation: 0,
                               ),
-                              onPressed: estadoMapa.puntos.length >= 3 ? () => _mostrarFormularioGuardar(context, estadoMapa) : null,
-                              child: const Text('CONTINUAR', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                              onPressed: (estadoMapa.puntos.length >= 3 && !estadoMapa.tieneSuperposicion) 
+                                ? () => _mostrarFormularioGuardar(context, estadoMapa) 
+                                : null,
+                              child: Text(
+                                estadoMapa.tieneSuperposicion ? 'ÁREA OCUPADA' : 'CONTINUAR', 
+                                style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)
+                              ),
                             ),
                           ),
                         ],
@@ -449,6 +466,7 @@ class _BotonAccionMini extends StatelessWidget {
   final Color color;
   final Color? iconColor;
   const _BotonAccionMini({required this.icono, required this.onTap, required this.color, this.iconColor});
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -469,32 +487,15 @@ class _BotonFlotanteMapa extends StatelessWidget {
   final Color color;
   final Color? iconColor;
   const _BotonFlotanteMapa({required this.icono, required this.onTap, required this.color, this.iconColor});
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: Container(
         width: 50, height: 50,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)]),
         child: Icon(icono, color: iconColor ?? Colors.black87),
-      ),
-    );
-  }
-}
-
-class _BotonAccion extends StatelessWidget {
-  final IconData icono;
-  final Color color;
-  final VoidCallback onTap;
-  const _BotonAccion({required this.icono, required this.color, required this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 64, height: 64,
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
-        child: Icon(icono, size: 28),
       ),
     );
   }
@@ -519,6 +520,7 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
 
   final List<String> _infraestructurasPecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
   final List<String> _infraestructurasGenerales = ['Casa', 'Bodega', 'Secadero', 'Taller', 'Beneficiadero'];
+  final List<String> _infraestructurasRecreativas = ['Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol', 'Mirador/Observatorio'];
 
   @override
   void initState() {
@@ -535,6 +537,8 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
       case 'perimetro': return TipoUsoLote.perimetro;
       case 'infraestructura': return TipoUsoLote.infraestructura;
       case 'agricola': return TipoUsoLote.agricola;
+      case 'forestal': return TipoUsoLote.forestal;
+      case 'ornamental': return TipoUsoLote.ornamental;
       default: return TipoUsoLote.agricola;
     }
   }
@@ -577,6 +581,48 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
     if (pick != null) setState(() => onPicked(pick));
   }
 
+  String _obtenerLabelSubCat() {
+    switch (_usoSeleccionado) {
+      case TipoUsoLote.agricola: return '¿Qué cultivo es?';
+      case TipoUsoLote.forestal: return 'Tipo de Reserva';
+      case TipoUsoLote.ornamental: return 'Tipo de área';
+      default: return 'Subcategoría';
+    }
+  }
+
+  String _obtenerHintSubCat() {
+    switch (_usoSeleccionado) {
+      case TipoUsoLote.agricola: return 'Ej: Café, Cacao';
+      case TipoUsoLote.forestal: return 'Ej: Bosque nativo, Guadual';
+      case TipoUsoLote.ornamental: return 'Ej: Jardín, Huerta casera';
+      default: return 'Ej: Potrero, Estanque';
+    }
+  }
+
+  IconData _obtenerIconoSubCat() {
+    switch (_usoSeleccionado) {
+      case TipoUsoLote.agricola: return Icons.eco;
+      case TipoUsoLote.forestal: return Icons.park_rounded;
+      case TipoUsoLote.ornamental: return Icons.local_florist_rounded;
+      default: return Icons.category;
+    }
+  }
+
+  void _sugerirNombre(String categoria) {
+    if (_nombreCtrl.text.isNotEmpty && !(_infraestructurasGenerales.contains(_nombreCtrl.text.split(' ').first) || _infraestructurasPecuarias.contains(_nombreCtrl.text.split(' ').first) || _infraestructurasRecreativas.contains(_nombreCtrl.text.split(' ').first))) {
+      // Si el usuario ya escribió algo personalizado que no empieza por una categoría, no lo pisamos
+      return;
+    }
+
+    final lotesExistentes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+    final conteo = lotesExistentes.where((l) => l.subCategoria == categoria).length;
+    
+    setState(() {
+      _subCatCtrl.text = categoria;
+      _nombreCtrl.text = '$categoria ${conteo + 1}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final paddingTeclado = MediaQuery.of(context).viewInsets.bottom;
@@ -591,7 +637,7 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFF00695C).withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(color: const Color(0xFF00695C).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
                   child: const Icon(Icons.edit_location_alt_rounded, color: Color(0xFF00695C), size: 28),
                 ),
                 const SizedBox(width: 16),
@@ -619,7 +665,12 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                   DropdownButtonFormField<TipoUsoLote>(
                     value: _usoSeleccionado,
                     decoration: const InputDecoration(labelText: 'Tipo de Uso', prefixIcon: Icon(Icons.category)),
-                    items: TipoUsoLote.values.map((u) => DropdownMenuItem(value: u, child: Text(u.name.toUpperCase()))).toList(),
+                    items: TipoUsoLote.values.map((u) {
+                      String label = u.name.toUpperCase();
+                      if (u == TipoUsoLote.forestal) label = 'FORESTAL / CONSERVACIÓN';
+                      if (u == TipoUsoLote.ornamental) label = 'ORNAMENTAL / HUERTA';
+                      return DropdownMenuItem(value: u, child: Text(label));
+                    }).toList(),
                     onChanged: widget.tipoPredefinido == null 
                       ? (v) => setState(() {
                           _usoSeleccionado = v!;
@@ -633,18 +684,21 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                       decoration: const InputDecoration(labelText: 'Tipo de Infraestructura', prefixIcon: Icon(Icons.factory_rounded)),
                       items: [
                         ..._infraestructurasPecuarias.map((i) => DropdownMenuItem(value: i, child: Text('$i (Animales)'))),
+                        ..._infraestructurasRecreativas.map((i) => DropdownMenuItem(value: i, child: Text('$i (Recreativo)'))),
                         ..._infraestructurasGenerales.map((i) => DropdownMenuItem(value: i, child: Text(i))),
                       ],
-                      onChanged: (v) => setState(() => _subCatCtrl.text = v!),
+                      onChanged: (v) {
+                        if (v != null) _sugerirNombre(v);
+                      },
                       validator: (v) => v == null ? 'Seleccione el tipo' : null,
                     )
                   else
                     TextFormField(
                       controller: _subCatCtrl,
                       decoration: InputDecoration(
-                        labelText: _usoSeleccionado == TipoUsoLote.agricola ? '¿Qué cultivo es?' : 'Subcategoría',
-                        hintText: _usoSeleccionado == TipoUsoLote.agricola ? 'Ej: Café, Cacao' : 'Ej: Potrero, Estanque',
-                        prefixIcon: const Icon(Icons.eco)
+                        labelText: _obtenerLabelSubCat(),
+                        hintText: _obtenerHintSubCat(),
+                        prefixIcon: Icon(_obtenerIconoSubCat())
                       ),
                       validator: (v) => v!.isEmpty ? 'Ingresa la categoría' : null,
                     ),
@@ -688,6 +742,30 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                         decoration: const InputDecoration(labelText: 'Capacidad de Animales', prefixIcon: Icon(Icons.pets), suffixText: 'cabezas'),
                         validator: (v) => v!.isEmpty ? 'Ingresa capacidad' : null
                       ),
+                  ],
+                ),
+              ),
+
+            if (_usoSeleccionado == TipoUsoLote.forestal || _usoSeleccionado == TipoUsoLote.ornamental || (_usoSeleccionado == TipoUsoLote.infraestructura && _infraestructurasRecreativas.contains(_subCatCtrl.text)))
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _usoSeleccionado == TipoUsoLote.forestal ? Icons.park_rounded : (_usoSeleccionado == TipoUsoLote.ornamental ? Icons.local_florist_rounded : Icons.pool_rounded),
+                      color: const Color(0xFF1B5E20),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Zona de conservación, recreativa o uso doméstico. No requiere configuración comercial.',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1B5E20)),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -886,6 +964,7 @@ class _DatePickerTile extends StatelessWidget {
   final DateTime? fecha;
   final VoidCallback onTap;
   const _DatePickerTile({required this.titulo, required this.fecha, required this.onTap});
+
   @override
   Widget build(BuildContext context) {
     return ListTile(

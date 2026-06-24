@@ -40,23 +40,41 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
     return LatLng(sLat / coordenadas.length, sLng / coordenadas.length);
   }
 
-  Color _obtenerColorUso(TipoUsoLote uso) {
-    switch (uso) {
+  Color _obtenerColorLote(Lote lote) {
+    if (lote.uso == TipoUsoLote.infraestructura) {
+      final pecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+      final recreativas = ['Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol', 'Mirador/Observatorio'];
+      
+      if (pecuarias.contains(lote.subCategoria)) return Colors.orange;
+      if (recreativas.contains(lote.subCategoria)) return Colors.lightBlueAccent;
+      return Colors.purple;
+    }
+    switch (lote.uso) {
       case TipoUsoLote.agricola: return Colors.green;
       case TipoUsoLote.pecuario: return Colors.orange;
-      case TipoUsoLote.forestal: return Colors.teal;
-      case TipoUsoLote.infraestructura: return Colors.grey;
+      case TipoUsoLote.forestal: return const Color(0xFF1B5E20);
+      case TipoUsoLote.ornamental: return Colors.deepOrange.shade300;
       case TipoUsoLote.perimetro: return Colors.brown;
+      default: return Colors.grey;
     }
   }
 
-  double _obtenerHueUso(TipoUsoLote uso) {
-    switch (uso) {
+  double _obtenerHueLote(Lote lote) {
+    if (lote.uso == TipoUsoLote.infraestructura) {
+      final pecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+      final recreativas = ['Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol', 'Mirador/Observatorio'];
+
+      if (pecuarias.contains(lote.subCategoria)) return BitmapDescriptor.hueOrange;
+      if (recreativas.contains(lote.subCategoria)) return BitmapDescriptor.hueAzure;
+      return BitmapDescriptor.hueViolet;
+    }
+    switch (lote.uso) {
       case TipoUsoLote.agricola: return BitmapDescriptor.hueGreen;
       case TipoUsoLote.pecuario: return BitmapDescriptor.hueOrange;
-      case TipoUsoLote.forestal: return BitmapDescriptor.hueAzure;
-      case TipoUsoLote.infraestructura: return BitmapDescriptor.hueViolet;
+      case TipoUsoLote.forestal: return 140.0; // Hue para verde oscuro
+      case TipoUsoLote.ornamental: return BitmapDescriptor.hueRed;
       case TipoUsoLote.perimetro: return BitmapDescriptor.hueRose;
+      default: return BitmapDescriptor.hueCyan;
     }
   }
 
@@ -85,8 +103,8 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
           final poligonos = lotes.map((l) => Polygon(
             polygonId: PolygonId(l.id), 
             points: l.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(), 
-            fillColor: _obtenerColorUso(l.uso).withOpacity(0.35), 
-            strokeColor: _obtenerColorUso(l.uso), 
+            fillColor: _obtenerColorLote(l).withValues(alpha: 0.35),
+            strokeColor: _obtenerColorLote(l), 
             strokeWidth: l.uso == TipoUsoLote.perimetro ? 4 : 2
           )).toSet();
 
@@ -118,7 +136,7 @@ class _PantallaMapaFincaState extends ConsumerState<PantallaMapaFinca> {
                 title: l.nombre, 
                 snippet: '${l.subCategoria} • ${l.areaEnHectareas.toStringAsFixed(2)} Ha$infoAdicional'
               ), 
-              icon: BitmapDescriptor.defaultMarkerWithHue(_obtenerHueUso(l.uso))
+              icon: BitmapDescriptor.defaultMarkerWithHue(_obtenerHueLote(l))
             );
           }).toSet();
           return Stack(

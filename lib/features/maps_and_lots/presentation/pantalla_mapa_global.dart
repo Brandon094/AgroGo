@@ -43,13 +43,21 @@ class _PantallaMapaGlobalState extends ConsumerState<PantallaMapaGlobal> {
     _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 120));
   }
 
-  Color _obtenerColorUso(TipoUsoLote uso) {
-    switch (uso) {
+  Color _obtenerColorLote(Lote lote) {
+    if (lote.uso == TipoUsoLote.infraestructura) {
+      final pecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
+      final recreativas = ['Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol', 'Mirador/Observatorio'];
+
+      if (pecuarias.contains(lote.subCategoria)) return Colors.orange;
+      if (recreativas.contains(lote.subCategoria)) return Colors.lightBlueAccent;
+      return Colors.purple;
+    }
+    switch (lote.uso) {
       case TipoUsoLote.agricola: return Colors.green;
       case TipoUsoLote.pecuario: return Colors.orange;
       case TipoUsoLote.forestal: return Colors.teal;
-      case TipoUsoLote.infraestructura: return Colors.grey;
       case TipoUsoLote.perimetro: return Colors.brown;
+      default: return Colors.grey;
     }
   }
 
@@ -107,11 +115,11 @@ class _PantallaMapaGlobalState extends ConsumerState<PantallaMapaGlobal> {
               return lotes
                   .where((l) => l.fincaId == _fincaSeleccionadaId)
                   .map((lote) {
-                final color = _obtenerColorUso(lote.uso);
+                final color = _obtenerColorLote(lote);
                 return Polygon(
                   polygonId: PolygonId('poly_${lote.id}'),
                   points: lote.coordenadas.map((c) => LatLng(c.latitud, c.longitud)).toList(),
-                  fillColor: color.withOpacity(0.4),
+                  fillColor: color.withValues(alpha: 0.4),
                   strokeColor: color,
                   strokeWidth: 2,
                   consumeTapEvents: false,
@@ -312,7 +320,8 @@ class _PanelResumenFinca extends ConsumerWidget {
     switch (uso) {
       case TipoUsoLote.agricola: return Colors.green.shade800;
       case TipoUsoLote.pecuario: return Colors.orange.shade800;
-      case TipoUsoLote.forestal: return Colors.teal.shade800;
+      case TipoUsoLote.forestal: return const Color(0xFF1B5E20);
+      case TipoUsoLote.ornamental: return Colors.deepOrange.shade300;
       case TipoUsoLote.infraestructura: return Colors.blueGrey;
       case TipoUsoLote.perimetro: return Colors.brown;
     }
