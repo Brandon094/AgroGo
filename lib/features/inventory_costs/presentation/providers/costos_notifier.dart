@@ -27,7 +27,7 @@ class CostosNotifier extends _$CostosNotifier {
   }
 
   Future<void> agregarCosto({
-    required String nombreItem,
+    required String nombre,
     required String categoria,
     required double precioTotal,
     String? loteId,
@@ -38,7 +38,7 @@ class CostosNotifier extends _$CostosNotifier {
     final nuevoCosto = ItemCostoEntity(
       id: '',
       fincaId: fincaIdStr,
-      nombreItem: nombreItem,
+      nombreItem: nombre,
       categoria: categoria,
       precioTotal: precioTotal,
       fechaCompra: DateTime.now(),
@@ -47,6 +47,34 @@ class CostosNotifier extends _$CostosNotifier {
 
     final repositorio = ref.read(repositorioCostosProvider);
     final resultado = await repositorio.guardarCosto(nuevoCosto);
+    resultado.fold(
+      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
+  Future<void> agregarIngreso({
+    required String nombre,
+    required String categoria,
+    required double monto,
+    String? loteId,
+  }) async {
+    state = const AsyncValue.loading();
+    final fincaIdStr = ref.read(fincaSeleccionadaProvider);
+
+    final nuevoIngreso = ItemCostoEntity(
+      id: '',
+      fincaId: fincaIdStr,
+      nombreItem: nombre,
+      categoria: categoria,
+      precioTotal: monto,
+      fechaCompra: DateTime.now(),
+      loteId: loteId,
+      esIngreso: true,
+    );
+
+    final repositorio = ref.read(repositorioCostosProvider);
+    final resultado = await repositorio.guardarCosto(nuevoIngreso);
     resultado.fold(
       (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
       (_) => ref.invalidateSelf(),

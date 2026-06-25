@@ -347,7 +347,7 @@ class _ModalCalculadoraInsumosState extends ConsumerState<_ModalCalculadoraInsum
 
     // 1. Registrar el Gasto Financiero
     await ref.read(costosNotifierProvider.notifier).agregarCosto(
-      nombreItem: nombreItem,
+      nombre: nombreItem,
       categoria: 'Insumos',
       precioTotal: _totalCosto!,
       loteId: _tipoCalculo != 2 ? _loteSeleccionado?.id : null,
@@ -560,7 +560,7 @@ class _FormularioCostoModalState extends ConsumerState<_FormularioCostoModal> {
           ElevatedButton(onPressed: () async { 
             if (_nombreCtrl.text.isNotEmpty && _precioCtrl.text.isNotEmpty) {
               await ref.read(costosNotifierProvider.notifier).agregarCosto(
-                nombreItem: _nombreCtrl.text, 
+                nombre: _nombreCtrl.text,
                 categoria: 'Insumos', 
                 precioTotal: double.parse(_precioCtrl.text)
               ); 

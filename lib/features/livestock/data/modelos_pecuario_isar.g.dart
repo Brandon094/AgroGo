@@ -22,33 +22,64 @@ const EspecieIsarModelSchema = CollectionSchema(
       name: r'cantidadActual',
       type: IsarType.long,
     ),
-    r'fincaId': PropertySchema(
+    r'costoInsumosAcumulado': PropertySchema(
       id: 1,
+      name: r'costoInsumosAcumulado',
+      type: IsarType.double,
+    ),
+    r'estaActivo': PropertySchema(
+      id: 2,
+      name: r'estaActivo',
+      type: IsarType.bool,
+    ),
+    r'fechaSalida': PropertySchema(
+      id: 3,
+      name: r'fechaSalida',
+      type: IsarType.dateTime,
+    ),
+    r'fincaId': PropertySchema(
+      id: 4,
       name: r'fincaId',
       type: IsarType.long,
     ),
+    r'kilosSalida': PropertySchema(
+      id: 5,
+      name: r'kilosSalida',
+      type: IsarType.double,
+    ),
     r'loteId': PropertySchema(
-      id: 2,
+      id: 6,
       name: r'loteId',
       type: IsarType.long,
     ),
     r'nombre': PropertySchema(
-      id: 3,
+      id: 7,
       name: r'nombre',
       type: IsarType.string,
     ),
+    r'precioVentaTotal': PropertySchema(
+      id: 8,
+      name: r'precioVentaTotal',
+      type: IsarType.double,
+    ),
     r'tipoEspecie': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'tipoEspecie',
       type: IsarType.string,
     ),
+    r'tipoSalida': PropertySchema(
+      id: 10,
+      name: r'tipoSalida',
+      type: IsarType.byte,
+      enumMap: _EspecieIsarModeltipoSalidaEnumValueMap,
+    ),
     r'valorTotalInversion': PropertySchema(
-      id: 5,
+      id: 11,
       name: r'valorTotalInversion',
       type: IsarType.double,
     ),
     r'valorUnitario': PropertySchema(
-      id: 6,
+      id: 12,
       name: r'valorUnitario',
       type: IsarType.double,
     )
@@ -85,12 +116,18 @@ void _especieIsarModelSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.cantidadActual);
-  writer.writeLong(offsets[1], object.fincaId);
-  writer.writeLong(offsets[2], object.loteId);
-  writer.writeString(offsets[3], object.nombre);
-  writer.writeString(offsets[4], object.tipoEspecie);
-  writer.writeDouble(offsets[5], object.valorTotalInversion);
-  writer.writeDouble(offsets[6], object.valorUnitario);
+  writer.writeDouble(offsets[1], object.costoInsumosAcumulado);
+  writer.writeBool(offsets[2], object.estaActivo);
+  writer.writeDateTime(offsets[3], object.fechaSalida);
+  writer.writeLong(offsets[4], object.fincaId);
+  writer.writeDouble(offsets[5], object.kilosSalida);
+  writer.writeLong(offsets[6], object.loteId);
+  writer.writeString(offsets[7], object.nombre);
+  writer.writeDouble(offsets[8], object.precioVentaTotal);
+  writer.writeString(offsets[9], object.tipoEspecie);
+  writer.writeByte(offsets[10], object.tipoSalida.index);
+  writer.writeDouble(offsets[11], object.valorTotalInversion);
+  writer.writeDouble(offsets[12], object.valorUnitario);
 }
 
 EspecieIsarModel _especieIsarModelDeserialize(
@@ -101,13 +138,21 @@ EspecieIsarModel _especieIsarModelDeserialize(
 ) {
   final object = EspecieIsarModel();
   object.cantidadActual = reader.readLong(offsets[0]);
-  object.fincaId = reader.readLongOrNull(offsets[1]);
+  object.costoInsumosAcumulado = reader.readDouble(offsets[1]);
+  object.estaActivo = reader.readBool(offsets[2]);
+  object.fechaSalida = reader.readDateTimeOrNull(offsets[3]);
+  object.fincaId = reader.readLongOrNull(offsets[4]);
   object.id = id;
-  object.loteId = reader.readLongOrNull(offsets[2]);
-  object.nombre = reader.readString(offsets[3]);
-  object.tipoEspecie = reader.readString(offsets[4]);
-  object.valorTotalInversion = reader.readDouble(offsets[5]);
-  object.valorUnitario = reader.readDouble(offsets[6]);
+  object.kilosSalida = reader.readDoubleOrNull(offsets[5]);
+  object.loteId = reader.readLongOrNull(offsets[6]);
+  object.nombre = reader.readString(offsets[7]);
+  object.precioVentaTotal = reader.readDoubleOrNull(offsets[8]);
+  object.tipoEspecie = reader.readString(offsets[9]);
+  object.tipoSalida = _EspecieIsarModeltipoSalidaValueEnumMap[
+          reader.readByteOrNull(offsets[10])] ??
+      TipoSalidaPecuaria.ninguno;
+  object.valorTotalInversion = reader.readDouble(offsets[11]);
+  object.valorUnitario = reader.readDouble(offsets[12]);
   return object;
 }
 
@@ -121,21 +166,48 @@ P _especieIsarModelDeserializeProp<P>(
     case 0:
       return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
-    case 2:
-      return (reader.readLongOrNull(offset)) as P;
-    case 3:
-      return (reader.readString(offset)) as P;
-    case 4:
-      return (reader.readString(offset)) as P;
-    case 5:
       return (reader.readDouble(offset)) as P;
+    case 2:
+      return (reader.readBool(offset)) as P;
+    case 3:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 4:
+      return (reader.readLongOrNull(offset)) as P;
+    case 5:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 6:
+      return (reader.readLongOrNull(offset)) as P;
+    case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (_EspecieIsarModeltipoSalidaValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          TipoSalidaPecuaria.ninguno) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _EspecieIsarModeltipoSalidaEnumValueMap = {
+  'ninguno': 0,
+  'ventaEnPie': 1,
+  'sacrificio': 2,
+  'otro': 3,
+};
+const _EspecieIsarModeltipoSalidaValueEnumMap = {
+  0: TipoSalidaPecuaria.ninguno,
+  1: TipoSalidaPecuaria.ventaEnPie,
+  2: TipoSalidaPecuaria.sacrificio,
+  3: TipoSalidaPecuaria.otro,
+};
 
 Id _especieIsarModelGetId(EspecieIsarModel object) {
   return object.id;
@@ -288,6 +360,156 @@ extension EspecieIsarModelQueryFilter
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      costoInsumosAcumuladoEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'costoInsumosAcumulado',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      costoInsumosAcumuladoGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'costoInsumosAcumulado',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      costoInsumosAcumuladoLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'costoInsumosAcumulado',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      costoInsumosAcumuladoBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'costoInsumosAcumulado',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      estaActivoEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'estaActivo',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'fechaSalida',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'fechaSalida',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fechaSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fechaSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fechaSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      fechaSalidaBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fechaSalida',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
       fincaIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -413,6 +635,90 @@ extension EspecieIsarModelQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'kilosSalida',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'kilosSalida',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'kilosSalida',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'kilosSalida',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'kilosSalida',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      kilosSalidaBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'kilosSalida',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -628,6 +934,90 @@ extension EspecieIsarModelQueryFilter
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'precioVentaTotal',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'precioVentaTotal',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'precioVentaTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'precioVentaTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'precioVentaTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      precioVentaTotalBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'precioVentaTotal',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
       tipoEspecieEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -759,6 +1149,62 @@ extension EspecieIsarModelQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'tipoEspecie',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      tipoSalidaEqualTo(TipoSalidaPecuaria value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tipoSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      tipoSalidaGreaterThan(
+    TipoSalidaPecuaria value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tipoSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      tipoSalidaLessThan(
+    TipoSalidaPecuaria value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tipoSalida',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      tipoSalidaBetween(
+    TipoSalidaPecuaria lower,
+    TipoSalidaPecuaria upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tipoSalida',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -919,6 +1365,48 @@ extension EspecieIsarModelQuerySortBy
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByCostoInsumosAcumulado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoInsumosAcumulado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByCostoInsumosAcumuladoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoInsumosAcumulado', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByEstaActivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaActivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByEstaActivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaActivo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByFechaSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fechaSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByFechaSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fechaSalida', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
       sortByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fincaId', Sort.asc);
@@ -929,6 +1417,20 @@ extension EspecieIsarModelQuerySortBy
       sortByFincaIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fincaId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByKilosSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kilosSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByKilosSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kilosSalida', Sort.desc);
     });
   }
 
@@ -961,6 +1463,20 @@ extension EspecieIsarModelQuerySortBy
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByPrecioVentaTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'precioVentaTotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByPrecioVentaTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'precioVentaTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
       sortByTipoEspecie() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tipoEspecie', Sort.asc);
@@ -971,6 +1487,20 @@ extension EspecieIsarModelQuerySortBy
       sortByTipoEspecieDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tipoEspecie', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByTipoSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByTipoSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoSalida', Sort.desc);
     });
   }
 
@@ -1020,6 +1550,48 @@ extension EspecieIsarModelQuerySortThenBy
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByCostoInsumosAcumulado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoInsumosAcumulado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByCostoInsumosAcumuladoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoInsumosAcumulado', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByEstaActivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaActivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByEstaActivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaActivo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByFechaSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fechaSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByFechaSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fechaSalida', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
       thenByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fincaId', Sort.asc);
@@ -1043,6 +1615,20 @@ extension EspecieIsarModelQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByKilosSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kilosSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByKilosSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kilosSalida', Sort.desc);
     });
   }
 
@@ -1075,6 +1661,20 @@ extension EspecieIsarModelQuerySortThenBy
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByPrecioVentaTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'precioVentaTotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByPrecioVentaTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'precioVentaTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
       thenByTipoEspecie() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tipoEspecie', Sort.asc);
@@ -1085,6 +1685,20 @@ extension EspecieIsarModelQuerySortThenBy
       thenByTipoEspecieDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tipoEspecie', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByTipoSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoSalida', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByTipoSalidaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoSalida', Sort.desc);
     });
   }
 
@@ -1127,9 +1741,37 @@ extension EspecieIsarModelQueryWhereDistinct
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByCostoInsumosAcumulado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'costoInsumosAcumulado');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByEstaActivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'estaActivo');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByFechaSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fechaSalida');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
       distinctByFincaId() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fincaId');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByKilosSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'kilosSalida');
     });
   }
 
@@ -1148,9 +1790,23 @@ extension EspecieIsarModelQueryWhereDistinct
   }
 
   QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByPrecioVentaTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'precioVentaTotal');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
       distinctByTipoEspecie({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'tipoEspecie', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByTipoSalida() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tipoSalida');
     });
   }
 
@@ -1184,9 +1840,36 @@ extension EspecieIsarModelQueryProperty
     });
   }
 
+  QueryBuilder<EspecieIsarModel, double, QQueryOperations>
+      costoInsumosAcumuladoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'costoInsumosAcumulado');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, bool, QQueryOperations> estaActivoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'estaActivo');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, DateTime?, QQueryOperations>
+      fechaSalidaProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fechaSalida');
+    });
+  }
+
   QueryBuilder<EspecieIsarModel, int?, QQueryOperations> fincaIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fincaId');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, double?, QQueryOperations>
+      kilosSalidaProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'kilosSalida');
     });
   }
 
@@ -1202,10 +1885,24 @@ extension EspecieIsarModelQueryProperty
     });
   }
 
+  QueryBuilder<EspecieIsarModel, double?, QQueryOperations>
+      precioVentaTotalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'precioVentaTotal');
+    });
+  }
+
   QueryBuilder<EspecieIsarModel, String, QQueryOperations>
       tipoEspecieProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'tipoEspecie');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, TipoSalidaPecuaria, QQueryOperations>
+      tipoSalidaProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tipoSalida');
     });
   }
 

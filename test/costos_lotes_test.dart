@@ -66,7 +66,7 @@ void main() {
 
       // Agregar un costo general
       await notifier.agregarCosto(
-        nombreItem: 'Herramienta Pala',
+        nombre: 'Herramienta Pala',
         categoria: 'Herramienta',
         precioTotal: 45000.0,
         loteId: null,
@@ -74,7 +74,7 @@ void main() {
 
       // Agregar un costo asociado a un lote
       await notifier.agregarCosto(
-        nombreItem: 'Fertilizante Urea',
+        nombre: 'Fertilizante Urea',
         categoria: 'Abono',
         precioTotal: 180000.0,
         loteId: '10',

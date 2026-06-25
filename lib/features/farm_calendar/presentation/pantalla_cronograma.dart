@@ -316,7 +316,7 @@ class _DialogoGastoConInventarioState extends ConsumerState<_DialogoGastoConInve
             final valor = double.tryParse(_costoCtrl.text);
             if (valor != null) {
               await ref.read(costosNotifierProvider.notifier).agregarCosto(
-                nombreItem: widget.tarea.titulo,
+                nombre: widget.tarea.titulo,
                 categoria: 'Operativos',
                 precioTotal: valor,
                 loteId: widget.tarea.loteId,

@@ -1,3 +1,5 @@
+enum TipoSalidaPecuaria { ninguno, ventaEnPie, sacrificio, otro }
+
 class EspecieEntity {
   final String id;
   final String? fincaId;
@@ -6,7 +8,14 @@ class EspecieEntity {
   final int cantidadActual;
   final String? loteId;
   final double valorUnitario;
-  final double valorTotalInversion;
+  final double valorTotalInversion; // Valor inicial de adquisición
+  
+  final double costoInsumosAcumulado; // Alimentación + Sanidad
+  final bool estaActivo;
+  final DateTime? fechaSalida;
+  final double? precioVentaTotal;
+  final double? kilosSalida;
+  final TipoSalidaPecuaria? tipoSalida;
 
   const EspecieEntity({
     required this.id,
@@ -17,7 +26,16 @@ class EspecieEntity {
     this.loteId,
     this.valorUnitario = 0.0,
     this.valorTotalInversion = 0.0,
+    this.costoInsumosAcumulado = 0.0,
+    this.estaActivo = true,
+    this.fechaSalida,
+    this.precioVentaTotal,
+    this.kilosSalida,
+    this.tipoSalida,
   });
+
+  double get costoTotalAcumulado => valorTotalInversion + costoInsumosAcumulado;
+  double get utilidadNeta => (precioVentaTotal ?? 0.0) - costoTotalAcumulado;
 
   EspecieEntity copyWith({
     String? id,
@@ -28,6 +46,12 @@ class EspecieEntity {
     String? loteId,
     double? valorUnitario,
     double? valorTotalInversion,
+    double? costoInsumosAcumulado,
+    bool? estaActivo,
+    DateTime? fechaSalida,
+    double? precioVentaTotal,
+    double? kilosSalida,
+    TipoSalidaPecuaria? tipoSalida,
   }) {
     return EspecieEntity(
       id: id ?? this.id,
@@ -38,6 +62,12 @@ class EspecieEntity {
       loteId: loteId ?? this.loteId,
       valorUnitario: valorUnitario ?? this.valorUnitario,
       valorTotalInversion: valorTotalInversion ?? this.valorTotalInversion,
+      costoInsumosAcumulado: costoInsumosAcumulado ?? this.costoInsumosAcumulado,
+      estaActivo: estaActivo ?? this.estaActivo,
+      fechaSalida: fechaSalida ?? this.fechaSalida,
+      precioVentaTotal: precioVentaTotal ?? this.precioVentaTotal,
+      kilosSalida: kilosSalida ?? this.kilosSalida,
+      tipoSalida: tipoSalida ?? this.tipoSalida,
     );
   }
 }

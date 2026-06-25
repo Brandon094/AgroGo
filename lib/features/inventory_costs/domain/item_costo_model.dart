@@ -6,6 +6,7 @@ class ItemCostoEntity {
   final double precioTotal;
   final DateTime fechaCompra;
   final String? loteId;
+  final bool esIngreso;
 
   const ItemCostoEntity({
     required this.id,
@@ -15,5 +16,6 @@ class ItemCostoEntity {
     required this.precioTotal,
     required this.fechaCompra,
     this.loteId,
+    this.esIngreso = false,
   });
 }

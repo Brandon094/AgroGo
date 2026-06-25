@@ -23,28 +23,33 @@ const ItemCostoIsarModelSchema = CollectionSchema(
       name: r'categoria',
       type: IsarType.string,
     ),
-    r'fechaCompra': PropertySchema(
+    r'esIngreso': PropertySchema(
       id: 1,
+      name: r'esIngreso',
+      type: IsarType.bool,
+    ),
+    r'fechaCompra': PropertySchema(
+      id: 2,
       name: r'fechaCompra',
       type: IsarType.dateTime,
     ),
     r'fincaId': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'loteId': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'loteId',
       type: IsarType.long,
     ),
     r'nombreItem': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'nombreItem',
       type: IsarType.string,
     ),
     r'precioTotal': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'precioTotal',
       type: IsarType.double,
     )
@@ -81,11 +86,12 @@ void _itemCostoIsarModelSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.categoria);
-  writer.writeDateTime(offsets[1], object.fechaCompra);
-  writer.writeLong(offsets[2], object.fincaId);
-  writer.writeLong(offsets[3], object.loteId);
-  writer.writeString(offsets[4], object.nombreItem);
-  writer.writeDouble(offsets[5], object.precioTotal);
+  writer.writeBool(offsets[1], object.esIngreso);
+  writer.writeDateTime(offsets[2], object.fechaCompra);
+  writer.writeLong(offsets[3], object.fincaId);
+  writer.writeLong(offsets[4], object.loteId);
+  writer.writeString(offsets[5], object.nombreItem);
+  writer.writeDouble(offsets[6], object.precioTotal);
 }
 
 ItemCostoIsarModel _itemCostoIsarModelDeserialize(
@@ -96,12 +102,13 @@ ItemCostoIsarModel _itemCostoIsarModelDeserialize(
 ) {
   final object = ItemCostoIsarModel();
   object.categoria = reader.readString(offsets[0]);
-  object.fechaCompra = reader.readDateTime(offsets[1]);
-  object.fincaId = reader.readLongOrNull(offsets[2]);
+  object.esIngreso = reader.readBool(offsets[1]);
+  object.fechaCompra = reader.readDateTime(offsets[2]);
+  object.fincaId = reader.readLongOrNull(offsets[3]);
   object.id = id;
-  object.loteId = reader.readLongOrNull(offsets[3]);
-  object.nombreItem = reader.readString(offsets[4]);
-  object.precioTotal = reader.readDouble(offsets[5]);
+  object.loteId = reader.readLongOrNull(offsets[4]);
+  object.nombreItem = reader.readString(offsets[5]);
+  object.precioTotal = reader.readDouble(offsets[6]);
   return object;
 }
 
@@ -115,14 +122,16 @@ P _itemCostoIsarModelDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 3:
       return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -357,6 +366,16 @@ extension ItemCostoIsarModelQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'categoria',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterFilterCondition>
+      esIngresoEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'esIngreso',
+        value: value,
       ));
     });
   }
@@ -847,6 +866,20 @@ extension ItemCostoIsarModelQuerySortBy
   }
 
   QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterSortBy>
+      sortByEsIngreso() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esIngreso', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterSortBy>
+      sortByEsIngresoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esIngreso', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterSortBy>
       sortByFechaCompra() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fechaCompra', Sort.asc);
@@ -930,6 +963,20 @@ extension ItemCostoIsarModelQuerySortThenBy
       thenByCategoriaDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'categoria', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterSortBy>
+      thenByEsIngreso() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esIngreso', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QAfterSortBy>
+      thenByEsIngresoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'esIngreso', Sort.desc);
     });
   }
 
@@ -1028,6 +1075,13 @@ extension ItemCostoIsarModelQueryWhereDistinct
   }
 
   QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QDistinct>
+      distinctByEsIngreso() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'esIngreso');
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, ItemCostoIsarModel, QDistinct>
       distinctByFechaCompra() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fechaCompra');
@@ -1075,6 +1129,12 @@ extension ItemCostoIsarModelQueryProperty
       categoriaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'categoria');
+    });
+  }
+
+  QueryBuilder<ItemCostoIsarModel, bool, QQueryOperations> esIngresoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'esIngreso');
     });
   }
 

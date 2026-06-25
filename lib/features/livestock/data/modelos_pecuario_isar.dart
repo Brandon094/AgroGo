@@ -14,6 +14,15 @@ class EspecieIsarModel {
   late double valorUnitario;
   late double valorTotalInversion;
 
+  late double costoInsumosAcumulado;
+  late bool estaActivo;
+  DateTime? fechaSalida;
+  double? precioVentaTotal;
+  double? kilosSalida;
+
+  @enumerated
+  TipoSalidaPecuaria tipoSalida = TipoSalidaPecuaria.ninguno;
+
   EspecieEntity toEntity() {
     return EspecieEntity(
       id: id.toString(),
@@ -24,6 +33,12 @@ class EspecieIsarModel {
       loteId: loteId?.toString(),
       valorUnitario: valorUnitario,
       valorTotalInversion: valorTotalInversion,
+      costoInsumosAcumulado: costoInsumosAcumulado,
+      estaActivo: estaActivo,
+      fechaSalida: fechaSalida,
+      precioVentaTotal: precioVentaTotal,
+      kilosSalida: kilosSalida,
+      tipoSalida: tipoSalida == TipoSalidaPecuaria.ninguno ? null : tipoSalida,
     );
   }
 
@@ -35,7 +50,13 @@ class EspecieIsarModel {
       ..cantidadActual = entidad.cantidadActual
       ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null
       ..valorUnitario = entidad.valorUnitario
-      ..valorTotalInversion = entidad.valorTotalInversion;
+      ..valorTotalInversion = entidad.valorTotalInversion
+      ..costoInsumosAcumulado = entidad.costoInsumosAcumulado
+      ..estaActivo = entidad.estaActivo
+      ..fechaSalida = entidad.fechaSalida
+      ..precioVentaTotal = entidad.precioVentaTotal
+      ..kilosSalida = entidad.kilosSalida
+      ..tipoSalida = entidad.tipoSalida ?? TipoSalidaPecuaria.ninguno;
     
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);

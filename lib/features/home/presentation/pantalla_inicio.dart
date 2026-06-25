@@ -302,12 +302,19 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
               orElse: () => const _BentoLoading(),
             ),
             costos.maybeWhen(
-              data: (c) => _BentoItem(
-                label: 'Inversión', 
-                valor: Formateadores.formatearMonedaCompacta(c.fold<double>(0.0, (a, b) => a + b.precioTotal)),
-                subLabel: 'Gastos acumulados',
-                icono: Icons.payments_rounded,
-              ),
+              data: (c) {
+                final totalGastos = c.where((x) => !x.esIngreso).fold<double>(0.0, (a, b) => a + b.precioTotal);
+                final totalIngresos = c.where((x) => x.esIngreso).fold<double>(0.0, (a, b) => a + b.precioTotal);
+                final balance = totalIngresos - totalGastos;
+
+                return _BentoItem(
+                  label: 'Balance Finca', 
+                  valor: Formateadores.formatearMonedaCompacta(balance),
+                  subLabel: 'Utilidad neta real',
+                  icono: Icons.payments_rounded,
+                  valorColor: balance >= 0 ? Colors.green.shade800 : Colors.red.shade800,
+                );
+              },
               orElse: () => const _BentoLoading(),
             ),
           ],
@@ -350,12 +357,15 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
           color: Colors.teal,
           items: [
             animales.maybeWhen(
-              data: (a) => _BentoItem(
-                label: 'Capital Vivo', 
-                valor: Formateadores.formatearMonedaCompacta(a.fold<double>(0.0, (sum, item) => sum + item.valorTotalInversion)),
-                subLabel: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)} animales',
-                icono: Icons.pets_rounded,
-              ),
+              data: (a) {
+                final activos = a.where((x) => x.estaActivo).toList();
+                return _BentoItem(
+                  label: 'Capital Vivo', 
+                  valor: Formateadores.formatearMonedaCompacta(activos.fold<double>(0.0, (sum, item) => sum + item.valorTotalInversion)),
+                  subLabel: '${activos.fold<int>(0, (sum, item) => sum + item.cantidadActual)} animales',
+                  icono: Icons.pets_rounded,
+                );
+              },
               orElse: () => const _BentoLoading(),
             ),
             equipo.maybeWhen(
@@ -489,8 +499,9 @@ class _BentoItem extends StatelessWidget {
   final String valor;
   final String subLabel;
   final IconData icono;
+  final Color? valorColor;
 
-  const _BentoItem({required this.label, required this.valor, required this.subLabel, required this.icono});
+  const _BentoItem({required this.label, required this.valor, required this.subLabel, required this.icono, this.valorColor});
 
   @override
   Widget build(BuildContext context) {
@@ -507,7 +518,14 @@ class _BentoItem extends StatelessWidget {
         const SizedBox(height: 4),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(valor, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+          child: Text(
+            valor, 
+            style: TextStyle(
+              fontSize: 20, 
+              fontWeight: FontWeight.w900, 
+              color: valorColor ?? const Color(0xFF37474F)
+            )
+          ),
         ),
         Text(subLabel, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w500)),
       ],

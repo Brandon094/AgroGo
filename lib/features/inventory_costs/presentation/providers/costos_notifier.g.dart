@@ -6,7 +6,7 @@ part of 'costos_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$costosNotifierHash() => r'3b8562678b8abc55ce5a0f48a807fb5f11bc1014';
+String _$costosNotifierHash() => r'669e1b8005c70c13a398dac2a9ec2c9e1913f2b4';
 
 /// See also [CostosNotifier].
 @ProviderFor(CostosNotifier)

@@ -44,16 +44,25 @@ class PantallaDetalleEspecie extends ConsumerWidget {
                   Row(
                     children: [
                       Text('${especie.cantidadActual} ${especie.tipoEspecie}', style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold)),
-                      if (especie.valorTotalInversion > 0) ...[
+                      const SizedBox(width: 8),
+                      const Icon(Icons.calculate_rounded, size: 12, color: Colors.amber),
+                      Text(' \$${especie.costoTotalAcumulado.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.w900)),
+                      if (!especie.estaActivo) ...[
                         const SizedBox(width: 8),
-                        const Icon(Icons.payments_rounded, size: 12, color: Colors.amber),
-                        Text(' \$${especie.valorTotalInversion.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.w900)),
+                        const Icon(Icons.trending_up_rounded, size: 12, color: Colors.lightGreenAccent),
+                        Text(' Utilidad: \$${especie.utilidadNeta.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.lightGreenAccent, fontWeight: FontWeight.w900)),
                       ],
                     ],
                   ),
                 ],
               ),
               actions: [
+                if (especie.estaActivo)
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_outline_rounded, size: 30, color: Colors.lightGreenAccent),
+                    onPressed: () => _mostrarFormCierre(context, ref, especie),
+                    tooltip: 'Cerrar Ciclo (Venta/Beneficio)',
+                  ),
                 IconButton(
                   icon: const Icon(Icons.edit_note_rounded, size: 30),
                   onPressed: () => _mostrarFormEditar(context, ref, especie),
@@ -96,6 +105,15 @@ class PantallaDetalleEspecie extends ConsumerWidget {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (context) => _FormularioEdicionEspecieModal(especie: especie),
+    );
+  }
+
+  void _mostrarFormCierre(BuildContext context, WidgetRef ref, EspecieEntity especie) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) => _FormCierreModal(especie: especie),
     );
   }
 
@@ -181,7 +199,7 @@ class _FormularioEdicionEspecieModalState extends ConsumerState<_FormularioEdici
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             value: _tipo,
-            items: ['Cerdo', 'Gallina', 'Pollo', 'Pez'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+            items: ['Cerdo', 'Vaca / Toro', 'Gallina / Pollo', 'Pez'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
             onChanged: (v) => setState(() => _tipo = v!),
             decoration: const InputDecoration(labelText: 'Especie', prefixIcon: Icon(Icons.category_rounded)),
           ),
@@ -304,12 +322,13 @@ class _TabSalud extends ConsumerWidget {
                       },
                     ),
             ),
-            _BotonAccion(
-              onTap: () => _mostrarFormSalud(context, ref, especie),
-              label: 'REGISTRAR SANIDAD',
-              icon: Icons.add_moderator_rounded,
-              color: Colors.red.shade800,
-            ),
+            if (especie.estaActivo)
+              _BotonAccion(
+                onTap: () => _mostrarFormSalud(context, ref, especie),
+                label: 'REGISTRAR SANIDAD',
+                icon: Icons.add_moderator_rounded,
+                color: Colors.red.shade800,
+              ),
           ],
         );
       },
@@ -362,12 +381,13 @@ class _TabAlimentacion extends ConsumerWidget {
                       },
                     ),
             ),
-            _BotonAccion(
-              onTap: () => _mostrarFormComida(context, ref, especie),
-              label: 'REGISTRAR CONSUMO',
-              icon: Icons.add_shopping_cart_rounded,
-              color: Colors.orange.shade800,
-            ),
+            if (especie.estaActivo)
+              _BotonAccion(
+                onTap: () => _mostrarFormComida(context, ref, especie),
+                label: 'REGISTRAR CONSUMO',
+                icon: Icons.add_shopping_cart_rounded,
+                color: Colors.orange.shade800,
+              ),
           ],
         );
       },
@@ -419,55 +439,105 @@ class _FormSaludModal extends ConsumerStatefulWidget {
 
 class _FormSaludModalState extends ConsumerState<_FormSaludModal> {
   final _prodCtrl = TextEditingController();
+  final _cantCtrl = TextEditingController();
   String _tipo = 'Vacuna';
   DateTime _proxima = DateTime.now().add(const Duration(days: 90));
+  InsumoEntity? _insumoSeleccionado;
+
+  @override
+  void dispose() {
+    _prodCtrl.dispose();
+    _cantCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).viewInsets.bottom;
+    final insumos = ref.watch(insumosNotifierProvider).valueOrNull ?? [];
+
     return Padding(
       padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('Tratamiento', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-          const SizedBox(height: 24),
-          DropdownButtonFormField<String>(
-            value: _tipo,
-            items: ['Vacuna', 'Purga', 'Vitamina', 'Medicamento'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-            onChanged: (v) => setState(() => _tipo = v!),
-            decoration: const InputDecoration(labelText: 'Tipo de tratamiento', prefixIcon: Icon(Icons.category_rounded)),
-          ),
-          const SizedBox(height: 16),
-          TextField(controller: _prodCtrl, decoration: const InputDecoration(labelText: 'Nombre del Producto', prefixIcon: Icon(Icons.medication_rounded))),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade800),
-            onPressed: () async {
-              if (_prodCtrl.text.isEmpty) return;
-              HapticFeedback.mediumImpact();
-              await ref.read(especieDetalleProvider(widget.especie.id).notifier).registrarSalud(
-                tipo: _tipo, 
-                producto: _prodCtrl.text, 
-                fecha: DateTime.now(), 
-                proxima: _proxima, 
-                nombreEspecie: widget.especie.nombre
-              );
-              if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Salud registrada y agendada'),
-                    backgroundColor: Colors.red,
-                    behavior: SnackBarBehavior.floating,
-                  ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Tratamiento', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+            const SizedBox(height: 24),
+            DropdownButtonFormField<String>(
+              value: _tipo,
+              items: ['Vacuna', 'Purga', 'Vitamina', 'Medicamento'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+              onChanged: (v) => setState(() => _tipo = v!),
+              decoration: const InputDecoration(labelText: 'Tipo de tratamiento', prefixIcon: Icon(Icons.category_rounded)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _prodCtrl, 
+              decoration: const InputDecoration(labelText: 'Nombre del Producto', prefixIcon: Icon(Icons.medication_rounded)),
+              onChanged: (v) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
+            
+            // Opcional: Descontar de bodega
+            DropdownButtonFormField<InsumoEntity>(
+              value: _insumoSeleccionado,
+              decoration: const InputDecoration(labelText: 'Descontar de Bodega (Opcional)', prefixIcon: Icon(Icons.inventory_2_rounded)),
+              items: insumos.map((i) => DropdownMenuItem(value: i, child: Text(i.nombre))).toList(),
+              onChanged: (v) {
+                setState(() {
+                  _insumoSeleccionado = v;
+                  if (v != null) _prodCtrl.text = v.nombre;
+                });
+              },
+            ),
+            
+            if (_insumoSeleccionado != null) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _cantCtrl, 
+                keyboardType: TextInputType.number, 
+                decoration: InputDecoration(
+                  labelText: 'Cantidad utilizada', 
+                  prefixIcon: const Icon(Icons.scale_rounded),
+                  suffixText: _insumoSeleccionado!.unidadMedida,
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 32),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade800),
+              onPressed: () async {
+                if (_prodCtrl.text.isEmpty) return;
+                HapticFeedback.mediumImpact();
+                
+                final cant = double.tryParse(_cantCtrl.text) ?? 0.0;
+
+                await ref.read(especieDetalleProvider(widget.especie.id).notifier).registrarSalud(
+                  tipo: _tipo, 
+                  producto: _prodCtrl.text, 
+                  fecha: DateTime.now(), 
+                  proxima: _proxima, 
+                  nombreEspecie: widget.especie.nombre,
+                  insumoId: _insumoSeleccionado?.id,
+                  cantidadInsumo: cant,
                 );
-              }
-            },
-            child: const Text('GUARDAR Y AGENDAR'),
-          ),
-        ],
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Salud registrada y agendada'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+              child: const Text('GUARDAR Y AGENDAR'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -537,6 +607,98 @@ class _FormComidaModalState extends ConsumerState<_FormComidaModal> {
               }
             },
             child: const Text('REGISTRAR CONSUMO'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FormCierreModal extends ConsumerStatefulWidget {
+  final EspecieEntity especie;
+  const _FormCierreModal({required this.especie});
+  @override
+  ConsumerState<_FormCierreModal> createState() => _FormCierreModalState();
+}
+
+class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
+  final _kilosCtrl = TextEditingController();
+  final _precioCtrl = TextEditingController();
+  TipoSalidaPecuaria _tipo = TipoSalidaPecuaria.ventaEnPie;
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Cierre de Ciclo', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+          const SizedBox(height: 8),
+          Text('Costo Acumulado: \$${widget.especie.costoTotalAcumulado.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
+          const SizedBox(height: 24),
+          
+          SegmentedButton<TipoSalidaPecuaria>(
+            segments: const [
+              ButtonSegment(value: TipoSalidaPecuaria.ventaEnPie, label: Text('Venta en Pie'), icon: Icon(Icons.front_loader)),
+              ButtonSegment(value: TipoSalidaPecuaria.sacrificio, label: Text('Sacrificio'), icon: Icon(Icons.restaurant_rounded)),
+            ],
+            selected: {_tipo},
+            onSelectionChanged: (set) => setState(() => _tipo = set.first),
+          ),
+
+          const SizedBox(height: 24),
+          TextField(
+            controller: _kilosCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: InputDecoration(
+              labelText: _tipo == TipoSalidaPecuaria.ventaEnPie ? 'Peso Final (kg)' : 'Kilos de carne obtenidos', 
+              prefixIcon: const Icon(Icons.scale_rounded),
+              suffixText: 'kg',
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _precioCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: const InputDecoration(
+              labelText: 'Precio de Venta Total', 
+              prefixIcon: Icon(Icons.payments_rounded),
+              suffixText: 'COP',
+            ),
+          ),
+
+          const SizedBox(height: 32),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B5E20)),
+            onPressed: () async {
+              final kilos = double.tryParse(_kilosCtrl.text) ?? 0;
+              final precio = double.tryParse(_precioCtrl.text) ?? 0;
+              
+              if (kilos <= 0 || precio <= 0) return;
+
+              HapticFeedback.heavyImpact();
+              await ref.read(especieDetalleProvider(widget.especie.id).notifier).cerrarCicloPecuario(
+                tipo: _tipo, 
+                kilos: kilos, 
+                precioTotal: precio,
+              );
+              
+              if (mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Ciclo cerrado con éxito. Registro guardado en historial.'),
+                    backgroundColor: Color(0xFF1B5E20),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: const Text('FINALIZAR Y REGISTRAR INGRESO'),
           ),
         ],
       ),

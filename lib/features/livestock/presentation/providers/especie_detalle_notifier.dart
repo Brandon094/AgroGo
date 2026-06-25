@@ -1,9 +1,12 @@
+import 'package:agrogo/features/livestock/presentation/providers/pecuario_notifier.dart';
+import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_pecuario.dart';
 import '../../domain/entidades_pecuario.dart';
 import '../../../farm_calendar/presentation/providers/cronograma_notifier.dart';
 import '../../../farms/presentation/providers/fincas_notifier.dart';
 import '../../../inventory_management/presentation/providers/insumos_notifier.dart';
+import '../../../inventory_costs/presentation/providers/costos_notifier.dart';
 
 part 'especie_detalle_notifier.g.dart';
 
@@ -40,11 +43,22 @@ class EspecieDetalle extends _$EspecieDetalle {
     required DateTime fecha,
     DateTime? proxima,
     required String nombreEspecie,
+    String? insumoId,
+    double cantidadInsumo = 0.0,
   }) async {
     state = const AsyncValue.loading();
     final repo = ref.read(repositorioPecuarioProvider);
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     
+    double costoCalculado = 0.0;
+    if (insumoId != null && cantidadInsumo > 0) {
+      final insumos = ref.read(insumosNotifierProvider).valueOrNull ?? [];
+      final insumo = insumos.firstWhere((i) => i.id == insumoId);
+      costoCalculado = cantidadInsumo * insumo.valorUnitario;
+      
+      await ref.read(insumosNotifierProvider.notifier).ajustarStock(insumoId, -cantidadInsumo);
+    }
+
     final nuevoControl = ControlSanitarioEntity(
       id: '',
       fincaId: fincaIdStr,
@@ -56,6 +70,27 @@ class EspecieDetalle extends _$EspecieDetalle {
     );
 
     await repo.guardarControlSanitario(nuevoControl);
+
+    // Registrar como gasto en finanzas
+    if (costoCalculado > 0) {
+      await ref.read(costosNotifierProvider.notifier).agregarCosto(
+        nombre: 'Salud ($tipo): $producto (Lote: $especieId)', 
+        categoria: 'Pecuario', 
+        precioTotal: costoCalculado,
+      );
+    }
+
+    // Actualizar costo acumulado en la especie si hubo gasto
+    if (costoCalculado > 0) {
+      final pecuarioNotifier = ref.read(pecuarioNotifierProvider.notifier);
+      final especies = ref.read(pecuarioNotifierProvider).valueOrNull ?? [];
+      final especieActual = especies.firstWhere((e) => e.id == especieId);
+      
+      final especieActualizada = especieActual.copyWith(
+        costoInsumosAcumulado: especieActual.costoInsumosAcumulado + costoCalculado,
+      );
+      await pecuarioNotifier.actualizarEspecie(especieActualizada);
+    }
 
     // Si hay próxima dosis, agendar en el calendario automáticamente
     if (proxima != null) {
@@ -79,6 +114,15 @@ class EspecieDetalle extends _$EspecieDetalle {
     final repo = ref.read(repositorioPecuarioProvider);
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
 
+    double costoCalculado = 0.0;
+    if (insumoId != null) {
+      final insumos = ref.read(insumosNotifierProvider).valueOrNull ?? [];
+      final insumo = insumos.firstWhere((i) => i.id == insumoId);
+      costoCalculado = kilos * insumo.valorUnitario;
+      
+      await ref.read(insumosNotifierProvider.notifier).ajustarStock(insumoId, -kilos);
+    }
+
     final nuevaAlimentacion = AlimentacionEntity(
       id: '',
       fincaId: fincaIdStr,
@@ -86,13 +130,61 @@ class EspecieDetalle extends _$EspecieDetalle {
       producto: producto,
       cantidadKilos: kilos,
       fecha: DateTime.now(),
+      costoAsociado: costoCalculado,
     );
 
     await repo.guardarAlimentacion(nuevaAlimentacion);
 
-    // Descontar de bodega si se seleccionó un insumo
-    if (insumoId != null) {
-      await ref.read(insumosNotifierProvider.notifier).ajustarStock(insumoId, -kilos);
+    // Registrar como gasto en finanzas
+    if (costoCalculado > 0) {
+      await ref.read(costosNotifierProvider.notifier).agregarCosto(
+        nombre: 'Alimento: $producto (Lote: $especieId)', 
+        categoria: 'Pecuario', 
+        precioTotal: costoCalculado,
+      );
+    }
+
+    // Actualizar costo acumulado en la especie
+    final pecuarioNotifier = ref.read(pecuarioNotifierProvider.notifier);
+    final especies = ref.read(pecuarioNotifierProvider).valueOrNull ?? [];
+    final especieActual = especies.firstWhere((e) => e.id == especieId);
+    
+    final especieActualizada = especieActual.copyWith(
+      costoInsumosAcumulado: especieActual.costoInsumosAcumulado + costoCalculado,
+    );
+    await pecuarioNotifier.actualizarEspecie(especieActualizada);
+
+    ref.invalidateSelf();
+  }
+
+  Future<void> cerrarCicloPecuario({
+    required TipoSalidaPecuaria tipo,
+    required double kilos,
+    required double precioTotal,
+  }) async {
+    state = const AsyncValue.loading();
+    final pecuarioNotifier = ref.read(pecuarioNotifierProvider.notifier);
+    final especies = ref.read(pecuarioNotifierProvider).valueOrNull ?? [];
+    final especieActual = especies.firstWhere((e) => e.id == especieId);
+
+    final especieCerrada = especieActual.copyWith(
+      estaActivo: false,
+      fechaSalida: DateTime.now(),
+      tipoSalida: tipo,
+      kilosSalida: kilos,
+      precioVentaTotal: precioTotal,
+    );
+
+    await pecuarioNotifier.actualizarEspecie(especieCerrada);
+    
+    // Inyectar el ingreso al balance financiero general
+    if (precioTotal > 0) {
+      await ref.read(costosNotifierProvider.notifier).agregarIngreso(
+        nombre: 'Venta Pecuaria: ${especieActual.nombre} (${tipo.name})', 
+        categoria: 'Pecuario', 
+        monto: precioTotal,
+        loteId: especieActual.loteId,
+      );
     }
 
     ref.invalidateSelf();

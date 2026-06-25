@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'providers/pecuario_notifier.dart';
 import '../domain/entidades_pecuario.dart';
 
@@ -15,21 +16,21 @@ class PantallaPanelPecuario extends ConsumerWidget {
     final estadoEspecies = ref.watch(pecuarioNotifierProvider);
     final lotesAsync = ref.watch(panelLotesNotifierProvider);
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF9FBF9), Colors.white],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF9FBF9), Colors.white],
+            ),
           ),
-        ),
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 70, 24, 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -107,7 +108,8 @@ class PantallaPanelPecuario extends ConsumerWidget {
                         // Si tiene infraestructura, mostramos el censo total normal
                         return estadoEspecies.maybeWhen(
                           data: (especies) {
-                            final total = especies.fold(0, (sum, item) => sum + item.cantidadActual);
+                            final activos = especies.where((e) => e.estaActivo).toList();
+                            final total = activos.fold(0, (sum, item) => sum + item.cantidadActual);
                             return Container(
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                               decoration: BoxDecoration(
@@ -120,7 +122,7 @@ class PantallaPanelPecuario extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    'Censo Total',
+                                    'Censo Activo',
                                     style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                   Text(
@@ -137,56 +139,83 @@ class PantallaPanelPecuario extends ConsumerWidget {
                       loading: () => const LinearProgressIndicator(),
                       error: (_, __) => const SizedBox.shrink(),
                     ),
+                    const SizedBox(height: 16),
+                    const TabBar(
+                      labelColor: Color(0xFF6A1B9A),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF6A1B9A),
+                      tabs: [
+                        Tab(text: 'ACTIVOS'),
+                        Tab(text: 'HISTORIAL'),
+                      ],
+                    ),
                   ],
                 ),
               ),
-            ),
-            estadoEspecies.when(
-              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
-              error: (error, _) => SliverFillRemaining(child: Center(child: Text('Error: $error'))),
-              data: (especies) {
-                if (especies.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.pets_outlined, size: 80, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('Sin grupos animales registrados', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => RepaintBoundary(
-                        child: _TarjetaAnimal(especie: especies[index]),
-                      ),
-                      childCount: especies.length,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+              Expanded(
+                child: estadoEspecies.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, _) => Center(child: Text('Error: $error')),
+                  data: (especies) {
+                    final activos = especies.where((e) => e.estaActivo).toList();
+                    final cerrados = especies.where((e) => !e.estaActivo).toList();
+
+                    return TabBarView(
+                      children: [
+                        _ListaEspecies(especies: activos, mensajeVacio: 'Sin animales activos'),
+                        _ListaEspecies(especies: cerrados, mensajeVacio: 'Sin registros históricos'),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _mostrarFormularioNuevaEspecie(context, ref),
-        backgroundColor: const Color(0xFF6A1B9A),
-        foregroundColor: Colors.white,
-        label: const Text('NUEVO GRUPO', style: TextStyle(fontWeight: FontWeight.w900)),
-        icon: const Icon(Icons.add_circle_outline_rounded),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _mostrarFormularioNuevaEspecie(context, ref),
+          backgroundColor: const Color(0xFF6A1B9A),
+          foregroundColor: Colors.white,
+          label: const Text('NUEVO GRUPO', style: TextStyle(fontWeight: FontWeight.w900)),
+          icon: const Icon(Icons.add_circle_outline_rounded),
+        ),
       ),
     );
   }
 
   void _mostrarFormularioNuevaEspecie(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))), builder: (context) => const _FormularioEspecieModal());
+  }
+}
+
+class _ListaEspecies extends StatelessWidget {
+  final List<EspecieEntity> especies;
+  final String mensajeVacio;
+
+  const _ListaEspecies({required this.especies, required this.mensajeVacio});
+
+  @override
+  Widget build(BuildContext context) {
+    if (especies.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.pets_outlined, size: 80, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(mensajeVacio, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      physics: const BouncingScrollPhysics(),
+      itemCount: especies.length,
+      itemBuilder: (context, index) => RepaintBoundary(
+        child: _TarjetaAnimal(especie: especies[index]),
+      ),
+    );
   }
 }
 
@@ -241,15 +270,27 @@ class _TarjetaAnimal extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(especie.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-                    Text(
-                      '${especie.cantidadActual} ${especie.tipoEspecie}', 
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
-                    ),
-                    if (especie.valorTotalInversion > 0)
+                    if (especie.estaActivo) ...[
                       Text(
-                        'Inversión: \$${especie.valorTotalInversion.toStringAsFixed(0)}',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
+                        '${especie.cantidadActual} ${especie.tipoEspecie}', 
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
                       ),
+                      if (especie.valorTotalInversion > 0)
+                        Text(
+                          'Inversión: \$${especie.valorTotalInversion.toStringAsFixed(0)}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
+                        ),
+                    ] else ...[
+                      if (especie.fechaSalida != null)
+                        Text(
+                          'Cerrado: ${DateFormat('d MMM yyyy').format(especie.fechaSalida!)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 12),
+                        ),
+                      Text(
+                        'Utilidad: \$${especie.utilidadNeta.toStringAsFixed(0)}',
+                        style: TextStyle(fontWeight: FontWeight.w900, color: especie.utilidadNeta >= 0 ? Colors.green : Colors.red, fontSize: 13),
+                      ),
+                    ],
                     if (loteAsociado != null) ...[
                       const SizedBox(height: 2),
                       Row(

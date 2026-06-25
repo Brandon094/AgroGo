@@ -12,6 +12,7 @@ class ItemCostoIsarModel {
   late double precioTotal;
   late DateTime fechaCompra;
   int? loteId;
+  late bool esIngreso;
 
   ItemCostoEntity toEntity() {
     return ItemCostoEntity(
@@ -22,6 +23,7 @@ class ItemCostoIsarModel {
       precioTotal: precioTotal,
       fechaCompra: fechaCompra,
       loteId: loteId?.toString(),
+      esIngreso: esIngreso,
     );
   }
 
@@ -32,7 +34,8 @@ class ItemCostoIsarModel {
       ..categoria = entidad.categoria
       ..precioTotal = entidad.precioTotal
       ..fechaCompra = entidad.fechaCompra
-      ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null;
+      ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null
+      ..esIngreso = entidad.esIngreso;
 
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);
