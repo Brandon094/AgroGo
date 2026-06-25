@@ -28,7 +28,9 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
     *   No se permiten animales en casas o bodegas generales.
 *   **Gestión de Zonas**:
     *   Separación visual obligatoria en el panel "Mis Zonas": Pestaña de **CULTIVOS** (Producción) vs Pestaña de **ESTRUCTURAS** (Activos).
-*   **Bodega Virtual**: Impedir el registro de labores si el stock del insumo requerido es cero.
+*   **Bodega Virtual**: 
+    *   Impedir el registro de labores si el stock del insumo requerido es cero.
+    *   **Valoración Patrimonial**: El sistema debe permitir registrar el costo unitario de adquisición para calcular el valor total del inventario (Insumos + Maquinaria).
 *   **Nómina**: Liquidación admisible en Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
 
 ---

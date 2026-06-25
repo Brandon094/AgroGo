@@ -4,6 +4,14 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.9.0] - 2024-06-24 (Gestión Patrimonial y Valoración)
+### Añadido
+- **Valoración de Inventario**: Capacidad de registrar el valor unitario de insumos y maquinaria en la Bodega Virtual.
+- **Cálculo de Capital Automático**: El sistema calcula instantáneamente el valor total por ítem (Cantidad * Valor Unitario) para consolidar el capital inmovilizado.
+- **Métrica de Capital en Dashboard**: Nueva visualización en el panel principal que muestra el "Capital Bodega" como parte del activo circulante y fijo de la finca.
+
+---
+
 ## [0.8.0] - 2024-06-24 (Agroturismo y Recreación)
 ### Añadido
 - **Infraestructura Recreativa**: Nuevas categorías de mapeo: 'Kiosco/Área Social', 'Piscina/Área Húmeda', 'Alojamiento/Casa en Árbol' y 'Mirador/Observatorio'.

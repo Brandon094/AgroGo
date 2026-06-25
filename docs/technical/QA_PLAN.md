@@ -52,4 +52,13 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 3.4 | Feedback Mapeo | Alcanzar 3 puntos en el dibujo. | El contador cambia por un check verde de validación. |
 
 ---
+
+## 🟠 Fase 4: Bodega y Valoración
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 4.1 | Valoración de Ítem | Registrar ítem con cantidad 10 y valor unitario 5000. | El valor total debe ser 50000 y mostrarse en la tarjeta. |
+| 4.2 | Capital en Dashboard | Sumar varios ítems con valor en bodega. | El Dashboard debe mostrar el total exacto en "Capital Bodega". |
+| 4.3 | Ajuste de Valor | Ajustar stock (+5) de un ítem valorado. | El valor total debe recalcularse automáticamente (15 * 5000 = 75000). |
+
+---
 **Elaborado por: Chop Code Solutions - QA Team**
