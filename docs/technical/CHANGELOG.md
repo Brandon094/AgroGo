@@ -4,6 +4,14 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [1.0.0] - 2024-06-24 (Patrimonio Total)
+### Añadido
+- **Valoración Pecuaria**: Capacidad de registrar costo de compra o valor estimado por cabeza para todos los grupos animales.
+- **Cálculo de Capital Vivo**: El sistema totaliza automáticamente la inversión en animales basada en la cantidad y el valor unitario.
+- **Consolidación Financiera en Dashboard**: Nueva métrica de 'Capital Vivo' que permite visualizar el patrimonio pecuario junto a la inversión en tierra y bodega.
+
+---
+
 ## [0.9.8] - 2024-06-24 (Estandarización de Cultivos)
 ### Añadido
 - **Selector de Cultivos Predefinidos**: Reemplazo del campo de texto libre por un menú stándard (Café, Cacao, Plátano).

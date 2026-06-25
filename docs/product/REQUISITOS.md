@@ -24,6 +24,7 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 *   **Pecuario Inteligente**:
     *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que sean compatibles con alojamiento animal (Cochera, Galpón, etc.).
     *   No se permiten animales en casas o bodegas generales.
+    *   **Valoración de Capital**: El sistema debe permitir registrar el valor unitario por animal para calcular la inversión viva total.
 *   **BI Geográfica**: Los marcadores del mapa deben servir como puntos de inspección, mostrando datos agregados de otros módulos (Animales, Beneficio).
     *   No se permiten animales en casas o bodegas generales.
 *   **Gestión de Zonas**:

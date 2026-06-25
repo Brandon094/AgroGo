@@ -1,10 +1,15 @@
-# Walkthrough: Gestión Patrimonial y Estandarización de Cultivos (AgroGo v0.9.8)
+# Walkthrough: Gestión Patrimonial y Valoración Pecuaria (AgroGo v1.0.0)
 
-Este walkthrough detalla la evolución de **AgroGo** hacia un sistema de gestión financiera e integral, incorporando la valoración de activos en bodega junto con la estandarización técnica de cultivos y Business Intelligence geográfica.
+Este walkthrough detalla la evolución de **AgroGo** hacia un sistema de gestión financiera e integral, incorporando la valoración de activos vivos y bodega junto con la estandarización técnica de cultivos.
 
 ---
 
 ## Lo Completado Hoy
+
+### 1. Gestión Patrimonial y Valoración Pecuaria
+- **Inversión Viva**: Se implementó la capacidad de registrar el costo de adquisición o valor estimado por cabeza en el módulo pecuario.
+- **Capital Pecuario**: El Dashboard ahora consolida el valor total de los animales en pie, permitiendo visualizar el patrimonio vivo de la finca de forma instantánea.
+- **Métrica Financiera**: Integración del "Capital Vivo" en el panel de Recursos y Equipo, complementando la valoración de la Bodega Virtual.
 
 ### 1. Gestión Patrimonial (Bodega Virtual)
 - **Valoración de Activos**: Se implementó la capacidad de registrar el valor unitario de insumos y maquinaria. El sistema calcula automáticamente el capital total inmovilizado en el inventario.
