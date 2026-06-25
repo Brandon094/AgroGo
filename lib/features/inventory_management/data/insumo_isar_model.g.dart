@@ -162,13 +162,17 @@ P _insumoIsarModelDeserializeProp<P>(
 
 const _InsumoIsarModelcategoriaEnumValueMap = {
   'operativo': 0,
-  'maquinaria': 1,
-  'cosecha': 2,
+  'veterinaria': 1,
+  'maquinaria': 2,
+  'consumibles': 3,
+  'cosecha': 4,
 };
 const _InsumoIsarModelcategoriaValueEnumMap = {
   0: CategoriaInsumo.operativo,
-  1: CategoriaInsumo.maquinaria,
-  2: CategoriaInsumo.cosecha,
+  1: CategoriaInsumo.veterinaria,
+  2: CategoriaInsumo.maquinaria,
+  3: CategoriaInsumo.consumibles,
+  4: CategoriaInsumo.cosecha,
 };
 
 Id _insumoIsarModelGetId(InsumoIsarModel object) {

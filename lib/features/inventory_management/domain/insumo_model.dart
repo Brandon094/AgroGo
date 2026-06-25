@@ -1,6 +1,8 @@
 enum CategoriaInsumo {
   operativo,    // Abono, Purina, Veneno
-  maquinaria,   // Gasolina, Aceite, Cuchillas, Repuestos, Equipos (Guadaña, Motosierra)
+  veterinaria,  // Medicamentos, Nutrición Animal
+  maquinaria,   // Equipos (Guadaña, Motosierra), Repuestos
+  consumibles,  // Gasolina, Aceites, Grasas
   cosecha,      // Café, Plátano, Cacao (Lo que genera remuneración)
 }
 

@@ -12,7 +12,7 @@ class PantallaBodega extends ConsumerWidget {
     final insumosAsync = ref.watch(insumosNotifierProvider);
 
     return DefaultTabController(
-      length: 3,
+      length: 5,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FBF9),
         appBar: AppBar(
@@ -24,10 +24,13 @@ class PantallaBodega extends ConsumerWidget {
             indicatorColor: Colors.white,
             indicatorWeight: 4,
             isScrollable: true,
+            unselectedLabelColor: Colors.white60,
             labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             tabs: [
               Tab(icon: Icon(Icons.inventory_2_rounded), text: 'OPERACIÓN'),
+              Tab(icon: Icon(Icons.medical_services_rounded), text: 'VETERINARIA'),
               Tab(icon: Icon(Icons.settings_suggest_rounded), text: 'MAQUINARIA'),
+              Tab(icon: Icon(Icons.oil_barrel_rounded), text: 'CONSUMIBLES'),
               Tab(icon: Icon(Icons.local_shipping_rounded), text: 'PRODUCCIÓN'),
             ],
           ),
@@ -35,7 +38,9 @@ class PantallaBodega extends ConsumerWidget {
         body: insumosAsync.when(
           data: (insumos) {
             final operativos = insumos.where((i) => i.categoria == CategoriaInsumo.operativo).toList();
+            final veterinaria = insumos.where((i) => i.categoria == CategoriaInsumo.veterinaria).toList();
             final maquinaria = insumos.where((i) => i.categoria == CategoriaInsumo.maquinaria).toList();
+            final consumibles = insumos.where((i) => i.categoria == CategoriaInsumo.consumibles).toList();
             final cosechas = insumos.where((i) => i.categoria == CategoriaInsumo.cosecha).toList();
 
             return TabBarView(
@@ -46,9 +51,19 @@ class PantallaBodega extends ConsumerWidget {
                   categoria: CategoriaInsumo.operativo,
                 ),
                 _ListaInsumosCategoria(
+                  insumos: veterinaria, 
+                  esCosecha: false,
+                  categoria: CategoriaInsumo.veterinaria,
+                ),
+                _ListaInsumosCategoria(
                   insumos: maquinaria, 
                   esCosecha: false,
                   categoria: CategoriaInsumo.maquinaria,
+                ),
+                _ListaInsumosCategoria(
+                  insumos: consumibles, 
+                  esCosecha: false,
+                  categoria: CategoriaInsumo.consumibles,
                 ),
                 _ListaInsumosCategoria(
                   insumos: cosechas, 
@@ -116,6 +131,8 @@ class _ListaInsumosCategoria extends StatelessWidget {
         case CategoriaInsumo.operativo: icono = Icons.inventory_2_outlined; texto = 'Sin insumos de operación'; break;
         case CategoriaInsumo.maquinaria: icono = Icons.settings_suggest_outlined; texto = 'Sin maquinaria o repuestos'; break;
         case CategoriaInsumo.cosecha: icono = Icons.eco_outlined; texto = 'Sin productos cosechados'; break;
+        case CategoriaInsumo.veterinaria: icono = Icons.medical_services_outlined; texto = 'Sin medicamentos registrados'; break;
+        case CategoriaInsumo.consumibles: icono = Icons.oil_barrel_outlined; texto = 'Sin consumibles registrados'; break;
       }
       return Center(
         child: Column(
@@ -153,6 +170,8 @@ class _TarjetaInsumo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final esCosecha = insumo.categoria == CategoriaInsumo.cosecha;
     final esMaquinaria = insumo.categoria == CategoriaInsumo.maquinaria;
+    final esVeterinaria = insumo.categoria == CategoriaInsumo.veterinaria;
+    final esConsumible = insumo.categoria == CategoriaInsumo.consumibles;
     
     Color colorPrincipal;
     IconData icono;
@@ -163,6 +182,12 @@ class _TarjetaInsumo extends ConsumerWidget {
     } else if (esMaquinaria) {
       colorPrincipal = Colors.blueGrey;
       icono = Icons.settings_suggest_rounded;
+    } else if (esVeterinaria) {
+      colorPrincipal = Colors.red.shade700;
+      icono = Icons.medical_services_rounded;
+    } else if (esConsumible) {
+      colorPrincipal = Colors.blue.shade700;
+      icono = Icons.oil_barrel_rounded;
     } else {
       colorPrincipal = Colors.brown;
       icono = Icons.inventory_2_rounded;
@@ -345,7 +370,9 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
             child: SegmentedButton<CategoriaInsumo>(
               segments: const [
                 ButtonSegment(value: CategoriaInsumo.operativo, label: Text('Operación'), icon: Icon(Icons.inventory_2_rounded)),
-                ButtonSegment(value: CategoriaInsumo.maquinaria, label: Text('Maquinaria'), icon: Icon(Icons.settings_suggest_rounded)),
+                ButtonSegment(value: CategoriaInsumo.veterinaria, label: Text('Salud'), icon: Icon(Icons.medical_services_rounded)),
+                ButtonSegment(value: CategoriaInsumo.maquinaria, label: Text('Maq.'), icon: Icon(Icons.settings_suggest_rounded)),
+                ButtonSegment(value: CategoriaInsumo.consumibles, label: Text('Cons.'), icon: Icon(Icons.oil_barrel_rounded)),
                 ButtonSegment(value: CategoriaInsumo.cosecha, label: Text('Cosecha'), icon: Icon(Icons.eco_rounded)),
               ],
               selected: {_categoria},
@@ -381,7 +408,11 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
             decoration: InputDecoration(
               labelText: 'Cantidad Inicial', 
               prefixIcon: const Icon(Icons.scale_rounded),
-              suffixText: _categoria == CategoriaInsumo.operativo ? 'Bultos' : (_categoria == CategoriaInsumo.cosecha ? 'Kilos' : 'Unds/Gals'),
+              suffixText: _categoria == CategoriaInsumo.operativo 
+                ? 'Bultos' 
+                : (_categoria == CategoriaInsumo.cosecha 
+                    ? 'Kilos' 
+                    : (_categoria == CategoriaInsumo.veterinaria ? 'Unds/Ml' : 'Gals/Unds')),
             ),
           ),
           const SizedBox(height: 16),
@@ -398,8 +429,9 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
           ElevatedButton(onPressed: () async { 
             if (_nombreCtrl.text.isNotEmpty && _stockCtrl.text.isNotEmpty) {
               String unidad = 'Bultos';
-              if (_categoria == CategoriaInsumo.maquinaria) unidad = 'Gals/Unds';
+              if (_categoria == CategoriaInsumo.maquinaria || _categoria == CategoriaInsumo.consumibles) unidad = 'Gals/Unds';
               if (_categoria == CategoriaInsumo.cosecha) unidad = 'Kilos';
+              if (_categoria == CategoriaInsumo.veterinaria) unidad = 'Unds/Ml';
 
               await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
                 nombre: _nombreCtrl.text, 
