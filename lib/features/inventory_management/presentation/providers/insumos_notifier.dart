@@ -28,6 +28,7 @@ class InsumosNotifier extends _$InsumosNotifier {
     double umbral = 1.0,
     CategoriaInsumo categoria = CategoriaInsumo.operativo,
     bool esParaSecado = false,
+    double valorUnitario = 0.0,
   }) async {
     state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
@@ -41,6 +42,8 @@ class InsumosNotifier extends _$InsumosNotifier {
       umbralMinimo: umbral,
       categoria: categoria,
       esParaSecado: esParaSecado,
+      valorUnitario: valorUnitario,
+      valorTotal: stockInicial * valorUnitario,
     );
 
     final repo = ref.read(repositorioInsumosProvider);

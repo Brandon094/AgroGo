@@ -13,6 +13,8 @@ class InsumoEntity {
   final double umbralMinimo;
   final CategoriaInsumo categoria;
   final bool esParaSecado; // Especial para Café
+  final double valorUnitario;
+  final double valorTotal;
 
   const InsumoEntity({
     required this.id,
@@ -23,6 +25,8 @@ class InsumoEntity {
     required this.umbralMinimo,
     this.categoria = CategoriaInsumo.operativo,
     this.esParaSecado = false,
+    this.valorUnitario = 0.0,
+    this.valorTotal = 0.0,
   });
 
   InsumoEntity copyWith({
@@ -34,6 +38,8 @@ class InsumoEntity {
     double? umbralMinimo,
     CategoriaInsumo? categoria,
     bool? esParaSecado,
+    double? valorUnitario,
+    double? valorTotal,
   }) {
     return InsumoEntity(
       id: id ?? this.id,
@@ -44,6 +50,8 @@ class InsumoEntity {
       umbralMinimo: umbralMinimo ?? this.umbralMinimo,
       categoria: categoria ?? this.categoria,
       esParaSecado: esParaSecado ?? this.esParaSecado,
+      valorUnitario: valorUnitario ?? this.valorUnitario,
+      valorTotal: valorTotal ?? this.valorTotal,
     );
   }
 

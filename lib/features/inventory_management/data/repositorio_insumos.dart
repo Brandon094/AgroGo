@@ -51,6 +51,8 @@ class RepositorioInsumosImpl implements RepositorioInsumos {
         if (actual != null) {
           actual.cantidadActual += cantidadCambio;
           if (actual.cantidadActual < 0) actual.cantidadActual = 0;
+          // Recalcular valor total
+          actual.valorTotal = actual.cantidadActual * actual.valorUnitario;
           await isar.insumoIsarModels.put(actual);
         }
       });

@@ -52,6 +52,16 @@ const InsumoIsarModelSchema = CollectionSchema(
       id: 6,
       name: r'unidadMedida',
       type: IsarType.string,
+    ),
+    r'valorTotal': PropertySchema(
+      id: 7,
+      name: r'valorTotal',
+      type: IsarType.double,
+    ),
+    r'valorUnitario': PropertySchema(
+      id: 8,
+      name: r'valorUnitario',
+      type: IsarType.double,
     )
   },
   estimateSize: _insumoIsarModelEstimateSize,
@@ -92,6 +102,8 @@ void _insumoIsarModelSerialize(
   writer.writeString(offsets[4], object.nombre);
   writer.writeDouble(offsets[5], object.umbralMinimo);
   writer.writeString(offsets[6], object.unidadMedida);
+  writer.writeDouble(offsets[7], object.valorTotal);
+  writer.writeDouble(offsets[8], object.valorUnitario);
 }
 
 InsumoIsarModel _insumoIsarModelDeserialize(
@@ -111,6 +123,8 @@ InsumoIsarModel _insumoIsarModelDeserialize(
   object.nombre = reader.readString(offsets[4]);
   object.umbralMinimo = reader.readDouble(offsets[5]);
   object.unidadMedida = reader.readString(offsets[6]);
+  object.valorTotal = reader.readDouble(offsets[7]);
+  object.valorUnitario = reader.readDouble(offsets[8]);
   return object;
 }
 
@@ -137,6 +151,10 @@ P _insumoIsarModelDeserializeProp<P>(
       return (reader.readDouble(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -847,6 +865,138 @@ extension InsumoIsarModelQueryFilter
       ));
     });
   }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorTotalEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'valorTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorTotalGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'valorTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorTotalLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'valorTotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorTotalBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'valorTotal',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorUnitarioEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorUnitarioGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorUnitarioLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterFilterCondition>
+      valorUnitarioBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'valorUnitario',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
 }
 
 extension InsumoIsarModelQueryObject
@@ -950,6 +1100,34 @@ extension InsumoIsarModelQuerySortBy
       sortByUnidadMedidaDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unidadMedida', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByValorTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByValorTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      sortByValorUnitarioDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.desc);
     });
   }
 }
@@ -1063,6 +1241,34 @@ extension InsumoIsarModelQuerySortThenBy
       return query.addSortBy(r'unidadMedida', Sort.desc);
     });
   }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByValorTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByValorTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.asc);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QAfterSortBy>
+      thenByValorUnitarioDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.desc);
+    });
+  }
 }
 
 extension InsumoIsarModelQueryWhereDistinct
@@ -1113,6 +1319,20 @@ extension InsumoIsarModelQueryWhereDistinct
       distinctByUnidadMedida({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unidadMedida', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QDistinct>
+      distinctByValorTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'valorTotal');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, InsumoIsarModel, QDistinct>
+      distinctByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'valorUnitario');
     });
   }
 }
@@ -1168,6 +1388,19 @@ extension InsumoIsarModelQueryProperty
       unidadMedidaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unidadMedida');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, double, QQueryOperations> valorTotalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'valorTotal');
+    });
+  }
+
+  QueryBuilder<InsumoIsarModel, double, QQueryOperations>
+      valorUnitarioProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'valorUnitario');
     });
   }
 }

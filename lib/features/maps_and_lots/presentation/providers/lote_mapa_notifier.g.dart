@@ -6,7 +6,7 @@ part of 'lote_mapa_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$loteMapaNotifierHash() => r'73f6aa76b5e9ad4226546dbe3ad3618e3d6247ec';
+String _$loteMapaNotifierHash() => r'a4d2c5521f28d71e0b21852b6eb6c8f7745a17c2';
 
 /// See also [LoteMapaNotifier].
 @ProviderFor(LoteMapaNotifier)
