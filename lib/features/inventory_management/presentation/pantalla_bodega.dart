@@ -200,9 +200,19 @@ class _TarjetaInsumo extends ConsumerWidget {
               ),
           ],
         ),
-        subtitle: Text(
-          '${insumo.cantidadActual} ${insumo.unidadMedida}', 
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: insumo.esEscaso && !esCosecha ? Colors.red : Colors.teal.shade800),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${insumo.cantidadActual} ${insumo.unidadMedida}', 
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: insumo.esEscaso && !esCosecha ? Colors.red : Colors.teal.shade800),
+            ),
+            if (insumo.valorTotal > 0)
+              Text(
+                'Valor total: \$${insumo.valorTotal.toStringAsFixed(0)} COP',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+              ),
+          ],
         ),
         trailing: IconButton.filledTonal(
           onPressed: () => _mostrarAjusteStock(context, ref), 
@@ -295,6 +305,7 @@ class _FormInsumoModal extends ConsumerStatefulWidget {
 class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
   final _nombreCtrl = TextEditingController();
   final _stockCtrl = TextEditingController();
+  final _valorUnitarioCtrl = TextEditingController();
   CategoriaInsumo _categoria = CategoriaInsumo.operativo;
   bool _esParaSecado = false;
   bool _mostrarOpcionSecado = false;
@@ -373,6 +384,16 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
               suffixText: _categoria == CategoriaInsumo.operativo ? 'Bultos' : (_categoria == CategoriaInsumo.cosecha ? 'Kilos' : 'Unds/Gals'),
             ),
           ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _valorUnitarioCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: const InputDecoration(
+              labelText: 'Valor por Unidad', 
+              prefixIcon: Icon(Icons.payments_rounded),
+              suffixText: 'COP',
+            ),
+          ),
           const SizedBox(height: 32),
           ElevatedButton(onPressed: () async { 
             if (_nombreCtrl.text.isNotEmpty && _stockCtrl.text.isNotEmpty) {
@@ -386,6 +407,7 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
                 stockInicial: double.parse(_stockCtrl.text),
                 categoria: _categoria,
                 esParaSecado: _esParaSecado,
+                valorUnitario: double.tryParse(_valorUnitarioCtrl.text) ?? 0.0,
               ); 
               if (mounted) {
                 Navigator.pop(context);

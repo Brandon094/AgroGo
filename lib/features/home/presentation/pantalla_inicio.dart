@@ -316,7 +316,7 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
 
         // CARD 2: PRODUCCIÓN Y BENEFICIO
         _BentoGroupCard(
-          titulo: 'PRODUCCIÓN DE CAFÉ',
+          titulo: 'PRODUCCIÓN Y ACTIVOS',
           color: Colors.orange,
           items: [
             beneficios.maybeWhen(
@@ -333,9 +333,9 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
             ),
             insumos.maybeWhen(
               data: (i) => _BentoItem(
-                label: 'Bodega', 
-                valor: '${i.length} Ítems',
-                subLabel: '${i.where((x) => x.esEscaso).length} Por agotar',
+                label: 'Capital Bodega', 
+                valor: Formateadores.formatearMonedaCompacta(i.fold<double>(0.0, (sum, item) => sum + item.valorTotal)),
+                subLabel: '${i.length} Ítems en stock',
                 icono: Icons.inventory_2_rounded,
               ),
               orElse: () => const _BentoLoading(),
