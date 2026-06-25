@@ -44,6 +44,8 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 *   **RF-UI-07 (Nomenclatura Inteligente)**: Al seleccionar una categoría predefinida de infraestructura, el sistema debe sugerir un nombre secuencial correlativo a los registros existentes (Categoría + N).
 *   **RF-UI-05 (Ergonomía de Campo)**: Los controles críticos de dibujo y cambio de modo deben estar situados en el tercio inferior de la pantalla para permitir la operación con el pulgar.
 *   **RF-UI-06 (Visibilidad de Área)**: El cálculo de hectáreas debe ser visible de forma persistente en la parte superior del mapa sin obstruir la vista satelital central.
+*   **RF-UI-08 (Automatización de Ciclos)**: El sistema debe sugerir automáticamente las frecuencias de mantenimiento (abono/fumigación) basándose en la especie de cultivo y su etapa fenológica.
+*   **RF-UI-09 (Formularios Dinámicos)**: La interfaz de registro de lotes debe adaptar sus campos según el cultivo seleccionado (ej: ocultar sombra para café, mostrarla para cacao).
 *   **RF-GIS-06 (Zonificación No Comercial)**: El sistema debe permitir el mapeo de áreas de conservación (bosques) y uso doméstico (huertas), utilizando formularios minimalistas sin ciclos productivos.
 *   **RF-GIS-07 (Infraestructura Recreativa)**: Inclusión de categorías de agroturismo (piscinas, miradores, áreas sociales) con visualización diferenciada y formularios simplificados.
 

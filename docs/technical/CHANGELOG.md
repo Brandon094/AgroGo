@@ -4,6 +4,26 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [0.9.8] - 2024-06-24 (Estandarización de Cultivos)
+### Añadido
+- **Selector de Cultivos Predefinidos**: Reemplazo del campo de texto libre por un menú stándard (Café, Cacao, Plátano).
+- **Formularios Dinámicos**: Implementación de lógica que muestra campos específicos según el cultivo (ej: selector de sombra para Cacao).
+- **Cerebro Agronómico**: Automatización de frecuencias de mantenimiento ajustadas a los requerimientos técnicos de cada especie y su etapa fenológica.
+
+### Mejorado
+- **Persistencia Tipada**: Actualización del modelo Isar para soportar el enumerador estricto de tipos de cultivo.
+
+---
+
+## [0.9.5] - 2024-06-24 (Optimización de Formularios y Corrección de UI)
+### Añadido
+- **Automatización de Frecuencias Técnicas**: Implementación de lógica inteligente que sugiere ciclos de abonado y fumigación basados en la etapa del cultivo (ej: 4 meses para producción, 3 meses para levante), reduciendo la carga de entrada de datos.
+
+### Corregido
+- **Ajuste de Desbordamiento (Overflow)**: Resolución del error de renderizado en la sección "Temporada de Cosecha" mediante el uso de diseños densos y adaptativos para pantallas angostas.
+
+---
+
 ## [0.9.0] - 2024-06-24 (Gestión Patrimonial y Valoración)
 ### Añadido
 - **Valoración de Inventario**: Capacidad de registrar el valor unitario de insumos y maquinaria en la Bodega Virtual.

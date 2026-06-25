@@ -38,7 +38,9 @@
 
 ### 🧠 Centro de Mando (Bento)
 *   **Métricas Agrupadas**: Patrimonio (Ha/$), Producción (Café/Bodega) y Recursos (Equipo/Animales).
+*   **Valoración de Activos**: Seguimiento financiero del capital inmovilizado en insumos y maquinaria.
 *   **Nomenclatura Inteligente**: Sugerencia automática de nombres secuenciales para agilizar el registro en campo.
+*   **Estandarización de Cultivos**: Formularios dinámicos y ciclos técnicos automatizados por especie (Café, Cacao, Plátano).
 
 ---
 

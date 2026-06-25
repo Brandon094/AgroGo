@@ -25,6 +25,15 @@ Definen la identidad principal de la aplicación.
 | **Naranja Atardecer** | `#F57C00` | Alertas de stock bajo, Botones de beneficio, Advertencias. |
 | **Púrpura Venta** | `#7B1FA2` | Estado de lotes vendidos. |
 
+### 🔵 Colores Funcionales (GIS y Gestión)
+| Nombre | Hexadecimal | Uso |
+|:---|:---|:---|
+| **Naranja Pecuario** | `#FF9800` | Pines y polígonos de animales/corrales. |
+| **Azul Turístico** | `#40C4FF` | Infraestructura recreativa (Piscinas, Miradores). |
+| **Verde Reserva** | `#1B5E20` | Áreas de conservación y bosques forestales. |
+| **Azure Precisión** | `#007FFF` | Marcadores durante el ajuste manual (Arrastre). |
+| **Café Perímetro** | `#795548` | Límite maestro de la finca. |
+
 ---
 
 ## 🚥 3. Estilo de Interfaz (UI)

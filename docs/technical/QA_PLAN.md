@@ -50,6 +50,7 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 3.2 | Pestañas de Zonas | Entrar a "Mis Zonas". | Se ven dos pestañas claras: CULTIVOS y ESTRUCTURAS. |
 | 3.3 | Bloqueo de Lotes | Intentar entrar a "Zonificar" sin perímetro. | Lanza SnackBar de aviso y botón para crear perímetro. |
 | 3.4 | Feedback Mapeo | Alcanzar 3 puntos en el dibujo. | El contador cambia por un check verde de validación. |
+| 3.5 | Lógica de Cultivo | Seleccionar 'Cacao' en el formulario. | Debe aparecer el switch de 'Sombra' y sugerir abono cada 6 meses. |
 
 ---
 
