@@ -515,8 +515,11 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
   final _subCatCtrl = TextEditingController();
   final _matasCtrl = TextEditingController();
   final _capAnimCtrl = TextEditingController();
+  final _densidadCtrl = TextEditingController();
+  bool _tieneSombra = false;
   
   late TipoUsoLote _usoSeleccionado;
+  TipoCultivo _cultivoSeleccionado = TipoCultivo.cafe;
 
   final List<String> _infraestructurasPecuarias = ['Cochera', 'Galpón', 'Estanque', 'Corral', 'Potrero'];
   final List<String> _infraestructurasGenerales = ['Casa', 'Bodega', 'Secadero', 'Taller', 'Beneficiadero'];
@@ -581,6 +584,41 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
     if (pick != null) setState(() => onPicked(pick));
   }
 
+  void _actualizarFrecuenciasSugeridas() {
+    if (_etapaSeleccionada == null) return;
+
+    setState(() {
+      switch (_cultivoSeleccionado) {
+        case TipoCultivo.cafe:
+          if (_etapaSeleccionada == 'En Producción') {
+            _mesesFrecuenciaAbono = 4;
+            _mesesFrecuenciaFumiga = 4;
+          } else {
+            _mesesFrecuenciaAbono = 3;
+            _mesesFrecuenciaFumiga = 3;
+          }
+          break;
+        case TipoCultivo.cacao:
+          if (_etapaSeleccionada == 'En Producción') {
+            _mesesFrecuenciaAbono = 6;
+            _mesesFrecuenciaFumiga = 6;
+          } else {
+            _mesesFrecuenciaAbono = 4;
+            _mesesFrecuenciaFumiga = 4;
+          }
+          break;
+        case TipoCultivo.platano:
+          _mesesFrecuenciaAbono = 2;
+          _mesesFrecuenciaFumiga = 3;
+          break;
+        case TipoCultivo.otro:
+          _mesesFrecuenciaAbono = 4;
+          _mesesFrecuenciaFumiga = 4;
+          break;
+      }
+    });
+  }
+
   String _obtenerLabelSubCat() {
     switch (_usoSeleccionado) {
       case TipoUsoLote.agricola: return '¿Qué cultivo es?';
@@ -621,6 +659,16 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
       _subCatCtrl.text = categoria;
       _nombreCtrl.text = '$categoria ${conteo + 1}';
     });
+  }
+
+  @override
+  void dispose() {
+    _nombreCtrl.dispose();
+    _subCatCtrl.dispose();
+    _matasCtrl.dispose();
+    _capAnimCtrl.dispose();
+    _densidadCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -692,6 +740,22 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                       },
                       validator: (v) => v == null ? 'Seleccione el tipo' : null,
                     )
+                  else if (_usoSeleccionado == TipoUsoLote.agricola)
+                    DropdownButtonFormField<TipoCultivo>(
+                      value: _cultivoSeleccionado,
+                      decoration: const InputDecoration(labelText: 'Tipo de Cultivo', prefixIcon: Icon(Icons.eco)),
+                      items: [
+                        const DropdownMenuItem(value: TipoCultivo.cafe, child: Text('CAFÉ')),
+                        const DropdownMenuItem(value: TipoCultivo.cacao, child: Text('CACAO')),
+                        const DropdownMenuItem(value: TipoCultivo.platano, child: Text('PLÁTANO')),
+                        const DropdownMenuItem(value: TipoCultivo.otro, child: Text('OTRO / GENÉRICO')),
+                      ],
+                      onChanged: (v) => setState(() {
+                        _cultivoSeleccionado = v!;
+                        _subCatCtrl.text = v.name;
+                        _sugerirNombre(v.name);
+                      }),
+                    )
                   else
                     TextFormField(
                       controller: _subCatCtrl,
@@ -731,8 +795,30 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                         value: _etapaSeleccionada,
                         decoration: const InputDecoration(labelText: 'Etapa del Cultivo', prefixIcon: Icon(Icons.psychology_alt_rounded)),
                         items: _etapasCafe.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                        onChanged: (v) => setState(() => _etapaSeleccionada = v),
+                        onChanged: (v) => setState(() {
+                          _etapaSeleccionada = v;
+                          _actualizarFrecuenciasSugeridas();
+                        }),
                         validator: (v) => v == null ? 'Selecciona una etapa' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      if (_cultivoSeleccionado == TipoCultivo.cacao) ...[
+                        SwitchListTile(
+                          title: const Text('¿Tiene Sombra?', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                          subtitle: const Text('El cacao requiere regulación de luz'),
+                          value: _tieneSombra,
+                          onChanged: (v) => setState(() => _tieneSombra = v),
+                          secondary: const Icon(Icons.wb_sunny_outlined),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      TextFormField(
+                        controller: _densidadCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Densidad de Siembra',
+                          hintText: 'Ej: 3x3, 2.5x2.5',
+                          prefixIcon: Icon(Icons.grid_4x4_rounded),
+                        ),
                       ),
                     ],
                     if (_usoSeleccionado == TipoUsoLote.pecuario)
@@ -812,8 +898,12 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                         Expanded(
                           child: DropdownButtonFormField<int>(
                             value: _mesInicioCosecha,
-                            decoration: const InputDecoration(labelText: 'Inicia', prefixIcon: Icon(Icons.play_arrow_rounded)),
-                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                            isDense: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Inicio', 
+                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                            ),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i], style: const TextStyle(fontSize: 12)))),
                             onChanged: (v) => setState(() => _mesInicioCosecha = v),
                           ),
                         ),
@@ -821,15 +911,63 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                         Expanded(
                           child: DropdownButtonFormField<int>(
                             value: _mesFinCosecha,
-                            decoration: const InputDecoration(labelText: 'Fin', prefixIcon: Icon(Icons.stop_rounded)),
-                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i]))),
+                            isDense: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Fin', 
+                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                            ),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i], style: const TextStyle(fontSize: 12)))),
                             onChanged: (v) => setState(() => _mesFinCosecha = v),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+                    const Text('Temporada Mitaca', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF37474F))),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            value: _mesInicioMitaca,
+                            isDense: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Inicio', 
+                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                            ),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i], style: const TextStyle(fontSize: 12)))),
+                            onChanged: (v) => setState(() => _mesInicioMitaca = v),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            value: _mesFinMitaca,
+                            isDense: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Fin', 
+                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                            ),
+                            items: List.generate(12, (i) => DropdownMenuItem(value: i + 1, child: Text(_meses[i], style: const TextStyle(fontSize: 12)))),
+                            onChanged: (v) => setState(() => _mesFinMitaca = v),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     _DatePickerTile(titulo: 'Próxima Fumigación', fecha: _fechaFumigada, onTap: () => _pickDate('Fumigación', (d) => _fechaFumigada = d)),
+                    
+                    if (_fechaFumigada != null)
+                      DropdownButtonFormField<int>(
+                        value: _mesesFrecuenciaFumiga,
+                        decoration: const InputDecoration(
+                          labelText: 'Frecuencia de Fumigación', 
+                          prefixIcon: Icon(Icons.repeat_rounded),
+                        ),
+                        items: [2, 3, 4, 6].map((m) => DropdownMenuItem(value: m, child: Text('Cada $m meses'))).toList(),
+                        onChanged: (v) => setState(() => _mesesFrecuenciaFumiga = v!),
+                      ),
                   ],
                 ),
               ),
@@ -846,11 +984,14 @@ class _FormularioGuardarLoteModalState extends ConsumerState<_FormularioGuardarL
                     nombre: _nombreCtrl.text,
                     uso: _usoSeleccionado,
                     subCategoria: _subCatCtrl.text,
+                    tipoCultivo: _usoSeleccionado == TipoUsoLote.agricola ? _cultivoSeleccionado : null,
                     areaEnHectareas: widget.estadoMapa.areaEnHectareas,
                     numeroMatas: int.tryParse(_matasCtrl.text) ?? 0,
                     capacidadAnimales: int.tryParse(_capAnimCtrl.text),
                     coordenadas: widget.estadoMapa.puntos.map((p) => CoordenadaLote(latitud: p.latitude, longitud: p.longitude)).toList(),
                     etapaCultivo: _usoSeleccionado == TipoUsoLote.agricola ? _etapaSeleccionada : null,
+                    tieneSombra: _usoSeleccionado == TipoUsoLote.agricola ? _tieneSombra : null,
+                    densidadSiembra: _usoSeleccionado == TipoUsoLote.agricola ? _densidadCtrl.text : null,
                   );
 
                   // Convertir rangos de meses a fechas para el cronograma

@@ -33,33 +33,49 @@ const LoteIsarModelSchema = CollectionSchema(
       type: IsarType.objectList,
       target: r'CoordenadaLoteIsarModel',
     ),
-    r'etapaCultivo': PropertySchema(
+    r'densidadSiembra': PropertySchema(
       id: 3,
+      name: r'densidadSiembra',
+      type: IsarType.string,
+    ),
+    r'etapaCultivo': PropertySchema(
+      id: 4,
       name: r'etapaCultivo',
       type: IsarType.string,
     ),
     r'fincaId': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'nombre': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'nombre',
       type: IsarType.string,
     ),
     r'numeroMatas': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'numeroMatas',
       type: IsarType.long,
     ),
     r'subCategoria': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'subCategoria',
       type: IsarType.string,
     ),
+    r'tieneSombra': PropertySchema(
+      id: 9,
+      name: r'tieneSombra',
+      type: IsarType.bool,
+    ),
+    r'tipoCultivo': PropertySchema(
+      id: 10,
+      name: r'tipoCultivo',
+      type: IsarType.byte,
+      enumMap: _LoteIsarModeltipoCultivoEnumValueMap,
+    ),
     r'uso': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'uso',
       type: IsarType.byte,
       enumMap: _LoteIsarModelusoEnumValueMap,
@@ -95,6 +111,12 @@ int _loteIsarModelEstimateSize(
     }
   }
   {
+    final value = object.densidadSiembra;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.etapaCultivo;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -119,12 +141,15 @@ void _loteIsarModelSerialize(
     CoordenadaLoteIsarModelSchema.serialize,
     object.coordenadas,
   );
-  writer.writeString(offsets[3], object.etapaCultivo);
-  writer.writeLong(offsets[4], object.fincaId);
-  writer.writeString(offsets[5], object.nombre);
-  writer.writeLong(offsets[6], object.numeroMatas);
-  writer.writeString(offsets[7], object.subCategoria);
-  writer.writeByte(offsets[8], object.uso.index);
+  writer.writeString(offsets[3], object.densidadSiembra);
+  writer.writeString(offsets[4], object.etapaCultivo);
+  writer.writeLong(offsets[5], object.fincaId);
+  writer.writeString(offsets[6], object.nombre);
+  writer.writeLong(offsets[7], object.numeroMatas);
+  writer.writeString(offsets[8], object.subCategoria);
+  writer.writeBool(offsets[9], object.tieneSombra);
+  writer.writeByte(offsets[10], object.tipoCultivo.index);
+  writer.writeByte(offsets[11], object.uso.index);
 }
 
 LoteIsarModel _loteIsarModelDeserialize(
@@ -143,14 +168,19 @@ LoteIsarModel _loteIsarModelDeserialize(
         CoordenadaLoteIsarModel(),
       ) ??
       [];
-  object.etapaCultivo = reader.readStringOrNull(offsets[3]);
-  object.fincaId = reader.readLongOrNull(offsets[4]);
+  object.densidadSiembra = reader.readStringOrNull(offsets[3]);
+  object.etapaCultivo = reader.readStringOrNull(offsets[4]);
+  object.fincaId = reader.readLongOrNull(offsets[5]);
   object.id = id;
-  object.nombre = reader.readString(offsets[5]);
-  object.numeroMatas = reader.readLong(offsets[6]);
-  object.subCategoria = reader.readString(offsets[7]);
+  object.nombre = reader.readString(offsets[6]);
+  object.numeroMatas = reader.readLong(offsets[7]);
+  object.subCategoria = reader.readString(offsets[8]);
+  object.tieneSombra = reader.readBoolOrNull(offsets[9]);
+  object.tipoCultivo = _LoteIsarModeltipoCultivoValueEnumMap[
+          reader.readByteOrNull(offsets[10])] ??
+      TipoCultivo.cafe;
   object.uso =
-      _LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offsets[11])] ??
           TipoUsoLote.agricola;
   return object;
 }
@@ -177,14 +207,22 @@ P _loteIsarModelDeserializeProp<P>(
     case 3:
       return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
-    case 7:
       return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 10:
+      return (_LoteIsarModeltipoCultivoValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          TipoCultivo.cafe) as P;
+    case 11:
       return (_LoteIsarModelusoValueEnumMap[reader.readByteOrNull(offset)] ??
           TipoUsoLote.agricola) as P;
     default:
@@ -192,6 +230,18 @@ P _loteIsarModelDeserializeProp<P>(
   }
 }
 
+const _LoteIsarModeltipoCultivoEnumValueMap = {
+  'cafe': 0,
+  'cacao': 1,
+  'platano': 2,
+  'otro': 3,
+};
+const _LoteIsarModeltipoCultivoValueEnumMap = {
+  0: TipoCultivo.cafe,
+  1: TipoCultivo.cacao,
+  2: TipoCultivo.platano,
+  3: TipoCultivo.otro,
+};
 const _LoteIsarModelusoEnumValueMap = {
   'agricola': 0,
   'pecuario': 1,
@@ -531,6 +581,160 @@ extension LoteIsarModelQueryFilter
         upper,
         includeUpper,
       );
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'densidadSiembra',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'densidadSiembra',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'densidadSiembra',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'densidadSiembra',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'densidadSiembra',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'densidadSiembra',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      densidadSiembraIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'densidadSiembra',
+        value: '',
+      ));
     });
   }
 
@@ -1144,6 +1348,90 @@ extension LoteIsarModelQueryFilter
     });
   }
 
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tieneSombraIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'tieneSombra',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tieneSombraIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'tieneSombra',
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tieneSombraEqualTo(bool? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tieneSombra',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tipoCultivoEqualTo(TipoCultivo value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tipoCultivo',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tipoCultivoGreaterThan(
+    TipoCultivo value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tipoCultivo',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tipoCultivoLessThan(
+    TipoCultivo value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tipoCultivo',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition>
+      tipoCultivoBetween(
+    TipoCultivo lower,
+    TipoCultivo upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tipoCultivo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterFilterCondition> usoEqualTo(
       TipoUsoLote value) {
     return QueryBuilder.apply(this, (query) {
@@ -1243,6 +1531,20 @@ extension LoteIsarModelQuerySortBy
   }
 
   QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByDensidadSiembra() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'densidadSiembra', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByDensidadSiembraDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'densidadSiembra', Sort.desc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
       sortByEtapaCultivo() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'etapaCultivo', Sort.asc);
@@ -1307,6 +1609,32 @@ extension LoteIsarModelQuerySortBy
     });
   }
 
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> sortByTieneSombra() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tieneSombra', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByTieneSombraDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tieneSombra', Sort.desc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> sortByTipoCultivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoCultivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      sortByTipoCultivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoCultivo', Sort.desc);
+    });
+  }
+
   QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> sortByUso() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uso', Sort.asc);
@@ -1347,6 +1675,20 @@ extension LoteIsarModelQuerySortThenBy
       thenByCapacidadAnimalesDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'capacidadAnimales', Sort.desc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByDensidadSiembra() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'densidadSiembra', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByDensidadSiembraDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'densidadSiembra', Sort.desc);
     });
   }
 
@@ -1427,6 +1769,32 @@ extension LoteIsarModelQuerySortThenBy
     });
   }
 
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> thenByTieneSombra() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tieneSombra', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByTieneSombraDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tieneSombra', Sort.desc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> thenByTipoCultivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoCultivo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy>
+      thenByTipoCultivoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipoCultivo', Sort.desc);
+    });
+  }
+
   QueryBuilder<LoteIsarModel, LoteIsarModel, QAfterSortBy> thenByUso() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uso', Sort.asc);
@@ -1453,6 +1821,14 @@ extension LoteIsarModelQueryWhereDistinct
       distinctByCapacidadAnimales() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'capacidadAnimales');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QDistinct>
+      distinctByDensidadSiembra({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'densidadSiembra',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -1487,6 +1863,20 @@ extension LoteIsarModelQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'subCategoria', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QDistinct>
+      distinctByTieneSombra() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tieneSombra');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, LoteIsarModel, QDistinct>
+      distinctByTipoCultivo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tipoCultivo');
     });
   }
 
@@ -1527,6 +1917,13 @@ extension LoteIsarModelQueryProperty
   }
 
   QueryBuilder<LoteIsarModel, String?, QQueryOperations>
+      densidadSiembraProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'densidadSiembra');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, String?, QQueryOperations>
       etapaCultivoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'etapaCultivo');
@@ -1554,6 +1951,19 @@ extension LoteIsarModelQueryProperty
   QueryBuilder<LoteIsarModel, String, QQueryOperations> subCategoriaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'subCategoria');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, bool?, QQueryOperations> tieneSombraProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tieneSombra');
+    });
+  }
+
+  QueryBuilder<LoteIsarModel, TipoCultivo, QQueryOperations>
+      tipoCultivoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tipoCultivo');
     });
   }
 
