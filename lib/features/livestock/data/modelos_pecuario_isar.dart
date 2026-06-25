@@ -11,6 +11,8 @@ class EspecieIsarModel {
   late String tipoEspecie;
   late int cantidadActual;
   int? loteId;
+  late double valorUnitario;
+  late double valorTotalInversion;
 
   EspecieEntity toEntity() {
     return EspecieEntity(
@@ -20,6 +22,8 @@ class EspecieIsarModel {
       tipoEspecie: tipoEspecie,
       cantidadActual: cantidadActual,
       loteId: loteId?.toString(),
+      valorUnitario: valorUnitario,
+      valorTotalInversion: valorTotalInversion,
     );
   }
 
@@ -29,7 +33,9 @@ class EspecieIsarModel {
       ..nombre = entidad.nombre
       ..tipoEspecie = entidad.tipoEspecie
       ..cantidadActual = entidad.cantidadActual
-      ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null;
+      ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null
+      ..valorUnitario = entidad.valorUnitario
+      ..valorTotalInversion = entidad.valorTotalInversion;
     
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);

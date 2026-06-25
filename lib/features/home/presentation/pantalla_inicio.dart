@@ -351,9 +351,9 @@ class _PantallaInicioState extends ConsumerState<PantallaInicio> {
           items: [
             animales.maybeWhen(
               data: (a) => _BentoItem(
-                label: 'Pecuario', 
-                valor: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)}',
-                subLabel: 'Animales totales',
+                label: 'Capital Vivo', 
+                valor: Formateadores.formatearMonedaCompacta(a.fold<double>(0.0, (sum, item) => sum + item.valorTotalInversion)),
+                subLabel: '${a.fold<int>(0, (sum, item) => sum + item.cantidadActual)} animales',
                 icono: Icons.pets_rounded,
               ),
               orElse: () => const _BentoLoading(),

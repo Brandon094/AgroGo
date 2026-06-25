@@ -26,6 +26,7 @@ class PecuarioNotifier extends _$PecuarioNotifier {
     required String tipoEspecie,
     required int cantidadActual,
     String? loteId,
+    double valorUnitario = 0.0,
   }) async {
     state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
@@ -37,6 +38,8 @@ class PecuarioNotifier extends _$PecuarioNotifier {
       tipoEspecie: tipoEspecie,
       cantidadActual: cantidadActual,
       loteId: loteId,
+      valorUnitario: valorUnitario,
+      valorTotalInversion: cantidadActual * valorUnitario,
     );
 
     final repositorio = ref.read(repositorioPecuarioProvider);

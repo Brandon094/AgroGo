@@ -41,7 +41,16 @@ class PantallaDetalleEspecie extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(especie.nombre, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
-                  Text('${especie.cantidadActual} ${especie.tipoEspecie}', style: const TextStyle(fontSize: 14, color: Colors.white70, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Text('${especie.cantidadActual} ${especie.tipoEspecie}', style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold)),
+                      if (especie.valorTotalInversion > 0) ...[
+                        const SizedBox(width: 8),
+                        const Icon(Icons.payments_rounded, size: 12, color: Colors.amber),
+                        Text(' \$${especie.valorTotalInversion.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.w900)),
+                      ],
+                    ],
+                  ),
                 ],
               ),
               actions: [
@@ -133,6 +142,7 @@ class _FormularioEdicionEspecieModal extends ConsumerStatefulWidget {
 class _FormularioEdicionEspecieModalState extends ConsumerState<_FormularioEdicionEspecieModal> {
   late TextEditingController _nombreCtrl;
   late TextEditingController _cantCtrl;
+  late TextEditingController _valorUnitarioCtrl;
   late String _tipo;
   String? _loteId;
 
@@ -141,6 +151,7 @@ class _FormularioEdicionEspecieModalState extends ConsumerState<_FormularioEdici
     super.initState();
     _nombreCtrl = TextEditingController(text: widget.especie.nombre);
     _cantCtrl = TextEditingController(text: widget.especie.cantidadActual.toString());
+    _valorUnitarioCtrl = TextEditingController(text: widget.especie.valorUnitario.toString());
     _tipo = widget.especie.tipoEspecie;
     _loteId = widget.especie.loteId;
   }
@@ -149,6 +160,7 @@ class _FormularioEdicionEspecieModalState extends ConsumerState<_FormularioEdici
   void dispose() {
     _nombreCtrl.dispose();
     _cantCtrl.dispose();
+    _valorUnitarioCtrl.dispose();
     super.dispose();
   }
 
@@ -185,16 +197,31 @@ class _FormularioEdicionEspecieModalState extends ConsumerState<_FormularioEdici
           ),
           const SizedBox(height: 16),
           TextField(controller: _cantCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Cantidad Actual', prefixIcon: Icon(Icons.numbers_rounded))),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _valorUnitarioCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: const InputDecoration(
+              labelText: 'Valor unitario estimado', 
+              prefixIcon: Icon(Icons.payments_rounded),
+              suffixText: 'COP',
+            ),
+          ),
           const SizedBox(height: 32),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B5E20)),
             onPressed: () async {
               if (_nombreCtrl.text.isNotEmpty && _cantCtrl.text.isNotEmpty) {
+                final cant = int.tryParse(_cantCtrl.text) ?? widget.especie.cantidadActual;
+                final vUnit = double.tryParse(_valorUnitarioCtrl.text) ?? 0.0;
+                
                 final especieActualizada = widget.especie.copyWith(
                   nombre: _nombreCtrl.text.trim(),
                   tipoEspecie: _tipo,
-                  cantidadActual: int.tryParse(_cantCtrl.text) ?? widget.especie.cantidadActual,
+                  cantidadActual: cant,
                   loteId: _loteId,
+                  valorUnitario: vUnit,
+                  valorTotalInversion: cant * vUnit,
                 );
                 await ref.read(pecuarioNotifierProvider.notifier).actualizarEspecie(especieActualizada);
                 if (mounted) {

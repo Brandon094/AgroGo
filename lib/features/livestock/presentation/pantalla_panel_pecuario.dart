@@ -241,16 +241,24 @@ class _TarjetaAnimal extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(especie.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-                    Row(
-                      children: [
-                        Text('${especie.cantidadActual} ${especie.tipoEspecie}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)),
-                        if (loteAsociado != null) ...[
-                          const SizedBox(width: 8),
+                    Text(
+                      '${especie.cantidadActual} ${especie.tipoEspecie}', 
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
+                    ),
+                    if (especie.valorTotalInversion > 0)
+                      Text(
+                        'Inversión: \$${especie.valorTotalInversion.toStringAsFixed(0)}',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
+                      ),
+                    if (loteAsociado != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
                           const Icon(Icons.location_on_rounded, size: 12, color: Colors.teal),
                           Text(' ${loteAsociado.nombre}', style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
                         ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -298,6 +306,7 @@ class _FormularioEspecieModal extends ConsumerStatefulWidget {
 class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal> {
   final _nombreCtrl = TextEditingController();
   final _cantCtrl = TextEditingController();
+  final _valorUnitarioCtrl = TextEditingController();
   String _tipo = 'Cerdo';
   Lote? _loteSeleccionado;
 
@@ -391,6 +400,16 @@ class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal
           ),
           const SizedBox(height: 16),
           TextField(controller: _cantCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Cantidad inicial', prefixIcon: Icon(Icons.numbers_rounded))),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _valorUnitarioCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: const InputDecoration(
+              labelText: 'Valor unitario / Costo compra', 
+              prefixIcon: Icon(Icons.payments_rounded),
+              suffixText: 'COP',
+            ),
+          ),
           const SizedBox(height: 32),
           lotesAsync.maybeWhen(
             data: (lotes) {
@@ -408,6 +427,7 @@ class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal
                         tipoEspecie: _tipo, 
                         cantidadActual: int.tryParse(_cantCtrl.text) ?? 0,
                         loteId: _loteSeleccionado?.id,
+                        valorUnitario: double.tryParse(_valorUnitarioCtrl.text) ?? 0.0,
                       ); 
                       if (mounted) {
                         Navigator.pop(context);

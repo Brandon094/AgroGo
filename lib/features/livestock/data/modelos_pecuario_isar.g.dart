@@ -41,6 +41,16 @@ const EspecieIsarModelSchema = CollectionSchema(
       id: 4,
       name: r'tipoEspecie',
       type: IsarType.string,
+    ),
+    r'valorTotalInversion': PropertySchema(
+      id: 5,
+      name: r'valorTotalInversion',
+      type: IsarType.double,
+    ),
+    r'valorUnitario': PropertySchema(
+      id: 6,
+      name: r'valorUnitario',
+      type: IsarType.double,
     )
   },
   estimateSize: _especieIsarModelEstimateSize,
@@ -79,6 +89,8 @@ void _especieIsarModelSerialize(
   writer.writeLong(offsets[2], object.loteId);
   writer.writeString(offsets[3], object.nombre);
   writer.writeString(offsets[4], object.tipoEspecie);
+  writer.writeDouble(offsets[5], object.valorTotalInversion);
+  writer.writeDouble(offsets[6], object.valorUnitario);
 }
 
 EspecieIsarModel _especieIsarModelDeserialize(
@@ -94,6 +106,8 @@ EspecieIsarModel _especieIsarModelDeserialize(
   object.loteId = reader.readLongOrNull(offsets[2]);
   object.nombre = reader.readString(offsets[3]);
   object.tipoEspecie = reader.readString(offsets[4]);
+  object.valorTotalInversion = reader.readDouble(offsets[5]);
+  object.valorUnitario = reader.readDouble(offsets[6]);
   return object;
 }
 
@@ -114,6 +128,10 @@ P _especieIsarModelDeserializeProp<P>(
       return (reader.readString(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -744,6 +762,138 @@ extension EspecieIsarModelQueryFilter
       ));
     });
   }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorTotalInversionEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'valorTotalInversion',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorTotalInversionGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'valorTotalInversion',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorTotalInversionLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'valorTotalInversion',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorTotalInversionBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'valorTotalInversion',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorUnitarioEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorUnitarioGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorUnitarioLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'valorUnitario',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterFilterCondition>
+      valorUnitarioBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'valorUnitario',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
 }
 
 extension EspecieIsarModelQueryObject
@@ -821,6 +971,34 @@ extension EspecieIsarModelQuerySortBy
       sortByTipoEspecieDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tipoEspecie', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByValorTotalInversion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotalInversion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByValorTotalInversionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotalInversion', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      sortByValorUnitarioDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.desc);
     });
   }
 }
@@ -909,6 +1087,34 @@ extension EspecieIsarModelQuerySortThenBy
       return query.addSortBy(r'tipoEspecie', Sort.desc);
     });
   }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByValorTotalInversion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotalInversion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByValorTotalInversionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorTotalInversion', Sort.desc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.asc);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QAfterSortBy>
+      thenByValorUnitarioDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'valorUnitario', Sort.desc);
+    });
+  }
 }
 
 extension EspecieIsarModelQueryWhereDistinct
@@ -945,6 +1151,20 @@ extension EspecieIsarModelQueryWhereDistinct
       distinctByTipoEspecie({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'tipoEspecie', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByValorTotalInversion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'valorTotalInversion');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, EspecieIsarModel, QDistinct>
+      distinctByValorUnitario() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'valorUnitario');
     });
   }
 }
@@ -986,6 +1206,20 @@ extension EspecieIsarModelQueryProperty
       tipoEspecieProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'tipoEspecie');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, double, QQueryOperations>
+      valorTotalInversionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'valorTotalInversion');
+    });
+  }
+
+  QueryBuilder<EspecieIsarModel, double, QQueryOperations>
+      valorUnitarioProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'valorUnitario');
     });
   }
 }

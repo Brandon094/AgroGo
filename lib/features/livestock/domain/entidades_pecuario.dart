@@ -5,6 +5,8 @@ class EspecieEntity {
   final String tipoEspecie;
   final int cantidadActual;
   final String? loteId;
+  final double valorUnitario;
+  final double valorTotalInversion;
 
   const EspecieEntity({
     required this.id,
@@ -13,6 +15,8 @@ class EspecieEntity {
     required this.tipoEspecie,
     required this.cantidadActual,
     this.loteId,
+    this.valorUnitario = 0.0,
+    this.valorTotalInversion = 0.0,
   });
 
   EspecieEntity copyWith({
@@ -22,6 +26,8 @@ class EspecieEntity {
     String? tipoEspecie,
     int? cantidadActual,
     String? loteId,
+    double? valorUnitario,
+    double? valorTotalInversion,
   }) {
     return EspecieEntity(
       id: id ?? this.id,
@@ -30,6 +36,8 @@ class EspecieEntity {
       tipoEspecie: tipoEspecie ?? this.tipoEspecie,
       cantidadActual: cantidadActual ?? this.cantidadActual,
       loteId: loteId ?? this.loteId,
+      valorUnitario: valorUnitario ?? this.valorUnitario,
+      valorTotalInversion: valorTotalInversion ?? this.valorTotalInversion,
     );
   }
 }
