@@ -62,4 +62,16 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 4.3 | Ajuste de Valor | Ajustar stock (+5) de un ítem valorado. | El valor total debe recalcularse automáticamente (15 * 5000 = 75000). |
 
 ---
+
+## 🟣 Fase 5: Trazabilidad y Rentabilidad Pecuaria
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 5.1 | Costo Acumulado | Registrar consumo de alimento para un grupo. | El 'Costo Total' en el detalle debe subir (Inversión + Alimento). |
+| 5.2 | Sanidad con Insumo | Registrar vacuna descontando de bodega. | El stock baja, se crea el gasto y aumenta el costo acumulado del animal. |
+| 5.3 | Cierre por Venta | Cerrar ciclo con 'Venta en Pie'. | El grupo pasa a la pestaña 'HISTORIAL' y muestra utilidad neta positiva/negativa. |
+| 5.4 | Cierre por Beneficio | Cerrar ciclo con 'Sacrificio'. | Solicita kilos de carne y registra el ingreso total generado. |
+| 5.5 | Balance Finca | Observar Dashboard tras una venta. | La métrica de 'Balance Finca' debe reflejar Ingresos - Gastos correctamente. |
+| 5.6 | Pestañas Pecuarias | Cambiar entre 'ACTIVOS' e 'HISTORIAL'. | Se filtran correctamente los animales según su estado `estaActivo`. |
+
+---
 **Elaborado por: Chop Code Solutions - QA Team**

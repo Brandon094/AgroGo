@@ -1,15 +1,20 @@
-# Walkthrough: Gestión Patrimonial y Valoración Pecuaria (AgroGo v1.0.0)
+# Walkthrough: Rediseño de Bodega y Expansión Logística (AgroGo v1.2.0)
 
-Este walkthrough detalla la evolución de **AgroGo** hacia un sistema de gestión financiera e integral, incorporando la valoración de activos vivos y bodega junto con la estandarización técnica de cultivos.
+Este walkthrough detalla la evolución de la **Bodega Virtual** como núcleo logístico de la finca, mejorando la experiencia de usuario y el soporte para múltiples tipos de activos.
 
 ---
 
 ## Lo Completado Hoy
 
-### 1. Gestión Patrimonial y Valoración Pecuaria
-- **Inversión Viva**: Se implementó la capacidad de registrar el costo de adquisición o valor estimado por cabeza en el módulo pecuario.
-- **Capital Pecuario**: El Dashboard ahora consolida el valor total de los animales en pie, permitiendo visualizar el patrimonio vivo de la finca de forma instantánea.
-- **Métrica Financiera**: Integración del "Capital Vivo" en el panel de Recursos y Equipo, complementando la valoración de la Bodega Virtual.
+### 1. UX Logística Avanzada
+- **TabBar Deslizable**: Se habilitó el desplazamiento horizontal en las pestañas de la bodega. Esto permite navegar entre múltiples categorías sin que el diseño se rompa o se amontone.
+- **Accesibilidad y Contraste**: Se corrigió el color de las pestañas inactivas para asegurar que el usuario pueda leerlas cómodamente en campo.
+- **Empty States Inteligentes**: Los mensajes de "sin datos" ahora son específicos. Si entras a Veterinaria y no hay nada, la app te dice exactamente "Sin medicamentos registrados" con su icono respectivo.
+
+### 2. Expansión de Categorías
+- **Módulo de Veterinaria**: Espacio dedicado para el stock de medicinas y nutrición animal, vinculado a la trazabilidad pecuaria.
+- **Módulo de Consumibles**: Categoría para combustibles, aceites y lubricantes, separándolos de la maquinaria física.
+- **Unidades Adaptativas**: El sistema sugiere automáticamente las unidades de medida más comunes (Ml, Unds, Gals) según la categoría elegida en el registro.
 
 ### 1. Gestión Patrimonial (Bodega Virtual)
 - **Valoración de Activos**: Se implementó la capacidad de registrar el valor unitario de insumos y maquinaria. El sistema calcula automáticamente el capital total inmovilizado en el inventario.

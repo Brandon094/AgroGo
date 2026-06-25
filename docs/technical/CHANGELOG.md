@@ -4,6 +4,32 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [1.2.0] - 2024-06-25 (Rediseño de Bodega y Expansión Logística)
+### Añadido
+- **Nuevas Categorías de Inventario**: Incorporación de las secciones 'Veterinaria' (salud animal) y 'Consumibles' (combustibles y aceites).
+- **UX Deslizable**: Implementación de un TabBar scrollable para soportar el crecimiento de categorías sin comprometer la legibilidad.
+- **Estados Vacíos Contextuales**: Mensajes e iconografía dinámica que cambian según la pestaña activa para guiar mejor al usuario.
+
+### Mejorado
+- **Contraste de Interfaz**: Ajuste del color de las pestañas inactivas en la bodega para garantizar accesibilidad bajo condiciones de luz solar intensa.
+- **Identidad Visual Logística**: Asignación de colores y iconos dedicados para cada tipo de activo en bodega.
+
+---
+
+## [1.1.0] - 2024-06-24 (Trazabilidad y Rentabilidad Pecuaria)
+### Añadido
+- **Motor de Trazabilidad de Costos**: Consolidación automática del costo acumulado por lote pecuario, sumando inversión inicial + consumos (alimentación y sanidad).
+- **Flujos de Salida Final**: Implementación de cierres de ciclo por 'Venta en Pie' o 'Beneficio (Sacrificio)', capturando pesos y precios finales.
+- **Cálculo de Utilidad Neta**: Algoritmo que determina la rentabilidad real de cada grupo animal al finalizar su ciclo.
+- **Integración Financiera General**: Los ingresos por ventas pecuarias ahora se inyectan automáticamente en el balance financiero de la finca.
+- **Zonificación en Panel Pecuario**: División de la vista en pestañas 'ACTIVOS' e 'HISTORIAL' para un mejor control de los ciclos finalizados.
+
+### Mejorado
+- **Dashboard Bento**: Evolución de la métrica de inversión a 'Balance Finca', mostrando la utilidad neta real (Ingresos - Gastos).
+- **Registro de Sanidad**: Capacidad de vincular medicamentos de la bodega para trackear costos automáticamente.
+
+---
+
 ## [1.0.0] - 2024-06-24 (Patrimonio Total)
 ### Añadido
 - **Valoración Pecuaria**: Capacidad de registrar costo de compra o valor estimado por cabeza para todos los grupos animales.

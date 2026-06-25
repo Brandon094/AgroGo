@@ -25,6 +25,7 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
     *   Filtro estricto en el selector de ubicación: Solo muestra lotes tipo `infraestructura` o `pecuario` que sean compatibles con alojamiento animal (Cochera, Galpón, etc.).
     *   No se permiten animales en casas o bodegas generales.
     *   **Valoración de Capital**: El sistema debe permitir registrar el valor unitario por animal para calcular la inversión viva total.
+    *   **Trazabilidad y Rentabilidad**: Consolidar automáticamente el costo total (Compra + Insumos) y permitir cierres de ciclo por venta o sacrificio para determinar la utilidad neta real.
 *   **BI Geográfica**: Los marcadores del mapa deben servir como puntos de inspección, mostrando datos agregados de otros módulos (Animales, Beneficio).
     *   No se permiten animales en casas o bodegas generales.
 *   **Gestión de Zonas**:
@@ -32,6 +33,7 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
 *   **Bodega Virtual**: 
     *   Impedir el registro de labores si el stock del insumo requerido es cero.
     *   **Valoración Patrimonial**: El sistema debe permitir registrar el costo unitario de adquisición para calcular el valor total del inventario (Insumos + Maquinaria).
+    *   **Categorización Expandida**: Soporte obligatorio para Operación, Veterinaria, Maquinaria, Consumibles y Producción.
 *   **Nómina**: Liquidación admisible en Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
 
 ---
