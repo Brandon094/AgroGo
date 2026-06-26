@@ -7,6 +7,9 @@ import '../domain/entidades_pecuario.dart';
 
 import 'package:agrogo/features/maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 import 'package:agrogo/features/maps_and_lots/domain/lote_model.dart';
+import '../../../core/shared/widgets/agro_section_header.dart';
+import '../../../core/shared/widgets/agro_empty_state.dart';
+import '../../../core/shared/widgets/agro_card.dart';
 
 class PantallaPanelPecuario extends ConsumerWidget {
   const PantallaPanelPecuario({super.key});
@@ -29,39 +32,13 @@ class PantallaPanelPecuario extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))
-                  ],
-                ),
-                child: Column(
+              AgroSectionHeader(
+                titulo: 'Animales',
+                icono: Icons.pets_rounded,
+                colorIcono: Colors.purple,
+                paddingBottom: 20,
+                extra: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Animales',
-                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.purple.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.pets_rounded, color: Colors.purple),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
                     // VALIDACIÓN GLOBAL DE INFRAESTRUCTURA
                     lotesAsync.when(
                       data: (lotes) {
@@ -197,15 +174,9 @@ class _ListaEspecies extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (especies.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.pets_outlined, size: 80, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(mensajeVacio, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
-          ],
-        ),
+      return AgroEmptyState(
+        mensaje: mensajeVacio,
+        icono: Icons.pets_outlined,
       );
     }
     return ListView.builder(
@@ -245,73 +216,61 @@ class _TarjetaAnimal extends ConsumerWidget {
       default: icono = Icons.pets_rounded; color = Colors.brown;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: InkWell(
-        onTap: () => context.push('/dashboard/animales/detalle/${especie.id}'),
-        borderRadius: BorderRadius.circular(24),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
-                child: Icon(icono, color: color, size: 32),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(especie.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-                    if (especie.estaActivo) ...[
-                      Text(
-                        'Stock: ${especie.cantidadActual} / ${especie.cantidadInicial} ${especie.tipoEspecie}', 
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
-                      ),
-                      if (especie.valorTotalInversion > 0)
-                        Text(
-                          'Unitario: \$${especie.costoUnitarioActual.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
-                        ),
-                    ] else ...[
-                      if (especie.fechaSalida != null)
-                        Text(
-                          'Cerrado: ${DateFormat('d MMM yyyy').format(especie.fechaSalida!)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 12),
-                        ),
-                      Text(
-                        'Utilidad: \$${especie.utilidadesGeneradas.toStringAsFixed(0)}',
-                        style: TextStyle(fontWeight: FontWeight.w900, color: especie.utilidadesGeneradas >= 0 ? Colors.green : Colors.red, fontSize: 13),
-                      ),
-                    ],
-                    if (loteAsociado != null) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_rounded, size: 12, color: Colors.teal),
-                          Text(' ${loteAsociado.nombre}', style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-                onPressed: () => _confirmarEliminacion(context, ref, especie),
-              ),
-            ],
+    return AgroCard(
+      onTap: () => context.push('/dashboard/animales/detalle/${especie.id}'),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
+            child: Icon(icono, color: color, size: 32),
           ),
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(especie.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+                if (especie.estaActivo) ...[
+                  Text(
+                    'Stock: ${especie.cantidadActual} / ${especie.cantidadInicial} ${especie.tipoEspecie}', 
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
+                  ),
+                  if (especie.valorTotalInversion > 0)
+                    Text(
+                      'Unitario: \$${especie.costoUnitarioActual.toStringAsFixed(0)}',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
+                    ),
+                ] else ...[
+                  if (especie.fechaSalida != null)
+                    Text(
+                      'Cerrado: ${DateFormat('d MMM yyyy').format(especie.fechaSalida!)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 12),
+                    ),
+                  Text(
+                    'Utilidad: \$${especie.utilidadesGeneradas.toStringAsFixed(0)}',
+                    style: TextStyle(fontWeight: FontWeight.w900, color: especie.utilidadesGeneradas >= 0 ? Colors.green : Colors.red, fontSize: 13),
+                  ),
+                ],
+                if (loteAsociado != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_rounded, size: 12, color: Colors.teal),
+                      Text(' ${loteAsociado.nombre}', style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+            onPressed: () => _confirmarEliminacion(context, ref, especie),
+          ),
+        ],
       ),
     );
   }
@@ -399,9 +358,9 @@ class _FormularioEspecieModalState extends ConsumerState<_FormularioEspecieModal
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
                   ),
                   child: Column(
                     children: [

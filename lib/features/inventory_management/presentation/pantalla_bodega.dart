@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'providers/insumos_notifier.dart';
 import '../domain/insumo_model.dart';
+import '../../../core/shared/widgets/agro_empty_state.dart';
+import '../../../core/shared/widgets/agro_card.dart';
+import '../../../core/shared/widgets/agro_section_header.dart';
+import '../../../core/errors/fallos.dart';
 
 class PantallaBodega extends ConsumerWidget {
   const PantallaBodega({super.key});
@@ -15,66 +19,73 @@ class PantallaBodega extends ConsumerWidget {
       length: 5,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FBF9),
-        appBar: AppBar(
-          toolbarHeight: 80,
-          title: const Text('Bodega Virtual', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
-          bottom: const TabBar(
-            indicatorColor: Colors.white,
-            indicatorWeight: 4,
-            isScrollable: true,
-            unselectedLabelColor: Colors.white60,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            tabs: [
-              Tab(icon: Icon(Icons.inventory_2_rounded), text: 'OPERACIÓN'),
-              Tab(icon: Icon(Icons.medical_services_rounded), text: 'VETERINARIA'),
-              Tab(icon: Icon(Icons.settings_suggest_rounded), text: 'MAQUINARIA'),
-              Tab(icon: Icon(Icons.oil_barrel_rounded), text: 'CONSUMIBLES'),
-              Tab(icon: Icon(Icons.local_shipping_rounded), text: 'PRODUCCIÓN'),
-            ],
-          ),
-        ),
-        body: insumosAsync.when(
-          data: (insumos) {
-            final operativos = insumos.where((i) => i.categoria == CategoriaInsumo.operativo).toList();
-            final veterinaria = insumos.where((i) => i.categoria == CategoriaInsumo.veterinaria).toList();
-            final maquinaria = insumos.where((i) => i.categoria == CategoriaInsumo.maquinaria).toList();
-            final consumibles = insumos.where((i) => i.categoria == CategoriaInsumo.consumibles).toList();
-            final cosechas = insumos.where((i) => i.categoria == CategoriaInsumo.cosecha).toList();
+        body: Column(
+          children: [
+            const AgroSectionHeader(
+              titulo: 'Bodega Virtual',
+              icono: Icons.inventory_2_rounded,
+              paddingBottom: 16,
+              extra: TabBar(
+                indicatorColor: Color(0xFF00695C),
+                indicatorWeight: 4,
+                isScrollable: true,
+                unselectedLabelColor: Colors.grey,
+                labelColor: Color(0xFF00695C),
+                labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                dividerColor: Colors.transparent,
+                tabs: [
+                  Tab(text: 'OPERACIÓN'),
+                  Tab(text: 'VETERINARIA'),
+                  Tab(text: 'MAQUINARIA'),
+                  Tab(text: 'CONSUMIBLES'),
+                  Tab(text: 'PRODUCCIÓN'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: insumosAsync.when(
+                data: (insumos) {
+                  final operativos = insumos.where((i) => i.categoria == CategoriaInsumo.operativo).toList();
+                  final veterinaria = insumos.where((i) => i.categoria == CategoriaInsumo.veterinaria).toList();
+                  final maquinaria = insumos.where((i) => i.categoria == CategoriaInsumo.maquinaria).toList();
+                  final consumibles = insumos.where((i) => i.categoria == CategoriaInsumo.consumibles).toList();
+                  final cosechas = insumos.where((i) => i.categoria == CategoriaInsumo.cosecha).toList();
 
-            return TabBarView(
-              children: [
-                _ListaInsumosCategoria(
-                  insumos: operativos, 
-                  esCosecha: false,
-                  categoria: CategoriaInsumo.operativo,
-                ),
-                _ListaInsumosCategoria(
-                  insumos: veterinaria, 
-                  esCosecha: false,
-                  categoria: CategoriaInsumo.veterinaria,
-                ),
-                _ListaInsumosCategoria(
-                  insumos: maquinaria, 
-                  esCosecha: false,
-                  categoria: CategoriaInsumo.maquinaria,
-                ),
-                _ListaInsumosCategoria(
-                  insumos: consumibles, 
-                  esCosecha: false,
-                  categoria: CategoriaInsumo.consumibles,
-                ),
-                _ListaInsumosCategoria(
-                  insumos: cosechas, 
-                  esCosecha: true,
-                  categoria: CategoriaInsumo.cosecha,
-                ),
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+                  return TabBarView(
+                    children: [
+                      _ListaInsumosCategoria(
+                        insumos: operativos, 
+                        esCosecha: false,
+                        categoria: CategoriaInsumo.operativo,
+                      ),
+                      _ListaInsumosCategoria(
+                        insumos: veterinaria, 
+                        esCosecha: false,
+                        categoria: CategoriaInsumo.veterinaria,
+                      ),
+                      _ListaInsumosCategoria(
+                        insumos: maquinaria, 
+                        esCosecha: false,
+                        categoria: CategoriaInsumo.maquinaria,
+                      ),
+                      _ListaInsumosCategoria(
+                        insumos: consumibles, 
+                        esCosecha: false,
+                        categoria: CategoriaInsumo.consumibles,
+                      ),
+                      _ListaInsumosCategoria(
+                        insumos: cosechas, 
+                        esCosecha: true,
+                        categoria: CategoriaInsumo.cosecha,
+                      ),
+                    ],
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => AgroEmptyState(mensaje: 'Error al cargar bodega', icono: Icons.error_outline_rounded, subtitulo: e.toString()),
+              ),
+            ),
+          ],
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 20),
@@ -134,16 +145,7 @@ class _ListaInsumosCategoria extends StatelessWidget {
         case CategoriaInsumo.veterinaria: icono = Icons.medical_services_outlined; texto = 'Sin medicamentos registrados'; break;
         case CategoriaInsumo.consumibles: icono = Icons.oil_barrel_outlined; texto = 'Sin consumibles registrados'; break;
       }
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icono, size: 80, color: Colors.grey.withOpacity(0.3)),
-            const SizedBox(height: 16),
-            Text(texto, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade400)),
-          ],
-        ),
-      );
+      return AgroEmptyState(mensaje: texto, icono: icono);
     }
 
     return ListView.builder(
@@ -193,56 +195,55 @@ class _TarjetaInsumo extends ConsumerWidget {
       icono = Icons.inventory_2_rounded;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: insumo.esEscaso && !esCosecha ? Colors.red.withOpacity(0.1) : colorPrincipal.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(
-            insumo.esEscaso && !esCosecha ? Icons.warning_amber_rounded : icono, 
-            color: insumo.esEscaso && !esCosecha ? Colors.red : colorPrincipal, 
-            size: 24
-          ),
-        ),
-        title: Row(
-          children: [
-            Expanded(child: Text(insumo.nombre, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF37474F)))),
-            if (insumo.esParaSecado)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.orange.shade100, borderRadius: BorderRadius.circular(8)),
-                child: const Text('EN SECADO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
-              ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${insumo.cantidadActual} ${insumo.unidadMedida}', 
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: insumo.esEscaso && !esCosecha ? Colors.red : Colors.teal.shade800),
+    return AgroCard(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: insumo.esEscaso && !esCosecha ? Colors.red.withValues(alpha: 0.1) : colorPrincipal.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
             ),
-            if (insumo.valorTotal > 0)
-              Text(
-                'Valor total: \$${insumo.valorTotal.toStringAsFixed(0)} COP',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blueGrey),
-              ),
-          ],
-        ),
-        trailing: IconButton.filledTonal(
-          onPressed: () => _mostrarAjusteStock(context, ref), 
-          icon: const Icon(Icons.edit_note_rounded),
-        ),
+            child: Icon(
+              insumo.esEscaso && !esCosecha ? Icons.warning_amber_rounded : icono, 
+              color: insumo.esEscaso && !esCosecha ? Colors.red : colorPrincipal, 
+              size: 24
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: Text(insumo.nombre, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF37474F)))),
+                    if (insumo.esParaSecado)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(color: Colors.orange.shade100, borderRadius: BorderRadius.circular(8)),
+                        child: const Text('EN SECADO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
+                      ),
+                  ],
+                ),
+                Text(
+                  '${insumo.cantidadActual} ${insumo.unidadMedida}', 
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: insumo.esEscaso && !esCosecha ? Colors.red : Colors.teal.shade800),
+                ),
+                if (insumo.valorTotal > 0)
+                  Text(
+                    'Valor total: \$${insumo.valorTotal.toStringAsFixed(0)} COP',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                  ),
+              ],
+            ),
+          ),
+          IconButton.filledTonal(
+            onPressed: () => _mostrarAjusteStock(context, ref), 
+            icon: const Icon(Icons.edit_note_rounded),
+          ),
+        ],
       ),
     );
   }
@@ -433,7 +434,7 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
               if (_categoria == CategoriaInsumo.cosecha) unidad = 'Kilos';
               if (_categoria == CategoriaInsumo.veterinaria) unidad = 'Unds/Ml';
 
-              await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
+              final resultado = await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
                 nombre: _nombreCtrl.text, 
                 unidad: unidad, 
                 stockInicial: double.parse(_stockCtrl.text),
@@ -441,14 +442,22 @@ class _FormInsumoModalState extends ConsumerState<_FormInsumoModal> {
                 esParaSecado: _esParaSecado,
                 valorUnitario: double.tryParse(_valorUnitarioCtrl.text) ?? 0.0,
               ); 
+
               if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Guardado en bodega con éxito'),
-                    backgroundColor: Color(0xFF3E2723),
-                    behavior: SnackBarBehavior.floating,
+                resultado.fold(
+                  (fallo) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('❌ ${fallo.mensaje}'), backgroundColor: Colors.red),
                   ),
+                  (_) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Guardado en bodega con éxito ✅'),
+                        backgroundColor: Color(0xFF3E2723),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
                 );
               }
             }

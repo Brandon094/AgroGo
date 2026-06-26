@@ -6,6 +6,8 @@ import '../../inventory_costs/presentation/providers/costos_notifier.dart';
 import 'providers/cronograma_notifier.dart';
 import '../domain/tarea_model.dart';
 import '../../inventory_management/domain/insumo_model.dart';
+import '../../../core/shared/widgets/agro_section_header.dart';
+import '../../../core/shared/widgets/agro_empty_state.dart';
 
 class PantallaCronograma extends ConsumerWidget {
   const PantallaCronograma({super.key});
@@ -27,71 +29,36 @@ class PantallaCronograma extends ConsumerWidget {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Agenda',
-                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
+              child: AgroSectionHeader(
+                titulo: 'Agenda',
+                icono: Icons.calendar_today_rounded,
+                extra: estadoTareas.maybeWhen(
+                  data: (tareas) {
+                    final pendientes = tareas.where((t) => !t.estaCompletada).length;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Theme.of(context).primaryColor, const Color(0xFF2E7D32)],
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.1),
-                            shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Labores Pendientes',
+                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          child: Icon(Icons.calendar_today_rounded, color: Theme.of(context).primaryColor),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    estadoTareas.maybeWhen(
-                      data: (tareas) {
-                        final pendientes = tareas.where((t) => !t.estaCompletada).length;
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Theme.of(context).primaryColor, const Color(0xFF2E7D32)],
-                            ),
-                            borderRadius: BorderRadius.circular(24),
+                          Text(
+                            '$pendientes',
+                            style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Labores Pendientes',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '$pendientes',
-                                style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      orElse: () => const SizedBox.shrink(),
-                    ),
-                  ],
+                        ],
+                      ),
+                    );
+                  },
+                  orElse: () => const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -101,7 +68,11 @@ class PantallaCronograma extends ConsumerWidget {
               data: (tareas) {
                 if (tareas.isEmpty) {
                   return const SliverFillRemaining(
-                    child: _VistaVaciaAgenda(),
+                    child: AgroEmptyState(
+                      mensaje: 'Su agenda está limpia',
+                      icono: Icons.calendar_today_rounded,
+                      subtitulo: 'No tiene labores programadas para hoy.',
+                    ),
                   );
                 }
                 return SliverPadding(
@@ -154,8 +125,8 @@ class _TarjetaTarea extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-        border: tarea.estaCompletada ? Border.all(color: Colors.green.withOpacity(0.2)) : null,
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        border: tarea.estaCompletada ? Border.all(color: Colors.green.withValues(alpha: 0.2)) : null,
       ),
       child: InkWell(
         onTap: () => _manejarToque(context, ref),
@@ -167,7 +138,7 @@ class _TarjetaTarea extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(Icons.task_alt_rounded, color: color, size: 28),
@@ -340,23 +311,6 @@ class _DialogoGastoConInventarioState extends ConsumerState<_DialogoGastoConInve
           child: const Text('GUARDAR'),
         ),
       ],
-    );
-  }
-}
-
-class _VistaVaciaAgenda extends StatelessWidget {
-  const _VistaVaciaAgenda();
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.calendar_today_rounded, size: 80, color: Colors.grey.withOpacity(0.3)),
-          const SizedBox(height: 16),
-          const Text('Su agenda está limpia', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-        ],
-      ),
     );
   }
 }

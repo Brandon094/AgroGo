@@ -61,7 +61,7 @@ class PantallaMisFincas extends ConsumerWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.house_siding_rounded, size: 80, color: Colors.grey.withOpacity(0.5)),
+                          Icon(Icons.house_siding_rounded, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
                           const SizedBox(height: 16),
                           const Text(
                             'No tiene fincas registradas',
@@ -131,7 +131,7 @@ class _TarjetaFincaPremium extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: Material(
         color: Colors.transparent,

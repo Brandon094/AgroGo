@@ -61,7 +61,7 @@ class _PantallaPanelCostosState extends ConsumerState<PantallaPanelCostos> {
                     bottomRight: Radius.circular(40),
                   ),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 5))
                   ],
                 ),
                 child: Column(
@@ -235,7 +235,7 @@ class _TarjetaGasto extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -406,7 +406,7 @@ class _ModalCalculadoraInsumosState extends ConsumerState<_ModalCalculadoraInsum
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: const Icon(Icons.calculate_rounded, color: Colors.blue),
               ),
               const SizedBox(width: 12),
@@ -477,9 +477,9 @@ class _ModalCalculadoraInsumosState extends ConsumerState<_ModalCalculadoraInsum
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF00695C).withOpacity(0.05),
+                color: const Color(0xFF00695C).withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFF00695C).withOpacity(0.2)),
+                border: Border.all(color: const Color(0xFF00695C).withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [

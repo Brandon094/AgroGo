@@ -13,6 +13,10 @@ import 'package:agrogo/features/field_workers/data/registro_labor_isar_model.dar
 import 'package:agrogo/core/utils/formatters.dart';
 import 'package:flutter/services.dart';
 
+import '../../../core/errors/fallos.dart';
+import '../../../core/shared/widgets/agro_card.dart';
+import '../../../core/shared/widgets/agro_empty_state.dart';
+
 class PantallaProcesoCafe extends ConsumerWidget {
   const PantallaProcesoCafe({super.key});
 
@@ -36,7 +40,10 @@ class PantallaProcesoCafe extends ConsumerWidget {
             child: lotesBeneficio.when(
               data: (lotes) {
                 if (lotes.isEmpty) {
-                  return const Center(child: Text('No hay lotes en proceso de beneficio', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)));
+                  return const AgroEmptyState(
+                    mensaje: 'No hay lotes en proceso de beneficio',
+                    icono: Icons.coffee_maker_rounded,
+                  );
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(24),
@@ -79,7 +86,7 @@ class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSem
           decoration: BoxDecoration(
             gradient: const LinearGradient(colors: [Color(0xFF4E342E), Color(0xFF3E2723)]),
             borderRadius: BorderRadius.circular(32),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20)],
           ),
           child: Column(
             children: [
@@ -192,9 +199,14 @@ class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSem
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           ElevatedButton(
-            onPressed: () {
-              ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos, loteId: loteId, beneficiaderoId: beneficiaderoId);
-              Navigator.pop(context);
+            onPressed: () async {
+              final res = await ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos, loteId: loteId, beneficiaderoId: beneficiaderoId);
+              if (context.mounted) {
+                res.fold(
+                  (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${f.mensaje}'), backgroundColor: Colors.red)),
+                  (_) => Navigator.pop(context),
+                );
+              }
             },
             child: const Text('INICIAR'),
           ),
@@ -212,13 +224,8 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fecha = DateFormat('d MMM').format(beneficio.fechaInicio);
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
+    return AgroCard(
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
           ListTile(
@@ -303,7 +310,7 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
       child: Text(texto, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 10)),
     );
   }
@@ -356,8 +363,13 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
             onPressed: () async {
               final peso = double.tryParse(pesoCtrl.text);
               if (peso != null) {
-                await ref.read(beneficioNotifierProvider.notifier).venderLote(beneficio, peso);
-                if (context.mounted) Navigator.pop(context);
+                final res = await ref.read(beneficioNotifierProvider.notifier).venderLote(beneficio, peso);
+                if (context.mounted) {
+                  res.fold(
+                    (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${f.mensaje}'), backgroundColor: Colors.red)),
+                    (_) => Navigator.pop(context),
+                  );
+                }
               }
             }, 
             child: const Text('REGISTRAR VENTA')
@@ -395,9 +407,14 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
             actions: [
               TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
               ElevatedButton(
-                onPressed: () {
-                  ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, secaderoId: seleccionado?.id);
-                  Navigator.pop(context);
+                onPressed: () async {
+                  final res = await ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, secaderoId: seleccionado?.id);
+                  if (context.mounted) {
+                    res.fold(
+                      (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${f.mensaje}'), backgroundColor: Colors.red)),
+                      (_) => Navigator.pop(context),
+                    );
+                  }
                 }, 
                 child: const Text('EMPEZAR SECADO')
               ),
@@ -419,11 +436,16 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final peso = double.tryParse(pesoCtrl.text);
                 if (peso != null) {
-                  ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, kilosFinales: peso);
-                  Navigator.pop(context);
+                  final res = await ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, kilosFinales: peso);
+                  if (context.mounted) {
+                    res.fold(
+                      (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${f.mensaje}'), backgroundColor: Colors.red)),
+                      (_) => Navigator.pop(context),
+                    );
+                  }
                 }
               }, 
               child: const Text('GUARDAR PERGAMINO')
@@ -455,10 +477,15 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final costo = double.tryParse(costoCtrl.text) ?? 0.0;
-                ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, costoAdicional: costo);
-                Navigator.pop(context);
+                final res = await ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, costoAdicional: costo);
+                if (context.mounted) {
+                  res.fold(
+                    (f) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${f.mensaje}'), backgroundColor: Colors.red)),
+                    (_) => Navigator.pop(context),
+                  );
+                }
               }, 
               child: const Text('CONFIRMAR Y AVANZAR')
             ),

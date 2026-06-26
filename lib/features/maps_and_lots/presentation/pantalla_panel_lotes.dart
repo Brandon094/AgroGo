@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'providers/panel_lotes_notifier.dart';
 import '../domain/lote_model.dart';
 import '../../field_workers/presentation/providers/gestion_administrativa_orchestrator.dart';
+import '../../../core/shared/widgets/agro_section_header.dart';
+import '../../../core/shared/widgets/agro_card.dart';
 
 class PantallaPanelLotes extends ConsumerWidget {
   const PantallaPanelLotes({super.key});
@@ -25,51 +27,22 @@ class PantallaPanelLotes extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              // HEADER CON TABS
-              Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Mis Zonas',
-                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.map_rounded, color: Colors.green),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    const TabBar(
-                      labelColor: Color(0xFF00695C),
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Color(0xFF00695C),
-                      indicatorWeight: 4,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      dividerColor: Colors.transparent,
-                      tabs: [
-                        Tab(text: 'CULTIVOS'),
-                        Tab(text: 'ESTRUCTURAS'),
-                      ],
-                    ),
+              // HEADER CON TABS UNIFICADO
+              const AgroSectionHeader(
+                titulo: 'Mis Zonas',
+                icono: Icons.map_rounded,
+                colorIcono: Colors.green,
+                paddingBottom: 16,
+                extra: TabBar(
+                  labelColor: Color(0xFF00695C),
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Color(0xFF00695C),
+                  indicatorWeight: 4,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Tab(text: 'CULTIVOS'),
+                    Tab(text: 'ESTRUCTURAS'),
                   ],
                 ),
               ),
@@ -237,73 +210,65 @@ class _TarjetaLote extends ConsumerWidget {
       }
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: colorUso.withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
-              child: Icon(iconoUso, color: colorUso, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return AgroCard(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: colorUso.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
+            child: Icon(iconoUso, color: colorUso, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(lote.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+                Row(
                   children: [
-                    Text(lote.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-                    Row(
-                      children: [
-                        Text(lote.subCategoria, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)),
-                        if (lote.etapaCultivo != null) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(6)),
-                            child: Text(lote.etapaCultivo!, style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (lote.uso == TipoUsoLote.agricola)
-                      FutureBuilder<Map<int, double>>(
-                        future: ref.read(gestionAdministrativaOrchestratorProvider.notifier).obtenerProductividadPorLote(),
-                        builder: (context, snapshot) {
-                          final kilos = snapshot.data?[int.tryParse(lote.id) ?? -1] ?? 0;
-                          if (kilos == 0) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.rebase_edit, size: 12, color: Colors.orange),
-                                Text(' $kilos kg recolectados', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.orange)),
-                              ],
-                            ),
-                          );
-                        },
+                    Text(lote.subCategoria, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)),
+                    if (lote.etapaCultivo != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(6)),
+                        child: Text(lote.etapaCultivo!, style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
                       ),
+                    ],
                   ],
                 ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('${lote.areaEnHectareas.toStringAsFixed(2)} Ha', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorUso)),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 22),
-                  onPressed: () => _confirmarEliminacion(context, ref, lote),
-                ),
+                if (lote.uso == TipoUsoLote.agricola)
+                  FutureBuilder<Map<int, double>>(
+                    future: ref.read(gestionAdministrativaOrchestratorProvider.notifier).obtenerProductividadPorLote(),
+                    builder: (context, snapshot) {
+                      final kilos = snapshot.data?[int.tryParse(lote.id) ?? -1] ?? 0;
+                      if (kilos == 0) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.rebase_edit, size: 12, color: Colors.orange),
+                            Text(' $kilos kg recolectados', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.orange)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
-          ],
-        ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('${lote.areaEnHectareas.toStringAsFixed(2)} Ha', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorUso)),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 22),
+                onPressed: () => _confirmarEliminacion(context, ref, lote),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

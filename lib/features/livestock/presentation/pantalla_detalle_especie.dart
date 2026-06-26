@@ -292,7 +292,7 @@ class _TabSalud extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
@@ -300,7 +300,7 @@ class _TabSalud extends ConsumerWidget {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
+                                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
                                   child: Icon(Icons.medical_information_rounded, color: Colors.red.shade800),
                                 ),
                                 const SizedBox(width: 16),
@@ -368,11 +368,11 @@ class _TabAlimentacion extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                            leading: CircleAvatar(backgroundColor: Colors.orange.withOpacity(0.1), child: const Icon(Icons.restaurant_rounded, color: Colors.orange)),
+                            leading: CircleAvatar(backgroundColor: Colors.orange.withValues(alpha: 0.1), child: const Icon(Icons.restaurant_rounded, color: Colors.orange)),
                             title: Text(a.producto, style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
                             subtitle: Text('Consumo: ${a.cantidadKilos} kg', style: const TextStyle(fontWeight: FontWeight.bold)),
                             trailing: Text(fecha, style: const TextStyle(color: Colors.grey, fontSize: 11)),
@@ -426,7 +426,7 @@ class _VistaVacia extends StatelessWidget {
   const _VistaVacia({required this.mensaje, required this.icono});
   @override
   Widget build(BuildContext context) {
-    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icono, size: 80, color: Colors.grey.withOpacity(0.2)), const SizedBox(height: 16), Text(mensaje, style: const TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold))]));
+    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icono, size: 80, color: Colors.grey.withValues(alpha: 0.2)), const SizedBox(height: 16), Text(mensaje, style: const TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold))]));
   }
 }
 

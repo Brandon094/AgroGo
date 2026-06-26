@@ -18,7 +18,7 @@ class PantallaPrincipalShell extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -28,7 +28,7 @@ class PantallaPrincipalShell extends StatelessWidget {
           height: 85,
           elevation: 0,
           backgroundColor: Colors.white,
-          indicatorColor: const Color(0xFF00695C).withOpacity(0.1),
+          indicatorColor: const Color(0xFF00695C).withValues(alpha: 0.1),
           selectedIndex: navigationShell.currentIndex,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           onDestinationSelected: (int index) {

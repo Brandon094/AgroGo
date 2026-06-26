@@ -4,11 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'providers/trabajadores_notifier.dart';
 import 'providers/adelantos_notifier.dart';
 import 'providers/gestion_administrativa_orchestrator.dart';
+import '../../farms/presentation/providers/configuracion_finca_notifier.dart';
+import '../../../core/shared/widgets/agro_section_header.dart';
+import '../../../core/shared/widgets/agro_text_field.dart';
 import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 import '../../maps_and_lots/domain/lote_model.dart';
 import '../domain/trabajador_model.dart';
 import '../data/registro_labor_isar_model.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/errors/fallos.dart';
 
 class PantallaListaTrabajadores extends ConsumerWidget {
   const PantallaListaTrabajadores({super.key});
@@ -30,42 +34,11 @@ class PantallaListaTrabajadores extends ConsumerWidget {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 70, 24, 32),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: Column(
+              child: AgroSectionHeader(
+                titulo: 'Mi Equipo',
+                icono: Icons.people_alt_rounded,
+                extra: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Mi Equipo',
-                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF37474F)),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.people_alt_rounded, color: Theme.of(context).primaryColor),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () => context.push('/nomina-semanal'),
                       icon: const Icon(Icons.receipt_long_rounded),
@@ -75,17 +48,24 @@ class PantallaListaTrabajadores extends ConsumerWidget {
                         foregroundColor: const Color(0xFF00695C),
                         elevation: 0,
                         minimumSize: const Size(double.infinity, 56),
-                        side: BorderSide(color: const Color(0xFF00695C).withOpacity(0.2)),
+                        side: BorderSide(color: const Color(0xFF00695C).withValues(alpha: 0.2)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'GESTIÓN DE NÓMINA Y LABORES',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.teal, letterSpacing: 1.5),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'GESTIÓN DE NÓMINA Y LABORES',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.teal, letterSpacing: 1.5),
+                        ),
+                        IconButton.filledTonal(
+                          onPressed: () => _mostrarConfiguracionNomina(context, ref),
+                          icon: const Icon(Icons.settings_applications_rounded, size: 20),
+                          tooltip: 'Configuración de Nómina',
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -143,6 +123,88 @@ class PantallaListaTrabajadores extends ConsumerWidget {
       builder: (context) => const _FormularioTrabajadorModal(),
     );
   }
+
+  void _mostrarConfiguracionNomina(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => const _DialogoConfiguracionNomina(),
+    );
+  }
+}
+
+class _DialogoConfiguracionNomina extends ConsumerStatefulWidget {
+  const _DialogoConfiguracionNomina();
+  @override
+  ConsumerState<_DialogoConfiguracionNomina> createState() => _DialogoConfiguracionNominaState();
+}
+
+class _DialogoConfiguracionNominaState extends ConsumerState<_DialogoConfiguracionNomina> {
+  final _costoCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final config = ref.read(configuracionFincaNotifierProvider).valueOrNull;
+    if (config != null) {
+      _costoCtrl.text = config.costoAlimentacion.toStringAsFixed(0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _costoCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Configuración de Nómina', style: TextStyle(fontWeight: FontWeight.bold)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Defina los valores globales para el cálculo de pagos.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _costoCtrl,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Costo Alimentación por Día',
+              prefixText: r'$ ',
+              suffixText: 'COP',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+        ElevatedButton(
+          onPressed: () async {
+            final nuevoCosto = double.tryParse(_costoCtrl.text);
+            if (nuevoCosto != null) {
+              final resultado = await ref.read(configuracionFincaNotifierProvider.notifier).actualizarCostoAlimentacion(nuevoCosto);
+              if (mounted) {
+                resultado.fold(
+                  (fallo) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('❌ ${fallo.mensaje}'), backgroundColor: Colors.red),
+                  ),
+                  (_) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Configuración actualizada ✅'), behavior: SnackBarBehavior.floating),
+                    );
+                  },
+                );
+              }
+            }
+          },
+          child: const Text('GUARDAR'),
+        ),
+      ],
+    );
+  }
 }
 
 class _TarjetaTrabajador extends ConsumerWidget {
@@ -158,14 +220,14 @@ class _TarjetaTrabajador extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: const Border(),
         leading: CircleAvatar(
           radius: 28,
-          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
           child: Icon(Icons.person_rounded, color: Theme.of(context).primaryColor, size: 28),
         ),
         title: Text(trabajador.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF37474F))),
@@ -343,15 +405,14 @@ class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLab
               },
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _kilosCtrl, 
-              keyboardType: TextInputType.number, 
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              decoration: InputDecoration(
-                labelText: 'Cantidad recolectada', 
-                prefixIcon: const Icon(Icons.scale_rounded),
-                suffixText: _tipoPago == 'porKilo' ? 'Kilos' : 'Arrobas',
-              ),
+            AgroTextField(
+              controller: _kilosCtrl,
+              label: 'Cantidad recolectada',
+              icon: Icons.scale_rounded,
+              keyboardType: TextInputType.number,
+              suffixText: _tipoPago == 'porKilo' ? 'Kilos' : 'Arrobas',
+              isRequired: true,
+              isNumeric: true,
             ),
           ],
           const SizedBox(height: 16),
@@ -372,9 +433,9 @@ class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLab
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF00695C).withOpacity(0.05),
+              color: const Color(0xFF00695C).withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFF00695C).withOpacity(0.2)),
+              border: Border.all(color: const Color(0xFF00695C).withValues(alpha: 0.2)),
             ),
             child: Column(
               children: [
@@ -410,7 +471,7 @@ class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLab
 
               final kilos = double.tryParse(kilosStr);
 
-              await ref.read(gestionAdministrativaOrchestratorProvider.notifier).liquidarLaborDiaria(
+              final resultado = await ref.read(gestionAdministrativaOrchestratorProvider.notifier).liquidarLaborDiaria(
                 trabajadorId: int.parse(widget.trabajador.id),
                 loteId: int.parse(_loteSeleccionado!.id),
                 tipoPago: _tipoPago,
@@ -420,13 +481,20 @@ class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLab
               );
               
               if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Labor diaria registrada con éxito'),
-                    backgroundColor: Color(0xFF00695C),
-                    behavior: SnackBarBehavior.floating,
+                resultado.fold(
+                  (fallo) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('❌ ${fallo.mensaje}'), backgroundColor: Colors.red),
                   ),
+                  (_) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Labor diaria registrada con éxito ✅'),
+                        backgroundColor: Color(0xFF00695C),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
                 );
               }
             },
@@ -467,32 +535,49 @@ class _FormularioAdelantoModalState extends ConsumerState<_FormularioAdelantoMod
         children: [
           Text('Vale: ${widget.trabajador.nombreCompleto}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 24),
-          TextField(
+          AgroTextField(
             controller: _montoCtrl,
+            label: 'Monto del Adelanto',
+            icon: Icons.payments_rounded,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Monto del Adelanto', prefixIcon: Icon(Icons.payments_rounded), suffixText: 'COP'),
+            suffixText: 'COP',
+            isRequired: true,
+            isNumeric: true,
           ),
           const SizedBox(height: 16),
-          TextField(
+          AgroTextField(
             controller: _motivoCtrl,
-            decoration: const InputDecoration(labelText: 'Motivo (Opcional)', prefixIcon: Icon(Icons.notes_rounded)),
+            label: 'Motivo (Opcional)',
+            icon: Icons.notes_rounded,
           ),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
               final monto = double.tryParse(_montoCtrl.text);
-              if (monto == null || monto <= 0) return;
+              if (monto == null || monto <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('⚠️ Ingrese un monto válido')),
+                );
+                return;
+              }
 
-              await ref.read(adelantosNotifierProvider.notifier).agregarAdelanto(
+              final resultado = await ref.read(adelantosNotifierProvider.notifier).agregarAdelanto(
                 trabajadorId: widget.trabajador.id,
                 monto: monto,
                 motivo: _motivoCtrl.text.trim(),
               );
 
               if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vale registrado con éxito'), backgroundColor: Colors.blueGrey),
+                resultado.fold(
+                  (fallo) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('❌ ${fallo.mensaje}'), backgroundColor: Colors.red),
+                  ),
+                  (_) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Vale registrado con éxito ✅'), backgroundColor: Colors.blueGrey),
+                    );
+                  },
                 );
               }
             },
@@ -567,19 +652,27 @@ class _FormularioTrabajadorModalState extends ConsumerState<_FormularioTrabajado
             ElevatedButton(
               onPressed: () async {
                 if (_formularioKey.currentState!.validate()) {
-                  await ref.read(trabajadoresNotifierProvider.notifier).agregarTrabajador(
+                  final resultado = await ref.read(trabajadoresNotifierProvider.notifier).agregarTrabajador(
                     nombreCompleto: _nombreCtrl.text.trim(),
                     tipoTrabajador: _tipo,
                     tarifaBase: double.parse(_tarifaCtrl.text),
                   );
+
                   if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Trabajador registrado en el equipo'),
-                        backgroundColor: Color(0xFF00695C),
-                        behavior: SnackBarBehavior.floating,
+                    resultado.fold(
+                      (fallo) => ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('❌ ${fallo.mensaje}'), backgroundColor: Colors.red),
                       ),
+                      (_) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Trabajador registrado en el equipo ✅'),
+                            backgroundColor: Color(0xFF00695C),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
                     );
                   }
                 }

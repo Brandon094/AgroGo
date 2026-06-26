@@ -80,7 +80,7 @@ class _PantallaMapaGlobalState extends ConsumerState<PantallaMapaGlobal> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+              colors: [Colors.black.withValues(alpha: 0.7), Colors.transparent],
             ),
           ),
         ),
@@ -184,7 +184,7 @@ class _MiniStat extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
           child: Icon(icono, color: color, size: 20),
         ),
         const SizedBox(height: 6),
