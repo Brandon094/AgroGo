@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'providers/beneficio_notifier.dart';
 import '../domain/beneficio_model.dart';
+import '../../maps_and_lots/domain/lote_model.dart';
+import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 
 class PantallaProcesoCafe extends ConsumerWidget {
   const PantallaProcesoCafe({super.key});
@@ -45,9 +47,19 @@ class PantallaProcesoCafe extends ConsumerWidget {
   }
 }
 
-class _BannerRecoleccionSemanal extends ConsumerWidget {
+class _BannerRecoleccionSemanal extends ConsumerStatefulWidget {
+  const _BannerRecoleccionSemanal();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BannerRecoleccionSemanal> createState() => _BannerRecoleccionSemanalState();
+}
+
+class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSemanal> {
+  Lote? _loteSeleccionado;
+
+  @override
+  Widget build(BuildContext context) {
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
+
     return FutureBuilder<double>(
       future: ref.read(beneficioNotifierProvider.notifier).calcularKilosCerezaPendientes(),
       builder: (context, snapshot) {
@@ -67,8 +79,38 @@ class _BannerRecoleccionSemanal extends ConsumerWidget {
               const SizedBox(height: 8),
               Text('${kilos.toStringAsFixed(1)} kg Cereza', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
               const SizedBox(height: 20),
+              
+              // Selector de Lote para el beneficio
+              lotesAsync.maybeWhen(
+                data: (lotes) {
+                  final agricolas = lotes.where((l) => l.uso == TipoUsoLote.agricola).toList();
+                  if (agricolas.isEmpty) return const SizedBox.shrink();
+                  
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: DropdownButton<Lote>(
+                      value: _loteSeleccionado,
+                      hint: const Text('Vincular a un lote', style: TextStyle(color: Colors.white60)),
+                      dropdownColor: const Color(0xFF3E2723),
+                      underline: const SizedBox(),
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      items: agricolas.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
+                      onChanged: (v) => setState(() => _loteSeleccionado = v),
+                    ),
+                  );
+                },
+                orElse: () => const SizedBox.shrink(),
+              ),
+
               ElevatedButton.icon(
-                onPressed: kilos > 0 ? () => _iniciarProceso(context, ref, kilos) : null,
+                onPressed: kilos > 0 ? () => _iniciarProceso(context, ref, kilos, _loteSeleccionado?.id) : null,
                 icon: const Icon(Icons.settings_input_component_rounded),
                 label: const Text('INICIAR DESPULPADO'),
                 style: ElevatedButton.styleFrom(
@@ -84,7 +126,7 @@ class _BannerRecoleccionSemanal extends ConsumerWidget {
     );
   }
 
-  void _iniciarProceso(BuildContext context, WidgetRef ref, double kilos) {
+  void _iniciarProceso(BuildContext context, WidgetRef ref, double kilos, String? loteId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -94,7 +136,7 @@ class _BannerRecoleccionSemanal extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           ElevatedButton(
             onPressed: () {
-              ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos);
+              ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos, loteId: loteId);
               Navigator.pop(context);
             },
             child: const Text('INICIAR'),
@@ -125,7 +167,22 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
           ListTile(
             contentPadding: const EdgeInsets.all(20),
             title: Text('Lote Café - $fecha', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-            subtitle: Text('${beneficio.kilosCereza} kg Cereza inicial', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${beneficio.kilosCereza} kg Cereza inicial', style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (beneficio.loteOrigenNombre != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.landscape_rounded, size: 12, color: Colors.teal),
+                        Text(' Origen: ${beneficio.loteOrigenNombre}', style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
             trailing: _buildBadgeEstado(beneficio.estado),
           ),
           Padding(
@@ -134,7 +191,7 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: (beneficio.estado == EstadoBeneficio.listo || beneficio.estado == EstadoBeneficio.vendido) 
+                    onPressed: (beneficio.estado == EstadoBeneficio.molido || beneficio.estado == EstadoBeneficio.vendido) 
                       ? null 
                       : () => _avanzarLote(context, ref),
                     style: ElevatedButton.styleFrom(
@@ -145,7 +202,7 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
                     child: Text(_getTextoBoton(beneficio.estado)),
                   ),
                 ),
-                if (beneficio.estado != EstadoBeneficio.listo && beneficio.estado != EstadoBeneficio.vendido) ...[
+                if (beneficio.estado != EstadoBeneficio.molido && beneficio.estado != EstadoBeneficio.vendido) ...[
                   const SizedBox(width: 12),
                   IconButton.filledTonal(
                     style: IconButton.styleFrom(backgroundColor: Colors.orange.shade100, foregroundColor: Colors.orange.shade900),
@@ -169,7 +226,9 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
       case EstadoBeneficio.cereza: color = Colors.red; texto = 'CEREZA'; break;
       case EstadoBeneficio.lavado: color = Colors.blue; texto = 'LAVADO'; break;
       case EstadoBeneficio.secado: color = Colors.orange; texto = 'SECADO'; break;
-      case EstadoBeneficio.listo: color = Colors.green; texto = 'LISTO'; break;
+      case EstadoBeneficio.listo: color = Colors.green; texto = 'PERGAMINO'; break;
+      case EstadoBeneficio.tostado: color = Colors.brown; texto = 'TOSTADO'; break;
+      case EstadoBeneficio.molido: color = Colors.blueGrey; texto = 'MOLIDO'; break;
       case EstadoBeneficio.vendido: color = Colors.purple; texto = 'VENDIDO'; break;
     }
     return Container(
@@ -183,8 +242,10 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
     switch(estado) {
       case EstadoBeneficio.cereza: return 'PASAR A LAVADO';
       case EstadoBeneficio.lavado: return 'PASAR A SECADO';
-      case EstadoBeneficio.secado: return 'FINALIZAR SECADO (PESAR)';
-      case EstadoBeneficio.listo: return 'LISTO EN BODEGA';
+      case EstadoBeneficio.secado: return 'PESAR PERGAMINO SECO';
+      case EstadoBeneficio.listo: return 'PASAR A TOSTADO';
+      case EstadoBeneficio.tostado: return 'PASAR A MOLIENDA';
+      case EstadoBeneficio.molido: return 'PROCESO FINALIZADO';
       case EstadoBeneficio.vendido: return 'VENDIDO';
     }
   }
@@ -238,7 +299,7 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
 
   void _avanzarLote(BuildContext context, WidgetRef ref) {
     if (beneficio.estado == EstadoBeneficio.secado) {
-      // Pedir el peso final
+      // Pedir el peso final del pergamino
       final pesoCtrl = TextEditingController();
       showDialog(
         context: context,
@@ -254,17 +315,51 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
               onPressed: () {
                 final peso = double.tryParse(pesoCtrl.text);
                 if (peso != null) {
-                  ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, peso);
+                  ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, kilosFinales: peso);
                   Navigator.pop(context);
                 }
               }, 
-              child: const Text('GUARDAR EN BODEGA')
+              child: const Text('GUARDAR PERGAMINO')
+            ),
+          ],
+        ),
+      );
+    } else if (beneficio.estado == EstadoBeneficio.listo || beneficio.estado == EstadoBeneficio.tostado) {
+      // Pedir costo de transformación (tostado o molienda)
+      final costoCtrl = TextEditingController();
+      final titulo = beneficio.estado == EstadoBeneficio.listo ? 'Proceso de Tostado' : 'Proceso de Molienda';
+      
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(titulo),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Ingrese el costo operativo del ${beneficio.estado == EstadoBeneficio.listo ? 'tostado' : 'molido'}.', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: costoCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Costo del Proceso', prefixText: r'$ ', suffixText: 'COP'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+            ElevatedButton(
+              onPressed: () {
+                final costo = double.tryParse(costoCtrl.text) ?? 0.0;
+                ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, costoAdicional: costo);
+                Navigator.pop(context);
+              }, 
+              child: const Text('CONFIRMAR Y AVANZAR')
             ),
           ],
         ),
       );
     } else {
-      ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, null);
+      ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio);
     }
   }
 }

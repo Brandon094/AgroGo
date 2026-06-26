@@ -101,6 +101,30 @@ class GestionAdministrativaOrchestrator extends _$GestionAdministrativaOrchestra
     )).toList();
   }
 
+  /// Calcula los kilos de cereza recolectados por lote para el ciclo actual.
+  Future<Map<int, double>> obtenerProductividadPorLote() async {
+    final isar = ref.read(isarProvider);
+    final fincaIdStr = ref.read(fincaSeleccionadaProvider);
+    if (fincaIdStr == null) return {};
+    final fincaId = int.parse(fincaIdStr);
+
+    final labores = await isar.registroLaborIsarModels
+        .filter()
+        .fincaIdEqualTo(fincaId)
+        .tipoPagoEqualTo('porKilo')
+        .or()
+        .tipoPagoEqualTo('porArroba')
+        .findAll();
+
+    final mapaProductividad = <int, double>{};
+    for (final labor in labores) {
+      if (labor.cantidadKilos != null) {
+        mapaProductividad[labor.loteId] = (mapaProductividad[labor.loteId] ?? 0.0) + labor.cantidadKilos!;
+      }
+    }
+    return mapaProductividad;
+  }
+
   /// PROYECCIÓN FASE 3: Interoperabilidad con ServiCarga
   /// Este método conectará AgroGo con la plataforma de transporte logístico.
   Future<void> solicitarTransporteLogistico({

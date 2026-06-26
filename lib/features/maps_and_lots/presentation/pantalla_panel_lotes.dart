@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'providers/panel_lotes_notifier.dart';
 import '../domain/lote_model.dart';
+import '../../field_workers/presentation/providers/gestion_administrativa_orchestrator.dart';
 
 class PantallaPanelLotes extends ConsumerWidget {
   const PantallaPanelLotes({super.key});
@@ -254,25 +255,42 @@ class _TarjetaLote extends ConsumerWidget {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(lote.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
-                  Row(
-                    children: [
-                      Text(lote.subCategoria, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)),
-                      if (lote.etapaCultivo != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(6)),
-                          child: Text(lote.etapaCultivo!, style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(lote.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+                    Row(
+                      children: [
+                        Text(lote.subCategoria, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)),
+                        if (lote.etapaCultivo != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(6)),
+                            child: Text(lote.etapaCultivo!, style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    if (lote.uso == TipoUsoLote.agricola)
+                      FutureBuilder<Map<int, double>>(
+                        future: ref.read(gestionAdministrativaOrchestratorProvider.notifier).obtenerProductividadPorLote(),
+                        builder: (context, snapshot) {
+                          final kilos = snapshot.data?[int.tryParse(lote.id) ?? -1] ?? 0;
+                          if (kilos == 0) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.rebase_edit, size: 12, color: Colors.orange),
+                                Text(' $kilos kg recolectados', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.orange)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,

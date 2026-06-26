@@ -7,6 +7,9 @@ import '../../../farms/presentation/providers/fincas_notifier.dart';
 import '../../../field_workers/data/registro_labor_isar_model.dart';
 import 'insumos_notifier.dart';
 import '../../domain/insumo_model.dart';
+import '../../../inventory_costs/presentation/providers/costos_notifier.dart';
+import '../../../maps_and_lots/domain/lote_model.dart';
+import '../../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 
 part 'beneficio_notifier.g.dart';
 
@@ -48,16 +51,25 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     return labores.fold<double>(0, (sum, l) => sum + (l.cantidadKilos ?? 0));
   }
 
-  Future<void> iniciarNuevoBeneficio(double kilos) async {
+  Future<void> iniciarNuevoBeneficio(double kilos, {String? loteId}) async {
     state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     
+    // Si tenemos loteId, intentamos obtener su nombre para el registro
+    String? nombreLote;
+    if (loteId != null) {
+      final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+      final lote = lotes.firstWhere((l) => l.id == loteId, orElse: () => const Lote(id: '', nombre: 'Lote Desconocido', uso: TipoUsoLote.agricola, subCategoria: '', areaEnHectareas: 0, numeroMatas: 0, coordenadas: []));
+      if (lote.id.isNotEmpty) nombreLote = lote.nombre;
+    }
+
     final nuevo = BeneficioEntity(
       id: '',
       fincaId: fincaIdStr,
       fechaInicio: DateTime.now(),
       kilosCereza: kilos,
       estado: EstadoBeneficio.cereza,
+      loteOrigenNombre: nombreLote,
     );
 
     final isar = ref.read(isarProvider);
@@ -68,33 +80,63 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     ref.invalidateSelf();
   }
 
-  Future<void> avanzarEstado(BeneficioEntity beneficio, double? kilosFinales) async {
+  Future<void> avanzarEstado(BeneficioEntity beneficio, {double? kilosFinales, double? costoAdicional}) async {
     final isar = ref.read(isarProvider);
     
     EstadoBeneficio nuevoEstado = beneficio.estado;
-    if (beneficio.estado == EstadoBeneficio.cereza) nuevoEstado = EstadoBeneficio.lavado;
-    else if (beneficio.estado == EstadoBeneficio.lavado) nuevoEstado = EstadoBeneficio.secado;
-    else if (beneficio.estado == EstadoBeneficio.secado) {
+    bool estaTostado = beneficio.estaTostado;
+    bool estaMolido = beneficio.estaMolido;
+    double costoProcesamiento = beneficio.costoProcesamiento + (costoAdicional ?? 0.0);
+
+    if (beneficio.estado == EstadoBeneficio.cereza) {
+      nuevoEstado = EstadoBeneficio.lavado;
+    } else if (beneficio.estado == EstadoBeneficio.lavado) {
+      nuevoEstado = EstadoBeneficio.secado;
+    } else if (beneficio.estado == EstadoBeneficio.secado) {
       nuevoEstado = EstadoBeneficio.listo;
-      // Si está listo, lo inyectamos en la Bodega de Producción
-      if (kilosFinales != null) {
-        await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
-          nombre: 'Café Pergamino Seco (Lote ${beneficio.id})',
-          unidad: 'Kilos',
-          stockInicial: kilosFinales,
-          categoria: CategoriaInsumo.cosecha,
-        );
-      }
+      // Al finalizar secado, entra a bodega como pergamino si el usuario no decide procesar más
+    } else if (beneficio.estado == EstadoBeneficio.listo) {
+      nuevoEstado = EstadoBeneficio.tostado;
+      estaTostado = true;
+    } else if (beneficio.estado == EstadoBeneficio.tostado) {
+      nuevoEstado = EstadoBeneficio.molido;
+      estaMolido = true;
+    }
+
+    // Registrar gasto adicional si aplica (tostado/molienda)
+    if (costoAdicional != null && costoAdicional > 0) {
+      await ref.read(costosNotifierProvider.notifier).agregarCosto(
+        nombre: 'Procesamiento Lote ${beneficio.id}: ${nuevoEstado.name}', 
+        categoria: 'Operativos', 
+        precioTotal: costoAdicional,
+      );
     }
 
     final actualizado = beneficio.copyWith(
       estado: nuevoEstado,
-      kilosFinales: kilosFinales,
+      kilosFinales: kilosFinales ?? beneficio.kilosFinales,
+      estaTostado: estaTostado,
+      estaMolido: estaMolido,
+      costoProcesamiento: costoProcesamiento,
     );
 
     await isar.writeTxn(() async {
       await isar.beneficioIsarModels.put(BeneficioIsarModel.fromEntity(actualizado));
     });
+
+    // Sincronizar con Bodega si el estado es final o avanzado (listo, tostado, molido)
+    if (nuevoEstado == EstadoBeneficio.listo || nuevoEstado == EstadoBeneficio.tostado || nuevoEstado == EstadoBeneficio.molido) {
+      String nombreBodega = 'Café Pergamino Seco';
+      if (estaMolido) nombreBodega = 'Café Molido';
+      else if (estaTostado) nombreBodega = 'Café Tostado';
+
+      await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
+        nombre: '$nombreBodega (Lote ${beneficio.id})',
+        unidad: 'Kilos',
+        stockInicial: kilosFinales ?? beneficio.kilosFinales ?? 0.0,
+        categoria: CategoriaInsumo.cosecha,
+      );
+    }
     
     ref.invalidateSelf();
   }

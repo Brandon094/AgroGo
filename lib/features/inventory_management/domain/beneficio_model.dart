@@ -2,8 +2,10 @@ enum EstadoBeneficio {
   cereza,   // Recién recolectado
   lavado,   // En fermentación/lavado
   secado,   // En la elva/sol
-  listo,    // Pergamino seco listo para bodega
-  vendido   // Vendido directamente (mojado o cereza)
+  listo,    // Pergamino seco listo
+  tostado,  // Café tostado
+  molido,   // Café molido
+  vendido   // Vendido directamente
 }
 
 class BeneficioEntity {
@@ -14,6 +16,10 @@ class BeneficioEntity {
   final double? kilosFinales; // El peso seco real al final
   final EstadoBeneficio estado;
   final String? loteOrigenNombre;
+  
+  final bool estaTostado;
+  final bool estaMolido;
+  final double costoProcesamiento;
 
   const BeneficioEntity({
     required this.id,
@@ -23,6 +29,9 @@ class BeneficioEntity {
     this.kilosFinales,
     required this.estado,
     this.loteOrigenNombre,
+    this.estaTostado = false,
+    this.estaMolido = false,
+    this.costoProcesamiento = 0.0,
   });
 
   BeneficioEntity copyWith({
@@ -33,6 +42,9 @@ class BeneficioEntity {
     double? kilosFinales,
     EstadoBeneficio? estado,
     String? loteOrigenNombre,
+    bool? estaTostado,
+    bool? estaMolido,
+    double? costoProcesamiento,
   }) {
     return BeneficioEntity(
       id: id ?? this.id,
@@ -42,6 +54,9 @@ class BeneficioEntity {
       kilosFinales: kilosFinales ?? this.kilosFinales,
       estado: estado ?? this.estado,
       loteOrigenNombre: loteOrigenNombre ?? this.loteOrigenNombre,
+      estaTostado: estaTostado ?? this.estaTostado,
+      estaMolido: estaMolido ?? this.estaMolido,
+      costoProcesamiento: costoProcesamiento ?? this.costoProcesamiento,
     );
   }
 }

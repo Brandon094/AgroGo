@@ -18,34 +18,49 @@ const BeneficioIsarModelSchema = CollectionSchema(
   name: r'BeneficioIsarModel',
   id: 7450458984209709136,
   properties: {
-    r'estado': PropertySchema(
+    r'costoProcesamiento': PropertySchema(
       id: 0,
+      name: r'costoProcesamiento',
+      type: IsarType.double,
+    ),
+    r'estaMolido': PropertySchema(
+      id: 1,
+      name: r'estaMolido',
+      type: IsarType.bool,
+    ),
+    r'estaTostado': PropertySchema(
+      id: 2,
+      name: r'estaTostado',
+      type: IsarType.bool,
+    ),
+    r'estado': PropertySchema(
+      id: 3,
       name: r'estado',
       type: IsarType.byte,
       enumMap: _BeneficioIsarModelestadoEnumValueMap,
     ),
     r'fechaInicio': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'fechaInicio',
       type: IsarType.dateTime,
     ),
     r'fincaId': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'kilosCereza': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'kilosCereza',
       type: IsarType.double,
     ),
     r'kilosFinales': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'kilosFinales',
       type: IsarType.double,
     ),
     r'loteOrigenNombre': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'loteOrigenNombre',
       type: IsarType.string,
     )
@@ -85,12 +100,15 @@ void _beneficioIsarModelSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeByte(offsets[0], object.estado.index);
-  writer.writeDateTime(offsets[1], object.fechaInicio);
-  writer.writeLong(offsets[2], object.fincaId);
-  writer.writeDouble(offsets[3], object.kilosCereza);
-  writer.writeDouble(offsets[4], object.kilosFinales);
-  writer.writeString(offsets[5], object.loteOrigenNombre);
+  writer.writeDouble(offsets[0], object.costoProcesamiento);
+  writer.writeBool(offsets[1], object.estaMolido);
+  writer.writeBool(offsets[2], object.estaTostado);
+  writer.writeByte(offsets[3], object.estado.index);
+  writer.writeDateTime(offsets[4], object.fechaInicio);
+  writer.writeLong(offsets[5], object.fincaId);
+  writer.writeDouble(offsets[6], object.kilosCereza);
+  writer.writeDouble(offsets[7], object.kilosFinales);
+  writer.writeString(offsets[8], object.loteOrigenNombre);
 }
 
 BeneficioIsarModel _beneficioIsarModelDeserialize(
@@ -100,15 +118,18 @@ BeneficioIsarModel _beneficioIsarModelDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BeneficioIsarModel();
+  object.costoProcesamiento = reader.readDouble(offsets[0]);
+  object.estaMolido = reader.readBool(offsets[1]);
+  object.estaTostado = reader.readBool(offsets[2]);
   object.estado = _BeneficioIsarModelestadoValueEnumMap[
-          reader.readByteOrNull(offsets[0])] ??
+          reader.readByteOrNull(offsets[3])] ??
       EstadoBeneficio.cereza;
-  object.fechaInicio = reader.readDateTime(offsets[1]);
-  object.fincaId = reader.readLongOrNull(offsets[2]);
+  object.fechaInicio = reader.readDateTime(offsets[4]);
+  object.fincaId = reader.readLongOrNull(offsets[5]);
   object.id = id;
-  object.kilosCereza = reader.readDouble(offsets[3]);
-  object.kilosFinales = reader.readDoubleOrNull(offsets[4]);
-  object.loteOrigenNombre = reader.readStringOrNull(offsets[5]);
+  object.kilosCereza = reader.readDouble(offsets[6]);
+  object.kilosFinales = reader.readDoubleOrNull(offsets[7]);
+  object.loteOrigenNombre = reader.readStringOrNull(offsets[8]);
   return object;
 }
 
@@ -120,18 +141,24 @@ P _beneficioIsarModelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readDouble(offset)) as P;
+    case 1:
+      return (reader.readBool(offset)) as P;
+    case 2:
+      return (reader.readBool(offset)) as P;
+    case 3:
       return (_BeneficioIsarModelestadoValueEnumMap[
               reader.readByteOrNull(offset)] ??
           EstadoBeneficio.cereza) as P;
-    case 1:
-      return (reader.readDateTime(offset)) as P;
-    case 2:
-      return (reader.readLongOrNull(offset)) as P;
-    case 3:
-      return (reader.readDouble(offset)) as P;
     case 4:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 5:
+      return (reader.readLongOrNull(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 8:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -143,14 +170,18 @@ const _BeneficioIsarModelestadoEnumValueMap = {
   'lavado': 1,
   'secado': 2,
   'listo': 3,
-  'vendido': 4,
+  'tostado': 4,
+  'molido': 5,
+  'vendido': 6,
 };
 const _BeneficioIsarModelestadoValueEnumMap = {
   0: EstadoBeneficio.cereza,
   1: EstadoBeneficio.lavado,
   2: EstadoBeneficio.secado,
   3: EstadoBeneficio.listo,
-  4: EstadoBeneficio.vendido,
+  4: EstadoBeneficio.tostado,
+  5: EstadoBeneficio.molido,
+  6: EstadoBeneficio.vendido,
 };
 
 Id _beneficioIsarModelGetId(BeneficioIsarModel object) {
@@ -249,6 +280,92 @@ extension BeneficioIsarModelQueryWhere
 
 extension BeneficioIsarModelQueryFilter
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QFilterCondition> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      costoProcesamientoEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'costoProcesamiento',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      costoProcesamientoGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'costoProcesamiento',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      costoProcesamientoLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'costoProcesamiento',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      costoProcesamientoBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'costoProcesamiento',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      estaMolidoEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'estaMolido',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      estaTostadoEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'estaTostado',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
       estadoEqualTo(EstadoBeneficio value) {
     return QueryBuilder.apply(this, (query) {
@@ -805,6 +922,48 @@ extension BeneficioIsarModelQueryLinks
 extension BeneficioIsarModelQuerySortBy
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QSortBy> {
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByCostoProcesamiento() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoProcesamiento', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByCostoProcesamientoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoProcesamiento', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByEstaMolido() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaMolido', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByEstaMolidoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaMolido', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByEstaTostado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaTostado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByEstaTostadoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaTostado', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
       sortByEstado() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'estado', Sort.asc);
@@ -891,6 +1050,48 @@ extension BeneficioIsarModelQuerySortBy
 
 extension BeneficioIsarModelQuerySortThenBy
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QSortThenBy> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByCostoProcesamiento() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoProcesamiento', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByCostoProcesamientoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costoProcesamiento', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByEstaMolido() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaMolido', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByEstaMolidoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaMolido', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByEstaTostado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaTostado', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByEstaTostadoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'estaTostado', Sort.desc);
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
       thenByEstado() {
     return QueryBuilder.apply(this, (query) {
@@ -993,6 +1194,27 @@ extension BeneficioIsarModelQuerySortThenBy
 extension BeneficioIsarModelQueryWhereDistinct
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct> {
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctByCostoProcesamiento() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'costoProcesamiento');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctByEstaMolido() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'estaMolido');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctByEstaTostado() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'estaTostado');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
       distinctByEstado() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'estado');
@@ -1041,6 +1263,27 @@ extension BeneficioIsarModelQueryProperty
   QueryBuilder<BeneficioIsarModel, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, double, QQueryOperations>
+      costoProcesamientoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'costoProcesamiento');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, bool, QQueryOperations>
+      estaMolidoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'estaMolido');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, bool, QQueryOperations>
+      estaTostadoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'estaTostado');
     });
   }
 
