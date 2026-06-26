@@ -5,13 +5,17 @@ class EspecieEntity {
   final String? fincaId;
   final String nombre;
   final String tipoEspecie;
+  final int cantidadInicial;
   final int cantidadActual;
   final String? loteId;
   final double valorUnitario;
-  final double valorTotalInversion; // Valor inicial de adquisición
+  final double valorTotalInversion; // Inversión inicial total (cantidadInicial * valorUnitario)
   
-  final double costoInsumosAcumulado; // Alimentación + Sanidad
+  final double costoInsumosAcumulado; // Alimentación + Sanidad acumulada de los que quedan
+  final double utilidadesGeneradas; // Ingresos - Gastos de las salidas parciales ya realizadas
   final bool estaActivo;
+  
+  // Estos campos se usan para la salida FINAL o historial de la última salida
   final DateTime? fechaSalida;
   final double? precioVentaTotal;
   final double? kilosSalida;
@@ -22,11 +26,13 @@ class EspecieEntity {
     this.fincaId,
     required this.nombre,
     required this.tipoEspecie,
+    required this.cantidadInicial,
     required this.cantidadActual,
     this.loteId,
     this.valorUnitario = 0.0,
     this.valorTotalInversion = 0.0,
     this.costoInsumosAcumulado = 0.0,
+    this.utilidadesGeneradas = 0.0,
     this.estaActivo = true,
     this.fechaSalida,
     this.precioVentaTotal,
@@ -34,19 +40,24 @@ class EspecieEntity {
     this.tipoSalida,
   });
 
-  double get costoTotalAcumulado => valorTotalInversion + costoInsumosAcumulado;
-  double get utilidadNeta => (precioVentaTotal ?? 0.0) - costoTotalAcumulado;
+  /// Costo total que lleva el lote actualmente (lo invertido en compra + insumos)
+  double get costoTotalLote => (cantidadActual * valorUnitario) + costoInsumosAcumulado;
+
+  /// Lo que ha costado cada animal que está vivo hoy (Prorrateo)
+  double get costoUnitarioActual => cantidadActual > 0 ? costoTotalLote / cantidadActual : 0.0;
 
   EspecieEntity copyWith({
     String? id,
     String? fincaId,
     String? nombre,
     String? tipoEspecie,
+    int? cantidadInicial,
     int? cantidadActual,
     String? loteId,
     double? valorUnitario,
     double? valorTotalInversion,
     double? costoInsumosAcumulado,
+    double? utilidadesGeneradas,
     bool? estaActivo,
     DateTime? fechaSalida,
     double? precioVentaTotal,
@@ -58,11 +69,13 @@ class EspecieEntity {
       fincaId: fincaId ?? this.fincaId,
       nombre: nombre ?? this.nombre,
       tipoEspecie: tipoEspecie ?? this.tipoEspecie,
+      cantidadInicial: cantidadInicial ?? this.cantidadInicial,
       cantidadActual: cantidadActual ?? this.cantidadActual,
       loteId: loteId ?? this.loteId,
       valorUnitario: valorUnitario ?? this.valorUnitario,
       valorTotalInversion: valorTotalInversion ?? this.valorTotalInversion,
       costoInsumosAcumulado: costoInsumosAcumulado ?? this.costoInsumosAcumulado,
+      utilidadesGeneradas: utilidadesGeneradas ?? this.utilidadesGeneradas,
       estaActivo: estaActivo ?? this.estaActivo,
       fechaSalida: fechaSalida ?? this.fechaSalida,
       precioVentaTotal: precioVentaTotal ?? this.precioVentaTotal,

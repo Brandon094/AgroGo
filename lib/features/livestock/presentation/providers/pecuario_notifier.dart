@@ -36,6 +36,7 @@ class PecuarioNotifier extends _$PecuarioNotifier {
       fincaId: fincaIdStr,
       nombre: nombre,
       tipoEspecie: tipoEspecie,
+      cantidadInicial: cantidadActual,
       cantidadActual: cantidadActual,
       loteId: loteId,
       valorUnitario: valorUnitario,

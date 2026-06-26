@@ -9,12 +9,14 @@ class EspecieIsarModel {
   int? fincaId;
   late String nombre;
   late String tipoEspecie;
+  late int cantidadInicial;
   late int cantidadActual;
   int? loteId;
   late double valorUnitario;
   late double valorTotalInversion;
 
   late double costoInsumosAcumulado;
+  late double utilidadesGeneradas;
   late bool estaActivo;
   DateTime? fechaSalida;
   double? precioVentaTotal;
@@ -29,11 +31,13 @@ class EspecieIsarModel {
       fincaId: fincaId?.toString(),
       nombre: nombre,
       tipoEspecie: tipoEspecie,
+      cantidadInicial: cantidadInicial,
       cantidadActual: cantidadActual,
       loteId: loteId?.toString(),
       valorUnitario: valorUnitario,
       valorTotalInversion: valorTotalInversion,
       costoInsumosAcumulado: costoInsumosAcumulado,
+      utilidadesGeneradas: utilidadesGeneradas,
       estaActivo: estaActivo,
       fechaSalida: fechaSalida,
       precioVentaTotal: precioVentaTotal,
@@ -47,11 +51,13 @@ class EspecieIsarModel {
       ..fincaId = entidad.fincaId != null ? int.tryParse(entidad.fincaId!) : null
       ..nombre = entidad.nombre
       ..tipoEspecie = entidad.tipoEspecie
+      ..cantidadInicial = entidad.cantidadInicial
       ..cantidadActual = entidad.cantidadActual
       ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null
       ..valorUnitario = entidad.valorUnitario
       ..valorTotalInversion = entidad.valorTotalInversion
       ..costoInsumosAcumulado = entidad.costoInsumosAcumulado
+      ..utilidadesGeneradas = entidad.utilidadesGeneradas
       ..estaActivo = entidad.estaActivo
       ..fechaSalida = entidad.fechaSalida
       ..precioVentaTotal = entidad.precioVentaTotal

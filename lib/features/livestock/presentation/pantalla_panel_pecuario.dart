@@ -272,12 +272,12 @@ class _TarjetaAnimal extends ConsumerWidget {
                     Text(especie.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
                     if (especie.estaActivo) ...[
                       Text(
-                        '${especie.cantidadActual} ${especie.tipoEspecie}', 
+                        'Stock: ${especie.cantidadActual} / ${especie.cantidadInicial} ${especie.tipoEspecie}', 
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13)
                       ),
                       if (especie.valorTotalInversion > 0)
                         Text(
-                          'Inversión: \$${especie.valorTotalInversion.toStringAsFixed(0)}',
+                          'Unitario: \$${especie.costoUnitarioActual.toStringAsFixed(0)}',
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
                         ),
                     ] else ...[
@@ -287,8 +287,8 @@ class _TarjetaAnimal extends ConsumerWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 12),
                         ),
                       Text(
-                        'Utilidad: \$${especie.utilidadNeta.toStringAsFixed(0)}',
-                        style: TextStyle(fontWeight: FontWeight.w900, color: especie.utilidadNeta >= 0 ? Colors.green : Colors.red, fontSize: 13),
+                        'Utilidad: \$${especie.utilidadesGeneradas.toStringAsFixed(0)}',
+                        style: TextStyle(fontWeight: FontWeight.w900, color: especie.utilidadesGeneradas >= 0 ? Colors.green : Colors.red, fontSize: 13),
                       ),
                     ],
                     if (loteAsociado != null) ...[

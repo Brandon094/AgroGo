@@ -6,7 +6,7 @@ part of 'pecuario_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$pecuarioNotifierHash() => r'63329a87bb7144768bf807b8c7b678c8ac91d408';
+String _$pecuarioNotifierHash() => r'83a7357789d80d76952fd191a86a794e289fa113';
 
 /// See also [PecuarioNotifier].
 @ProviderFor(PecuarioNotifier)

@@ -157,8 +157,9 @@ class EspecieDetalle extends _$EspecieDetalle {
     ref.invalidateSelf();
   }
 
-  Future<void> cerrarCicloPecuario({
+  Future<void> registrarSalidaPecuaria({
     required TipoSalidaPecuaria tipo,
+    required int cantidadASacar,
     required double kilos,
     required double precioTotal,
   }) async {
@@ -167,20 +168,33 @@ class EspecieDetalle extends _$EspecieDetalle {
     final especies = ref.read(pecuarioNotifierProvider).valueOrNull ?? [];
     final especieActual = especies.firstWhere((e) => e.id == especieId);
 
-    final especieCerrada = especieActual.copyWith(
-      estaActivo: false,
-      fechaSalida: DateTime.now(),
+    // Prorrateo: Calcular costo proporcional de los animales que salen
+    final costoUnitario = especieActual.costoUnitarioActual;
+    final costoProporcionalSalida = cantidadASacar * (especieActual.valorUnitario + (especieActual.costoInsumosAcumulado / especieActual.cantidadActual));
+    
+    // El costo de insumos que se "lleva" la tanda que sale
+    final insumoProporcional = (especieActual.costoInsumosAcumulado / especieActual.cantidadActual) * cantidadASacar;
+
+    final nuevaCantidadActual = especieActual.cantidadActual - cantidadASacar;
+    final esCierreTotal = nuevaCantidadActual <= 0;
+
+    final especieActualizada = especieActual.copyWith(
+      cantidadActual: nuevaCantidadActual,
+      estaActivo: !esCierreTotal,
+      fechaSalida: DateTime.now(), // Se registra como la última salida
       tipoSalida: tipo,
       kilosSalida: kilos,
       precioVentaTotal: precioTotal,
+      costoInsumosAcumulado: especieActual.costoInsumosAcumulado - insumoProporcional,
+      utilidadesGeneradas: especieActual.utilidadesGeneradas + (precioTotal - costoProporcionalSalida),
     );
 
-    await pecuarioNotifier.actualizarEspecie(especieCerrada);
+    await pecuarioNotifier.actualizarEspecie(especieActualizada);
     
     // Inyectar el ingreso al balance financiero general
     if (precioTotal > 0) {
       await ref.read(costosNotifierProvider.notifier).agregarIngreso(
-        nombre: 'Venta Pecuaria: ${especieActual.nombre} (${tipo.name})', 
+        nombre: 'Venta Pecuaria (${cantidadASacar} ${especieActual.tipoEspecie}): ${especieActual.nombre}',
         categoria: 'Pecuario', 
         monto: precioTotal,
         loteId: especieActual.loteId,

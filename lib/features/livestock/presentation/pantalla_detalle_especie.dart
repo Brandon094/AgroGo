@@ -25,7 +25,7 @@ class PantallaDetalleEspecie extends ConsumerWidget {
       data: (especies) {
         final especie = especies.firstWhere(
           (e) => e.id == especieId,
-          orElse: () => const EspecieEntity(id: '', nombre: '', tipoEspecie: '', cantidadActual: 0),
+          orElse: () => const EspecieEntity(id: '', nombre: '', tipoEspecie: '', cantidadActual: 0, cantidadInicial: 0),
         );
 
         if (especie.id.isEmpty) {
@@ -43,14 +43,14 @@ class PantallaDetalleEspecie extends ConsumerWidget {
                   Text(especie.nombre, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
                   Row(
                     children: [
-                      Text('${especie.cantidadActual} ${especie.tipoEspecie}', style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold)),
+                      Text('${especie.cantidadActual} / ${especie.cantidadInicial} ${especie.tipoEspecie}', style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
                       const Icon(Icons.calculate_rounded, size: 12, color: Colors.amber),
-                      Text(' \$${especie.costoTotalAcumulado.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.w900)),
-                      if (!especie.estaActivo) ...[
+                      Text(' Unitario: \$${especie.costoUnitarioActual.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.w900)),
+                      if (!especie.estaActivo || especie.utilidadesGeneradas != 0) ...[
                         const SizedBox(width: 8),
                         const Icon(Icons.trending_up_rounded, size: 12, color: Colors.lightGreenAccent),
-                        Text(' Utilidad: \$${especie.utilidadNeta.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.lightGreenAccent, fontWeight: FontWeight.w900)),
+                        Text(' Utilidad: \$${especie.utilidadesGeneradas.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.lightGreenAccent, fontWeight: FontWeight.w900)),
                       ],
                     ],
                   ),
@@ -624,7 +624,22 @@ class _FormCierreModal extends ConsumerStatefulWidget {
 class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
   final _kilosCtrl = TextEditingController();
   final _precioCtrl = TextEditingController();
+  final _cantidadCtrl = TextEditingController();
   TipoSalidaPecuaria _tipo = TipoSalidaPecuaria.ventaEnPie;
+
+  @override
+  void initState() {
+    super.initState();
+    _cantidadCtrl.text = widget.especie.cantidadActual.toString();
+  }
+
+  @override
+  void dispose() {
+    _kilosCtrl.dispose();
+    _precioCtrl.dispose();
+    _cantidadCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -636,9 +651,9 @@ class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Cierre de Ciclo', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+          const Text('Venta / Beneficio', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
           const SizedBox(height: 8),
-          Text('Costo Acumulado: \$${widget.especie.costoTotalAcumulado.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
+          Text('Costo Unitario Prorrateado: \$${widget.especie.costoUnitarioActual.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
           const SizedBox(height: 24),
           
           SegmentedButton<TipoSalidaPecuaria>(
@@ -652,10 +667,21 @@ class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
 
           const SizedBox(height: 24),
           TextField(
+            controller: _cantidadCtrl, 
+            keyboardType: TextInputType.number, 
+            decoration: InputDecoration(
+              labelText: '¿Cuántos animales salen?', 
+              prefixIcon: const Icon(Icons.numbers_rounded),
+              helperText: 'Quedarán ${widget.especie.cantidadActual - (int.tryParse(_cantidadCtrl.text) ?? 0)} en el lote',
+            ),
+            onChanged: (v) => setState(() {}),
+          ),
+          const SizedBox(height: 16),
+          TextField(
             controller: _kilosCtrl, 
             keyboardType: TextInputType.number, 
             decoration: InputDecoration(
-              labelText: _tipo == TipoSalidaPecuaria.ventaEnPie ? 'Peso Final (kg)' : 'Kilos de carne obtenidos', 
+              labelText: _tipo == TipoSalidaPecuaria.ventaEnPie ? 'Peso Total de la tanda (kg)' : 'Kilos de carne obtenidos', 
               prefixIcon: const Icon(Icons.scale_rounded),
               suffixText: 'kg',
             ),
@@ -665,7 +691,7 @@ class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
             controller: _precioCtrl, 
             keyboardType: TextInputType.number, 
             decoration: const InputDecoration(
-              labelText: 'Precio de Venta Total', 
+              labelText: 'Precio de Venta Total (Tanda)', 
               prefixIcon: Icon(Icons.payments_rounded),
               suffixText: 'COP',
             ),
@@ -675,14 +701,17 @@ class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B5E20)),
             onPressed: () async {
+              final cantidad = int.tryParse(_cantidadCtrl.text) ?? 0;
               final kilos = double.tryParse(_kilosCtrl.text) ?? 0;
               final precio = double.tryParse(_precioCtrl.text) ?? 0;
               
-              if (kilos <= 0 || precio <= 0) return;
+              if (cantidad <= 0 || cantidad > widget.especie.cantidadActual) return;
+              if (precio <= 0) return;
 
               HapticFeedback.heavyImpact();
-              await ref.read(especieDetalleProvider(widget.especie.id).notifier).cerrarCicloPecuario(
+              await ref.read(especieDetalleProvider(widget.especie.id).notifier).registrarSalidaPecuaria(
                 tipo: _tipo, 
+                cantidadASacar: cantidad,
                 kilos: kilos, 
                 precioTotal: precio,
               );
@@ -690,15 +719,15 @@ class _FormCierreModalState extends ConsumerState<_FormCierreModal> {
               if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Ciclo cerrado con éxito. Registro guardado en historial.'),
+                  SnackBar(
+                    content: Text(cantidad == widget.especie.cantidadActual ? 'Lote cerrado con éxito.' : 'Salida parcial registrada con éxito.'),
                     backgroundColor: Color(0xFF1B5E20),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
               }
             },
-            child: const Text('FINALIZAR Y REGISTRAR INGRESO'),
+            child: const Text('REGISTRAR SALIDA'),
           ),
         ],
       ),
