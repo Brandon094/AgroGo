@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/errors/fallos.dart';
+import '../../../core/persistence/base_repository.dart';
 import '../../../main.dart';
 import '../domain/beneficio_model.dart';
 import 'beneficio_isar_model.dart';
@@ -14,45 +15,37 @@ abstract class RepositorioBeneficio {
   Future<Either<Fallo, void>> eliminarBeneficio(String id);
 }
 
-class RepositorioBeneficioImpl implements RepositorioBeneficio {
-  final Isar isar;
-  RepositorioBeneficioImpl(this.isar);
+class RepositorioBeneficioImpl extends BaseRepository implements RepositorioBeneficio {
+  RepositorioBeneficioImpl(super.isar);
 
   @override
   Future<Either<Fallo, List<BeneficioEntity>>> obtenerBeneficios(int fincaId) async {
-    try {
+    return ejecutarLectura(() async {
       final resultados = await isar.beneficioIsarModels
           .filter()
           .fincaIdEqualTo(fincaId)
           .sortByFechaInicioDesc()
           .findAll();
-      return Right(resultados.map((m) => m.toEntity()).toList());
-    } catch (e) {
-      return Left(FalloBaseDatos('Error al obtener beneficios', e));
-    }
+      return resultados.map((m) => m.toEntity()).toList();
+    }, mensajeError: 'Error al obtener beneficios');
   }
 
   @override
   Future<Either<Fallo, void>> guardarBeneficio(BeneficioEntity beneficio) async {
-    try {
+    return ejecutarEscritura(() async {
       final modelo = BeneficioIsarModel.fromEntity(beneficio);
-      await isar.writeTxn(() async => await isar.beneficioIsarModels.put(modelo));
-      return const Right(null);
-    } catch (e) {
-      return Left(FalloBaseDatos('Error al persistir beneficio', e));
-    }
+      await isar.beneficioIsarModels.put(modelo);
+    }, mensajeError: 'Error al persistir beneficio');
   }
 
   @override
   Future<Either<Fallo, void>> eliminarBeneficio(String id) async {
-    try {
-      final idInt = int.tryParse(id);
-      if (idInt == null) return Left(FalloBaseDatos('ID no válido'));
-      await isar.writeTxn(() async => await isar.beneficioIsarModels.delete(idInt));
-      return const Right(null);
-    } catch (e) {
-      return Left(FalloBaseDatos('Error al eliminar beneficio', e));
-    }
+    final idInt = int.tryParse(id);
+    if (idInt == null) return const Left(FalloBaseDatos('ID no válido'));
+
+    return ejecutarEscritura(() async {
+      await isar.beneficioIsarModels.delete(idInt);
+    }, mensajeError: 'Error al eliminar beneficio');
   }
 }
 
