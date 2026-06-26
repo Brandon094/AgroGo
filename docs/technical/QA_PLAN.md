@@ -137,4 +137,14 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 11.4 | Persistencia | Reiniciar app tras pago de nómina. | El vale debe seguir marcado como parte del historial de pagos (proyectado para fase de cierre). |
 
 ---
+
+## 🏗️ Fase 12: Coherencia y Robustez (UX Senior)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 12.1 | Persistencia de Error | Forzar error al guardar un vale. | El modal NO se cierra y aparece SnackBar rojo con el mensaje de error. |
+| 12.2 | Validación de Tipo | Ingresar texto en campo de 'Monto'. | El botón de guardar se bloquea o el validador muestra "Solo números". |
+| 12.3 | Estados Vacíos | Entrar a Bodega/Veterinaria sin datos. | Se muestra iconografía y texto específico: "Sin medicamentos registrados". |
+| 12.4 | UI Unificada | Comparar Header de Animales y Lotes. | Ambos deben usar el `AgroSectionHeader` con el mismo radio y sombras. |
+
+---
 **Elaborado por: Chop Code Solutions - QA Team**

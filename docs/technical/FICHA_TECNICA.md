@@ -1,4 +1,4 @@
-# 📄 Ficha Técnica Oficial - AgroGo v0.2.5 Stable
+# 📄 Ficha Técnica Oficial - AgroGo v1.9.1 Stable
 
 Este documento constituye la especificación técnica formal del ERP Agrícola de **ChopCode Solutions**.
 
@@ -6,18 +6,18 @@ Este documento constituye la especificación técnica formal del ERP Agrícola d
 
 ## 🏗️ 1. Identificación del Producto
 *   **Nombre Comercial:** AgroGo.
-*   **Segmento:** Agrotech / ERP Rural.
+*   **Segmento:** Agrotech / ERP Rural Senior.
 *   **Fabricante:** ChopCode Solutions.
 *   **Lead Dev:** Brandon Daza Cerquera.
 
 ---
 
 ## 💻 2. Stack de Desarrollo
-*   **Lenguaje:** Dart 3.x.
-*   **Framework:** Flutter 3.12+ (Canal Stable).
-*   **Base de Datos Local:** Isar Database (NoSQL de alto rendimiento).
-*   **Gestión de Estado:** Riverpod con generación de código.
-*   **Inyección de Dependencias:** Riverpod Providers.
+*   **Lenguaje:** Dart 3.6+.
+*   **Framework:** Flutter 3.27+ (Canal Stable).
+*   **Base de Datos Local:** Isar Database (NoSQL de alto rendimiento con agregaciones nativas).
+*   **Gestión de Estado:** Riverpod con generación de código (ViewModel Pattern).
+*   **Arquitectura:** Clean Architecture (Domain Driven Design).
 
 ---
 

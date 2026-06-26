@@ -1,6 +1,6 @@
 # 🚀 Master Plan: AgroGo & Ecosistema Rural "Go"
 
-Este documento define la visión a largo plazo para transformar la caficultura y ganadería mediante la integración digital.
+Este documento define la visión a largo plazo para transformar la caficultura y ganadería mediante la integración digital senior.
 
 ---
 
@@ -8,15 +8,15 @@ Este documento define la visión a largo plazo para transformar la caficultura y
 El objetivo de **ChopCode Solutions** es crear un puente digital entre el campo y la ciudad, conectando la producción rural con la logística y el transporte.
 
 *   **Identidad Única (SSO)**: (Fase 3) Los usuarios usarán la misma cuenta para gestionar su finca en **AgroGo**, pedir transporte en **CargoGo** y viajar al pueblo mediante **RutaGo**.
-*   **Trazabilidad Total**: Desde el momento en que se dibuja un lote hasta que el café llega al puerto, cada gramo de peso y cada peso de gasto queda registrado.
+*   **Trazabilidad Total**: Desde el momento en que se dibuja un lote hasta que el café llega al puerto, cada gramo de peso y cada peso de gasto queda registrado con trazabilidad física y financiera.
 
 ---
 
 ## 🌿 2. AgroGo: El Cerebro de la Finca
-AgroGo no es solo una app de notas; es un sistema de soporte de decisiones:
+AgroGo no es solo una app de notas; es un sistema de soporte de decisiones de alta fidelidad:
 *   **Eficiencia de Insumos**: Comprar solo lo que el censo de plantas requiere.
-*   **Justicia en Nómina**: Pagos exactos por kilos recolectados, eliminando errores de cálculo humano.
-*   **Control Sanitario**: Calendario inteligente para que ninguna vaca o cafeto pierda su tratamiento.
+*   **Justicia en Nómina**: Pagos exactos por kilos recolectados con deducción automática de adelantos, eliminando errores de cálculo humano.
+*   **Control Sanitario**: Calendario inteligente con trazabilidad de costos por lote animal.
 
 ---
 

@@ -34,11 +34,13 @@ El proyecto se divide en capas estrictas para garantizar mantenibilidad:
 
 ### 2.2 Data (Capa de Infraestructura)
 *   **Repositories**: Implementaciones que hablan con Isar y el GPS.
+*   **BaseRepository (Master)**: Clase genérica que envuelve las transacciones Isar (`writeTxn`) y el manejo de excepciones, garantizando el cumplimiento del patrón Result.
 *   **IsarModels**: Esquemas optimizados para la persistencia local.
 
 ### 2.3 Presentation (Riverpod Reactivo)
-*   **Notifiers**: Gestores de estado que escuchan cambios en Isar.
+*   **Notifiers**: Gestores de estado que escuchan cambios en Isar. Utilizan el **Patrón de Resultado** (`Either<Fallo, T>`) para comunicar el éxito o error de las acciones a la UI.
 *   **Widgets**: Componentes de UI optimizados con `RepaintBoundary` y diseño **Bento Dashboard**.
+*   **AgroUI Kit (Shared)**: Librería central de componentes atómicos que garantizan la coherencia visual y el principio DRY (Don't Repeat Yourself).
 
 ---
 

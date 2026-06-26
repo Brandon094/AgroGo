@@ -61,6 +61,9 @@ La interfaz está optimizada para **Modo Claro (Arena)**:
 La aplicación utiliza una filosofía de diseño **"Thumb-First"** (alcance del pulgar) y composición tipo **Bento Box**:
 
 *   **Dashboard Bento**: Métricas agrupadas en dominios lógicos (Patrimonio, Producción, Recursos) con jerarquía visual clara.
+*   **AgroUI Kit (Atomic Design)**:
+    *   **Shared Widgets**: Uso de componentes base (`AgroCard`, `AgroTextField`, `AgroSectionHeader`) para erradicar la duplicidad de estilos.
+    *   **Theme Driven**: Ninguna vista debe declarar colores o radios de forma manual; todo debe heredar del `ThemeData` central.
 *   **Mapeo Minimalista**:
     *   **Indicadores Flotantes**: Área calculada ubicada en la zona superior para no interferir con el dibujo.
     *   **Controles Inferiores**: Selectores de modo y acciones de guardado agrupados abajo para facilitar la operación con una sola mano en campo.

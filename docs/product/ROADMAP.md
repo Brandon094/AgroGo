@@ -21,18 +21,33 @@ AgroGo no es solo una app; es un proceso guiado. Este roadmap define la secuenci
 
 ---
 
-## ☕ Fase 2.5: Activos e Inventario (En Curso)
+## ☕ Fase 2.5: Activos e Inventario (Completado)
 *Objetivo: Llenar la finca de recursos antes de empezar a trabajar.*
 
-1.  **Bodega Virtual Inteligente**: 
-    *   **Categorización Real**: Maquinaria, Insumos y Producción.
-    *   **Vínculo Físico**: Los insumos se guardan en bodegas mapeadas.
-2.  **Motor de Capital Humano**: Registro de trabajadores y tarifas (Kilo, Arroba, Jornal).
-3.  **Integración Pecuaria**: Registro de animales vinculados a infraestructuras filtradas.
+1.  [x] **Bodega Virtual Inteligente**: Categorización Real (Maquinaria, Insumos, Veterinaria, Consumibles).
+2.  [x] **Motor de Capital Humano**: Registro de trabajadores y tarifas (Kilo, Arroba, Jornal).
+3.  [x] **Integración Pecuaria**: Registro de animales por lotes (Batch Tracking) y prorrateo de costos.
 
 ---
 
-## ☁️ Fase 3: Operación y Beneficio 360° (En Desarrollo)
+## 🏗️ Fase 3: Consolidación Arquitectónica y UX (En Desarrollo)
+*Objetivo: Elevar AgroGo al estándar Senior de clase mundial.*
+
+1.  **Fase 3.1: DRY en la UI (Fábrica de Legos)**: 
+    *   Erradicar el código repetido en la capa de presentación. 
+    *   Reemplazar widgets nativos por el **AgroUI Kit** (`AgroButton`, `AgroTextField`, `AgroCard`).
+    *   Centralización absoluta en el Theme global.
+2.  **Fase 3.2: Pulir la UX (Experiencia de Usuario)**: 
+    *   Implementación de Feedback proactivo (SnackBars con lógica Either).
+    *   Validación de formularios y persistencia de modales ante errores.
+    *   Loading States coherentes (Shimmer Effect).
+3.  **Fase 3.3: DRY en la Lógica (Clean Architecture)**: 
+    *   [x] Creación de `BaseRepository` genérico para estandarizar transacciones Isar.
+    *   [x] Refactorización masiva de repositorios (Fincas, Nómina, Bodega, Beneficio).
+
+---
+
+## ☁️ Fase 4: Operación y Beneficio 360° (En Desarrollo)
 *Objetivo: La vida diaria de la finca y el puente a la venta.*
 
 1.  **Ejecución de Agenda**: Asignación de tareas basada en el catálogo de labores.

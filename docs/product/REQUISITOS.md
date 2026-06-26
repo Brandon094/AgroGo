@@ -43,6 +43,10 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
     *   **Sistemas de Pago**: Soporte para liquidación por Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
     *   **Gestión de Vales**: Capacidad de registrar adelantos de dinero y deducirlos automáticamente del neto a pagar el fin de semana.
 
+*   **RF-UI-10 (Sistema de Diseño)**: Uso obligatorio de widgets compartidos (`AgroUI Kit`) para garantizar que la app se sienta como una sola pieza coherente.
+*   **RF-UX-01 (Manejo de Errores)**: Los modales de creación no deben cerrarse si ocurre un error de red o base de datos; deben notificar al usuario mediante feedback visual proactivo (SnackBars/Errors).
+*   **RF-UX-02 (Validación Estricta)**: Ningún registro financiero o de stock puede guardarse sin validación de tipos y campos requeridos en tiempo real.
+
 ---
 
 ## 🎨 3. Estándares de Interfaz y UX

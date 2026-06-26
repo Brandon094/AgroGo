@@ -40,6 +40,8 @@ Control de existencias e inventario triple.
 | `categoria` | Enum | `operativo`, `maquinaria`, `cosecha`. |
 | `cantidadActual` | double | Stock disponible en tiempo real. |
 | `umbralMinimo` | double | Punto de re-orden para alerta en Dashboard. |
+| `loteId` | int? | Vínculo técnico al lote de origen (Trazabilidad). |
+| `beneficioId` | int? | Vínculo técnico al proceso de beneficio (Trazabilidad). |
 
 ---
 

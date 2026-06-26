@@ -4,6 +4,29 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [1.9.1] - 2024-06-25 (Limpieza de Cimientos - DRY Logic)
+### Añadido
+- **BaseRepository**: Implementación de clase base genérica para centralizar transacciones de Isar y manejo de fallos.
+- **Estandarización de Lectura/Escritura**: Métodos asíncronos protegidos para garantizar que cada operación de persistencia devuelva un `Either<Fallo, T>`.
+
+### Mejorado
+- **Refactor de Repositorios**: Limpieza profunda en `RepositorioFincas`, `RepositorioTrabajadores`, `RepositorioLabores`, `RepositorioInsumos` y `RepositorioBeneficio`.
+- **Mantenibilidad**: Eliminación de más de 100 líneas de código repetitivo (Boilerplate) en la capa de datos.
+- **Robustez de Errores**: Unificación del catch de excepciones de base de datos en un solo punto de control.
+
+## [1.9.0] - 2024-06-25 (Refactor de Coherencia y UX Senior)
+### Añadido
+- **AgroUI Kit**: Implementación de librería de widgets compartidos (`AgroSectionHeader`, `AgroCard`, `AgroEmptyState`, `AgroTextField`).
+- **Manejo de Errores Proactivo**: Migración al patrón de resultados (`Either<Fallo, T>`) en Notifiers para evitar el cierre de modales ante errores de persistencia.
+- **Trazabilidad Estructural**: Incorporación de campos `loteId` y `beneficioId` reales en la entidad Insumo, eliminando la dependencia de metadatos en strings.
+
+### Mejorado
+- **Arquitectura de Datos**: Desacoplamiento total de Isar en Notifiers mediante Repositorios abstractos.
+- **Rendimiento de Consultas**: Implementación de agregaciones nativas (sum) para el cálculo de nómina y productividad.
+- **Modernización de UI**: Migración masiva de `withOpacity` a `.withValues(alpha: ...)` para compatibilidad con Flutter 3.27+.
+
+---
+
 ## [1.8.0] - 2024-06-25 (Gestión de Adelantos y Vales)
 ### Añadido
 - **Módulo de Vales**: Sistema de registro de adelantos de dinero para trabajadores.
