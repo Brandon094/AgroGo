@@ -37,7 +37,11 @@ El sistema aplica una secuencia lógica para evitar errores estructurales:
     *   **Categorización Expandida**: Soporte obligatorio para Operación, Veterinaria, Maquinaria, Consumibles y Producción.
     *   **Transformación de Valor**: El sistema debe permitir el rastreo de procesos de Tostado y Molienda post-cosecha, capturando costos operativos adicionales.
     *   **Análisis de Rendimiento**: Capacidad de vincular cada tanda de beneficio a un lote específico para medir la productividad por área.
-*   **Nómina**: Liquidación admisible en Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
+    *   **Trazabilidad Física**: Registro mandatorio de la infraestructura (Beneficiadero/Secadero) utilizada en cada etapa del beneficio de café.
+*   **Nómina y Pago a Destajo**: 
+    *   **Cálculo Automático**: El sistema debe calcular el pago semanal sumando los kilos recolectados por trabajador multiplicados por su tarifa base.
+    *   **Sistemas de Pago**: Soporte para liquidación por Kilo, Arroba (12.5kg) y Jornal Diario con descuento de alimentación.
+    *   **Gestión de Vales**: Capacidad de registrar adelantos de dinero y deducirlos automáticamente del neto a pagar el fin de semana.
 
 ---
 

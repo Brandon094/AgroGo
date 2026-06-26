@@ -4,6 +4,32 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [1.8.0] - 2024-06-25 (Gestión de Adelantos y Vales)
+### Añadido
+- **Módulo de Vales**: Sistema de registro de adelantos de dinero para trabajadores.
+- **Deducción Automática**: Integración en el cálculo de nómina para restar adelantos pendientes del pago neto.
+- **Transparencia en Liquidación**: Visualización detallada de deducciones por adelantos en la sábana de pago semanal.
+
+---
+
+## [1.7.0] - 2024-06-25 (Nómina de Recolección y Pago a Destajo)
+### Añadido
+- **Módulo de Pesaje Global**: Implementación de un formulario centralizado para registrar recolecciones diarias vinculando Trabajador, Lote y Kilos.
+- **Cálculo de Pago a Destajo**: Automatización del cálculo de liquidación basado en tarifas por Kilo o Arroba (12.5kg).
+- **Consolidación Semanal**: La liquidación semanal ahora muestra el acumulado de kilos entregados por cada recolector.
+- **UX de Campo**: Inclusión de accesos rápidos para registro de pesajes desde el panel de beneficio de café.
+
+---
+
+## [1.6.0] - 2024-06-25 (Trazabilidad Física en Beneficio)
+### Añadido
+- **Vínculo de Infraestructura**: Integración obligatoria de instalaciones físicas (Beneficiaderos, Tanques, Secaderos, Marquesinas) en el flujo de transformación de café.
+- **Flujos de Selección Inteligente**: Implementación de selectores dinámicos que filtran infraestructuras por categoría según la etapa del proceso (ej. solo marquesinas para el secado).
+- **Autocompletado Logístico**: Lógica que auto-selecciona la instalación si solo existe una disponible, agilizando el registro en campo.
+- **Historial de Planta**: Registro del nombre de la infraestructura en el inventario final de bodega para auditorías de calidad en taza.
+
+---
+
 ## [1.5.0] - 2024-06-25 (Rendimiento por Lote)
 ### Añadido
 - **Vínculo de Cosecha a Lotes**: Modificación del flujo de beneficio para permitir la selección obligatoria del lote de origen.

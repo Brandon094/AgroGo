@@ -1,19 +1,18 @@
-# Walkthrough: Rendimiento por Lote y Análisis de Productividad (AgroGo v1.5.0)
+# Walkthrough: Gestión de Adelantos y Deducciones de Nómina (AgroGo v1.8.0)
 
-Este walkthrough detalla la implementación del análisis de rendimiento agrícola, permitiendo vincular la cosecha a lotes específicos para optimizar la toma de decisiones en campo.
+Este walkthrough detalla la implementación del sistema de vales y adelantos para trabajadores, garantizando una liquidación final transparente y automática.
 
 ---
 
 ## Lo Completado Hoy
 
-### 1. Trazabilidad de Cosecha por Lote
-- **Vínculo Obligatorio**: Se integró un selector de lotes en el flujo de inicio de beneficio. Ahora, cada kilogramo de café procesado tiene una "cédula de origen" que indica de qué zona del mapa proviene.
-- **Visualización de Productividad**: Las tarjetas de los lotes agrícolas ahora muestran un indicador de "Kilos recolectados". Esto permite al administrador ver de un vistazo qué zonas son las más rentables de la finca.
-- **Orquestación de Datos**: Mejora del `GestionAdministrativaOrchestrator` para cruzar los datos de nómina (recolección) con la ubicación geográfica de los lotes.
+### 1. Módulo de Vales (Adelantos)
+- **Registro de Préstamos**: Se creó una interfaz rápida para anotar adelantos de dinero entregados a los trabajadores durante la semana, incluyendo el motivo del mismo.
+- **Persistencia de Auditoría**: Cada vale queda guardado en la base de datos vinculado al trabajador, permitiendo un historial claro para evitar confusiones al momento del pago.
 
-### 2. Logística y Operación
-- **Priorización en Campo**: Con el análisis de rendimiento, el usuario puede identificar áreas con maduración lenta o rápida, optimizando la asignación de recolectores para las siguientes semanas.
-- **Transparencia en Beneficio**: Los lotes en proceso de beneficio ahora muestran su procedencia, facilitando el control de calidad por origen (ej. identificar qué lote produce mejor café pergamino).
+### 2. Deducción Automática en Nómina
+- **Neto a Pagar**: El motor de liquidación semanal ahora escanea todos los vales pendientes y los resta automáticamente del total ganado (ya sea por kilos o por jornal).
+- **Visualización Transparente**: La sábana de pago semanal ahora detalla el descuento por adelantos, mostrando al administrador exactamente cuánto debe entregar en efectivo a cada trabajador.
 
 ### 1. Gestión Patrimonial (Bodega Virtual)
 - **Valoración de Activos**: Se implementó la capacidad de registrar el valor unitario de insumos y maquinaria. El sistema calcula automáticamente el capital total inmovilizado en el inventario.

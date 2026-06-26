@@ -106,4 +106,35 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 8.4 | Persistencia de Origen | Cerrar y abrir la app tras un beneficio vinculado. | El origen del lote debe mantenerse visible en la lista de beneficio. |
 
 ---
+
+## 🏗️ Fase 9: Trazabilidad Física e Infraestructura
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 9.1 | Selección Planta | Iniciar des pulpado con varios beneficiaderos creados. | El sistema debe obligar a seleccionar uno antes de continuar. |
+| 9.2 | Autocompletado | Iniciar des pulpado con solo un beneficiadero en el mapa. | El sistema lo selecciona automáticamente (Banner azul). |
+| 9.3 | Filtro Secaderos | Avanzar a etapa de secado. | El selector solo debe mostrar Marquesinas o Secaderos (no establos ni bodegas). |
+| 9.4 | Registro en Bodega | Finalizar proceso de café Pergamino. | El ítem en bodega debe incluir en su nombre/metadata la planta y secadero usados. |
+
+---
+
+## 👥 Fase 10: Nómina y Pago a Destajo
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 10.1 | Registro Pesaje | Registrar recolección desde el panel de beneficio. | Debe permitir elegir Trabajador y Lote, mostrando el pago estimado en vivo. |
+| 10.2 | Cálculo por Arroba | Elegir sistema 'Por Arroba' con 25kg y tarifa $10,000. | El pago debe ser exactamente $20,000 (2 arrobas). |
+| 10.3 | Descuento Comida | Activar switch 'Incluye Alimentación'. | Debe restar el costo de comida ($15,000) del pago neto automáticamente. |
+| 10.4 | Sábana de Pago | Ir a 'Liquidación Semanal'. | Cada trabajador debe mostrar el total de kilos entregados y el dinero total a pagar. |
+| 10.5 | Filtro de Rol | Abrir selector de pesaje. | Solo deben aparecer trabajadores con rol 'Recolector'. |
+
+---
+
+## 💸 Fase 11: Gestión de Adelantos (Vales)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 11.1 | Registro Vale | Registrar un vale de $50,000 para un trabajador. | El registro debe guardarse y confirmarse con un SnackBar. |
+| 11.2 | Deducción Nómina | Ir a la Liquidación Semanal tras registrar un vale. | El monto del vale debe aparecer restando al total ganado por el trabajador. |
+| 11.3 | Neto a Pagar | Verificar fórmula: Ganancia - Vales. | El 'Neto a Pagar' debe ser exacto tras la deducción. |
+| 11.4 | Persistencia | Reiniciar app tras pago de nómina. | El vale debe seguir marcado como parte del historial de pagos (proyectado para fase de cierre). |
+
+---
 **Elaborado por: Chop Code Solutions - QA Team**
