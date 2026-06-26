@@ -92,9 +92,22 @@ class PantallaNominaSemanal extends ConsumerWidget {
                               child: const Icon(Icons.payments_rounded, color: Color(0xFF00695C)),
                             ),
                             title: Text(trabajador.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-                            subtitle: const Text('Acumulado semana', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${item.totalKilos.toStringAsFixed(1)} kg entregados', 
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)
+                                ),
+                                if (item.totalAdelantos > 0)
+                                  Text(
+                                    'Adelantos: -${Formateadores.formatearMoneda(item.totalAdelantos)}',
+                                    style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+                                  ),
+                              ],
+                            ),
                             trailing: Text(
-                              Formateadores.formatearMoneda(item.totalPagar), 
+                              Formateadores.formatearMoneda(item.netoAPagar),
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32))
                             ),
                           ),

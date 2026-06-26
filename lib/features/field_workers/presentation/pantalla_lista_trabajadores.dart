@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'providers/trabajadores_notifier.dart';
+import 'providers/adelantos_notifier.dart';
 import 'providers/gestion_administrativa_orchestrator.dart';
 import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 import '../../maps_and_lots/domain/lote_model.dart';
@@ -195,6 +196,18 @@ class _TarjetaTrabajador extends ConsumerWidget {
                     label: const Text('REGISTRAR LABOR'),
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey,
+                      minimumSize: const Size(0, 56),
+                    ),
+                    onPressed: () => _mostrarFormAdelanto(context, ref),
+                    icon: const Icon(Icons.money_off_rounded),
+                    label: const Text('REGISTRAR VALE'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -209,6 +222,15 @@ class _TarjetaTrabajador extends ConsumerWidget {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (context) => _FormularioRegistroLabor(trabajador: trabajador),
+    );
+  }
+
+  void _mostrarFormAdelanto(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) => _FormularioAdelantoModal(trabajador: trabajador),
     );
   }
 
@@ -409,6 +431,72 @@ class _FormularioRegistroLaborState extends ConsumerState<_FormularioRegistroLab
               }
             },
             child: const Text('GUARDAR REGISTRO'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FormularioAdelantoModal extends ConsumerStatefulWidget {
+  final TrabajadorEntity trabajador;
+  const _FormularioAdelantoModal({required this.trabajador});
+  @override
+  ConsumerState<_FormularioAdelantoModal> createState() => _FormularioAdelantoModalState();
+}
+
+class _FormularioAdelantoModalState extends ConsumerState<_FormularioAdelantoModal> {
+  final _montoCtrl = TextEditingController();
+  final _motivoCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _montoCtrl.dispose();
+    _motivoCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Vale: ${widget.trabajador.nombreCompleto}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _montoCtrl,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Monto del Adelanto', prefixIcon: Icon(Icons.payments_rounded), suffixText: 'COP'),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _motivoCtrl,
+            decoration: const InputDecoration(labelText: 'Motivo (Opcional)', prefixIcon: Icon(Icons.notes_rounded)),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () async {
+              final monto = double.tryParse(_montoCtrl.text);
+              if (monto == null || monto <= 0) return;
+
+              await ref.read(adelantosNotifierProvider.notifier).agregarAdelanto(
+                trabajadorId: widget.trabajador.id,
+                monto: monto,
+                motivo: _motivoCtrl.text.trim(),
+              );
+
+              if (mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Vale registrado con éxito'), backgroundColor: Colors.blueGrey),
+                );
+              }
+            },
+            child: const Text('GUARDAR VALE'),
           ),
         ],
       ),
