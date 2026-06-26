@@ -74,4 +74,36 @@ Este documento detalla el protocolo para validar la estabilidad y precisión de 
 | 5.6 | Pestañas Pecuarias | Cambiar entre 'ACTIVOS' e 'HISTORIAL'. | Se filtran correctamente los animales según su estado `estaActivo`. |
 
 ---
+
+## 🟤 Fase 6: Gestión por Lotes (Batch Tracking)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 6.1 | Registro Grupal | Crear un grupo de 50 animales con valor unitario. | Se guarda cantidad inicial/actual como 50 y calcula inversión total. |
+| 6.2 | Prorrateo Real | Añadir alimento al lote de 50. | El 'Costo Unitario' aumenta proporcionalmente para cada animal. |
+| 6.3 | Salida Parcial | Vender 10 animales del lote de 50. | El stock baja a 40, se registra el ingreso y el lote sigue en 'ACTIVOS'. |
+| 6.4 | Cierre Total | Vender los 40 animales restantes. | El lote pasa a 'HISTORIAL' y consolida la utilidad de todas las ventas parciales. |
+| 6.5 | Validación Stock | Intentar vender 60 animales de un lote de 50. | El sistema bloquea la acción por falta de stock. |
+
+---
+
+## ☕ Fase 7: Transformación de Café (Valor Agregado)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 7.1 | Flujo Post-Secado | Terminar el secado de un lote de café. | El botón debe cambiar de 'FINALIZAR' a 'PASAR A TOSTADO'. |
+| 7.2 | Registro de Tostado | Avanzar lote a 'Tostado' ingresando costo. | El estado cambia a 'TOSTADO', se crea el gasto y el badge en bodega se actualiza. |
+| 7.3 | Registro de Molienda | Avanzar lote a 'Molido' ingresando costo. | El estado cambia a 'MOLIDO', se suma el gasto operativo y se actualiza el producto en bodega. |
+| 7.4 | Trazabilidad Bodega | Observar un lote molido en la Bodega. | El nombre debe decir 'Café Molido (Lote ID)' con su iconografía gris. |
+| 7.5 | Bloqueo de Estados | Intentar avanzar un lote ya vendido. | Los botones de transformación deben estar deshabilitados. |
+
+---
+
+## 📍 Fase 8: Rendimiento por Lote (Trazabilidad Agrícola)
+| ID | Caso de Prueba | Acción | Resultado Esperado |
+|:---|:---|:---|:---|
+| 8.1 | Vínculo de Origen | Iniciar des pulpado seleccionando un lote. | El registro de beneficio debe mostrar el nombre del lote origen. |
+| 8.2 | Dashboard de Lote | Ir a 'Mis Zonas' tras registrar recolección. | La tarjeta del lote agrícola debe mostrar el acumulado de kilos recolectados. |
+| 8.3 | Filtrado de Productividad | Registrar recolección en dos lotes distintos. | Cada lote debe mostrar solo sus kilos correspondientes (sin cruces de datos). |
+| 8.4 | Persistencia de Origen | Cerrar y abrir la app tras un beneficio vinculado. | El origen del lote debe mantenerse visible en la lista de beneficio. |
+
+---
 **Elaborado por: Chop Code Solutions - QA Team**

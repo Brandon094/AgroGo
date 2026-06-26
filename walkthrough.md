@@ -1,20 +1,19 @@
-# Walkthrough: Rediseño de Bodega y Expansión Logística (AgroGo v1.2.0)
+# Walkthrough: Rendimiento por Lote y Análisis de Productividad (AgroGo v1.5.0)
 
-Este walkthrough detalla la evolución de la **Bodega Virtual** como núcleo logístico de la finca, mejorando la experiencia de usuario y el soporte para múltiples tipos de activos.
+Este walkthrough detalla la implementación del análisis de rendimiento agrícola, permitiendo vincular la cosecha a lotes específicos para optimizar la toma de decisiones en campo.
 
 ---
 
 ## Lo Completado Hoy
 
-### 1. UX Logística Avanzada
-- **TabBar Deslizable**: Se habilitó el desplazamiento horizontal en las pestañas de la bodega. Esto permite navegar entre múltiples categorías sin que el diseño se rompa o se amontone.
-- **Accesibilidad y Contraste**: Se corrigió el color de las pestañas inactivas para asegurar que el usuario pueda leerlas cómodamente en campo.
-- **Empty States Inteligentes**: Los mensajes de "sin datos" ahora son específicos. Si entras a Veterinaria y no hay nada, la app te dice exactamente "Sin medicamentos registrados" con su icono respectivo.
+### 1. Trazabilidad de Cosecha por Lote
+- **Vínculo Obligatorio**: Se integró un selector de lotes en el flujo de inicio de beneficio. Ahora, cada kilogramo de café procesado tiene una "cédula de origen" que indica de qué zona del mapa proviene.
+- **Visualización de Productividad**: Las tarjetas de los lotes agrícolas ahora muestran un indicador de "Kilos recolectados". Esto permite al administrador ver de un vistazo qué zonas son las más rentables de la finca.
+- **Orquestación de Datos**: Mejora del `GestionAdministrativaOrchestrator` para cruzar los datos de nómina (recolección) con la ubicación geográfica de los lotes.
 
-### 2. Expansión de Categorías
-- **Módulo de Veterinaria**: Espacio dedicado para el stock de medicinas y nutrición animal, vinculado a la trazabilidad pecuaria.
-- **Módulo de Consumibles**: Categoría para combustibles, aceites y lubricantes, separándolos de la maquinaria física.
-- **Unidades Adaptativas**: El sistema sugiere automáticamente las unidades de medida más comunes (Ml, Unds, Gals) según la categoría elegida en el registro.
+### 2. Logística y Operación
+- **Priorización en Campo**: Con el análisis de rendimiento, el usuario puede identificar áreas con maduración lenta o rápida, optimizando la asignación de recolectores para las siguientes semanas.
+- **Transparencia en Beneficio**: Los lotes en proceso de beneficio ahora muestran su procedencia, facilitando el control de calidad por origen (ej. identificar qué lote produce mejor café pergamino).
 
 ### 1. Gestión Patrimonial (Bodega Virtual)
 - **Valoración de Activos**: Se implementó la capacidad de registrar el valor unitario de insumos y maquinaria. El sistema calcula automáticamente el capital total inmovilizado en el inventario.

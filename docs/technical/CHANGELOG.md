@@ -4,6 +4,39 @@ Todos los cambios notables en este proyecto serán documentados en este archivo 
 
 ---
 
+## [1.5.0] - 2024-06-25 (Rendimiento por Lote)
+### Añadido
+- **Vínculo de Cosecha a Lotes**: Modificación del flujo de beneficio para permitir la selección obligatoria del lote de origen.
+- **Análisis de Productividad**: Implementación de un indicador de kilos recolectados en tiempo real dentro de la tarjeta de cada lote agrícola.
+- **Orquestación Pecuario-Agrícola**: Mejora en el `GestionAdministrativaOrchestrator` para calcular el rendimiento histórico por zona.
+- **Trazabilidad en Beneficio**: Los lotes de café en proceso ahora muestran explícitamente su zona de origen.
+
+---
+
+## [1.4.0] - 2024-06-25 (Transformación de Café: Tostado y Molienda)
+### Añadido
+- **Módulo de Transformación**: Implementación de las etapas de 'Tostado' y 'Molienda' en el asistente de beneficio de café.
+- **Tracking de Valor Agregado**: Capacidad de registrar costos operativos específicos para el procesamiento de grano (tostado/molido).
+- **Inventario Inteligente**: Actualización automática del tipo de producto en la bodega (Pergamino -> Tostado -> Molido) según el avance en el proceso.
+- **Contabilidad de Lote**: Imputación de costos de procesamiento al balance financiero del lote correspondiente.
+
+### Mejorado
+- **Asistente de Beneficio**: Interfaz extendida para guiar al usuario a través de la transformación total de la cosecha.
+
+---
+
+## [1.3.0] - 2024-06-25 (Gestión por Lotes y Salidas Parciales)
+### Añadido
+- **Seguimiento por Lotes (Batch Tracking)**: Capacidad de registrar animales en grupos con tracking de 'Cantidad Inicial' y 'Cantidad Actual'.
+- **Salidas Parciales**: Implementación de ventas o beneficios por tandas, permitiendo reducir el stock del lote sin cerrarlo completamente.
+- **Motor de Prorrateo**: Algoritmo que calcula el costo unitario en tiempo real (Inversión + Insumos / Cantidad), asegurando que los animales que salen se lleven su parte proporcional del costo.
+- **Utilidades Acumuladas**: Nuevo sistema de rastreo de ganancias que consolida el resultado financiero de todas las salidas parciales de un mismo lote.
+
+### Mejorado
+- **UX de Venta**: El formulario de cierre ahora pregunta la cantidad exacta de animales a procesar y muestra el stock remanente.
+
+---
+
 ## [1.2.0] - 2024-06-25 (Rediseño de Bodega y Expansión Logística)
 ### Añadido
 - **Nuevas Categorías de Inventario**: Incorporación de las secciones 'Veterinaria' (salud animal) y 'Consumibles' (combustibles y aceites).
