@@ -18,50 +18,70 @@ const BeneficioIsarModelSchema = CollectionSchema(
   name: r'BeneficioIsarModel',
   id: 7450458984209709136,
   properties: {
-    r'costoProcesamiento': PropertySchema(
+    r'beneficiaderoId': PropertySchema(
       id: 0,
+      name: r'beneficiaderoId',
+      type: IsarType.long,
+    ),
+    r'beneficiaderoNombre': PropertySchema(
+      id: 1,
+      name: r'beneficiaderoNombre',
+      type: IsarType.string,
+    ),
+    r'costoProcesamiento': PropertySchema(
+      id: 2,
       name: r'costoProcesamiento',
       type: IsarType.double,
     ),
     r'estaMolido': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'estaMolido',
       type: IsarType.bool,
     ),
     r'estaTostado': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'estaTostado',
       type: IsarType.bool,
     ),
     r'estado': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'estado',
       type: IsarType.byte,
       enumMap: _BeneficioIsarModelestadoEnumValueMap,
     ),
     r'fechaInicio': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'fechaInicio',
       type: IsarType.dateTime,
     ),
     r'fincaId': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'fincaId',
       type: IsarType.long,
     ),
     r'kilosCereza': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'kilosCereza',
       type: IsarType.double,
     ),
     r'kilosFinales': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'kilosFinales',
       type: IsarType.double,
     ),
     r'loteOrigenNombre': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'loteOrigenNombre',
+      type: IsarType.string,
+    ),
+    r'secaderoId': PropertySchema(
+      id: 11,
+      name: r'secaderoId',
+      type: IsarType.long,
+    ),
+    r'secaderoNombre': PropertySchema(
+      id: 12,
+      name: r'secaderoNombre',
       type: IsarType.string,
     )
   },
@@ -86,7 +106,19 @@ int _beneficioIsarModelEstimateSize(
 ) {
   var bytesCount = offsets.last;
   {
+    final value = object.beneficiaderoNombre;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.loteOrigenNombre;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.secaderoNombre;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -100,15 +132,19 @@ void _beneficioIsarModelSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.costoProcesamiento);
-  writer.writeBool(offsets[1], object.estaMolido);
-  writer.writeBool(offsets[2], object.estaTostado);
-  writer.writeByte(offsets[3], object.estado.index);
-  writer.writeDateTime(offsets[4], object.fechaInicio);
-  writer.writeLong(offsets[5], object.fincaId);
-  writer.writeDouble(offsets[6], object.kilosCereza);
-  writer.writeDouble(offsets[7], object.kilosFinales);
-  writer.writeString(offsets[8], object.loteOrigenNombre);
+  writer.writeLong(offsets[0], object.beneficiaderoId);
+  writer.writeString(offsets[1], object.beneficiaderoNombre);
+  writer.writeDouble(offsets[2], object.costoProcesamiento);
+  writer.writeBool(offsets[3], object.estaMolido);
+  writer.writeBool(offsets[4], object.estaTostado);
+  writer.writeByte(offsets[5], object.estado.index);
+  writer.writeDateTime(offsets[6], object.fechaInicio);
+  writer.writeLong(offsets[7], object.fincaId);
+  writer.writeDouble(offsets[8], object.kilosCereza);
+  writer.writeDouble(offsets[9], object.kilosFinales);
+  writer.writeString(offsets[10], object.loteOrigenNombre);
+  writer.writeLong(offsets[11], object.secaderoId);
+  writer.writeString(offsets[12], object.secaderoNombre);
 }
 
 BeneficioIsarModel _beneficioIsarModelDeserialize(
@@ -118,18 +154,22 @@ BeneficioIsarModel _beneficioIsarModelDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BeneficioIsarModel();
-  object.costoProcesamiento = reader.readDouble(offsets[0]);
-  object.estaMolido = reader.readBool(offsets[1]);
-  object.estaTostado = reader.readBool(offsets[2]);
+  object.beneficiaderoId = reader.readLongOrNull(offsets[0]);
+  object.beneficiaderoNombre = reader.readStringOrNull(offsets[1]);
+  object.costoProcesamiento = reader.readDouble(offsets[2]);
+  object.estaMolido = reader.readBool(offsets[3]);
+  object.estaTostado = reader.readBool(offsets[4]);
   object.estado = _BeneficioIsarModelestadoValueEnumMap[
-          reader.readByteOrNull(offsets[3])] ??
+          reader.readByteOrNull(offsets[5])] ??
       EstadoBeneficio.cereza;
-  object.fechaInicio = reader.readDateTime(offsets[4]);
-  object.fincaId = reader.readLongOrNull(offsets[5]);
+  object.fechaInicio = reader.readDateTime(offsets[6]);
+  object.fincaId = reader.readLongOrNull(offsets[7]);
   object.id = id;
-  object.kilosCereza = reader.readDouble(offsets[6]);
-  object.kilosFinales = reader.readDoubleOrNull(offsets[7]);
-  object.loteOrigenNombre = reader.readStringOrNull(offsets[8]);
+  object.kilosCereza = reader.readDouble(offsets[8]);
+  object.kilosFinales = reader.readDoubleOrNull(offsets[9]);
+  object.loteOrigenNombre = reader.readStringOrNull(offsets[10]);
+  object.secaderoId = reader.readLongOrNull(offsets[11]);
+  object.secaderoNombre = reader.readStringOrNull(offsets[12]);
   return object;
 }
 
@@ -141,24 +181,32 @@ P _beneficioIsarModelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readBool(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
       return (_BeneficioIsarModelestadoValueEnumMap[
               reader.readByteOrNull(offset)] ??
           EstadoBeneficio.cereza) as P;
-    case 4:
-      return (reader.readDateTime(offset)) as P;
-    case 5:
-      return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 7:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 8:
+      return (reader.readDouble(offset)) as P;
+    case 9:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 10:
+      return (reader.readStringOrNull(offset)) as P;
+    case 11:
+      return (reader.readLongOrNull(offset)) as P;
+    case 12:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -280,6 +328,234 @@ extension BeneficioIsarModelQueryWhere
 
 extension BeneficioIsarModelQueryFilter
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QFilterCondition> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'beneficiaderoId',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'beneficiaderoId',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'beneficiaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'beneficiaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'beneficiaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'beneficiaderoId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'beneficiaderoNombre',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'beneficiaderoNombre',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'beneficiaderoNombre',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'beneficiaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'beneficiaderoNombre',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'beneficiaderoNombre',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      beneficiaderoNombreIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'beneficiaderoNombre',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
       costoProcesamientoEqualTo(
     double value, {
@@ -911,6 +1187,234 @@ extension BeneficioIsarModelQueryFilter
       ));
     });
   }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'secaderoId',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'secaderoId',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'secaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'secaderoId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'secaderoId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'secaderoNombre',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'secaderoNombre',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'secaderoNombre',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'secaderoNombre',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'secaderoNombre',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secaderoNombre',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterFilterCondition>
+      secaderoNombreIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'secaderoNombre',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension BeneficioIsarModelQueryObject
@@ -921,6 +1425,34 @@ extension BeneficioIsarModelQueryLinks
 
 extension BeneficioIsarModelQuerySortBy
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QSortBy> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByBeneficiaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByBeneficiaderoIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByBeneficiaderoNombre() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoNombre', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortByBeneficiaderoNombreDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoNombre', Sort.desc);
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
       sortByCostoProcesamiento() {
     return QueryBuilder.apply(this, (query) {
@@ -1046,10 +1578,66 @@ extension BeneficioIsarModelQuerySortBy
       return query.addSortBy(r'loteOrigenNombre', Sort.desc);
     });
   }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortBySecaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortBySecaderoIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortBySecaderoNombre() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoNombre', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      sortBySecaderoNombreDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoNombre', Sort.desc);
+    });
+  }
 }
 
 extension BeneficioIsarModelQuerySortThenBy
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QSortThenBy> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByBeneficiaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByBeneficiaderoIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByBeneficiaderoNombre() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoNombre', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenByBeneficiaderoNombreDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'beneficiaderoNombre', Sort.desc);
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
       thenByCostoProcesamiento() {
     return QueryBuilder.apply(this, (query) {
@@ -1189,10 +1777,53 @@ extension BeneficioIsarModelQuerySortThenBy
       return query.addSortBy(r'loteOrigenNombre', Sort.desc);
     });
   }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenBySecaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenBySecaderoIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenBySecaderoNombre() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoNombre', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QAfterSortBy>
+      thenBySecaderoNombreDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secaderoNombre', Sort.desc);
+    });
+  }
 }
 
 extension BeneficioIsarModelQueryWhereDistinct
     on QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct> {
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctByBeneficiaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'beneficiaderoId');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctByBeneficiaderoNombre({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'beneficiaderoNombre',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
       distinctByCostoProcesamiento() {
     return QueryBuilder.apply(this, (query) {
@@ -1256,6 +1887,21 @@ extension BeneficioIsarModelQueryWhereDistinct
           caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctBySecaderoId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'secaderoId');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, BeneficioIsarModel, QDistinct>
+      distinctBySecaderoNombre({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'secaderoNombre',
+          caseSensitive: caseSensitive);
+    });
+  }
 }
 
 extension BeneficioIsarModelQueryProperty
@@ -1263,6 +1909,20 @@ extension BeneficioIsarModelQueryProperty
   QueryBuilder<BeneficioIsarModel, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, int?, QQueryOperations>
+      beneficiaderoIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'beneficiaderoId');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, String?, QQueryOperations>
+      beneficiaderoNombreProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'beneficiaderoNombre');
     });
   }
 
@@ -1325,6 +1985,20 @@ extension BeneficioIsarModelQueryProperty
       loteOrigenNombreProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'loteOrigenNombre');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, int?, QQueryOperations>
+      secaderoIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'secaderoId');
+    });
+  }
+
+  QueryBuilder<BeneficioIsarModel, String?, QQueryOperations>
+      secaderoNombreProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'secaderoNombre');
     });
   }
 }

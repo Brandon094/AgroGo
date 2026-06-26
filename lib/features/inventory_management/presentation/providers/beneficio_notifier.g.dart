@@ -6,7 +6,7 @@ part of 'beneficio_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$beneficioNotifierHash() => r'b1dfe8173209b6a49f36f40540d9c4511fcff7ea';
+String _$beneficioNotifierHash() => r'6fc7bf119e4e1afac489b6d893dbac7effeb9c0e';
 
 /// See also [BeneficioNotifier].
 @ProviderFor(BeneficioNotifier)

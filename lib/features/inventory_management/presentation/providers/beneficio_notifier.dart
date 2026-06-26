@@ -51,16 +51,22 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     return labores.fold<double>(0, (sum, l) => sum + (l.cantidadKilos ?? 0));
   }
 
-  Future<void> iniciarNuevoBeneficio(double kilos, {String? loteId}) async {
+  Future<void> iniciarNuevoBeneficio(double kilos, {String? loteId, String? beneficiaderoId}) async {
     state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     
     // Si tenemos loteId, intentamos obtener su nombre para el registro
     String? nombreLote;
+    final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
     if (loteId != null) {
-      final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
       final lote = lotes.firstWhere((l) => l.id == loteId, orElse: () => const Lote(id: '', nombre: 'Lote Desconocido', uso: TipoUsoLote.agricola, subCategoria: '', areaEnHectareas: 0, numeroMatas: 0, coordenadas: []));
       if (lote.id.isNotEmpty) nombreLote = lote.nombre;
+    }
+
+    String? nombreBeneficiadero;
+    if (beneficiaderoId != null) {
+      final infra = lotes.firstWhere((l) => l.id == beneficiaderoId, orElse: () => const Lote(id: '', nombre: 'Desconocido', uso: TipoUsoLote.infraestructura, subCategoria: '', areaEnHectareas: 0, numeroMatas: 0, coordenadas: []));
+      nombreBeneficiadero = infra.nombre;
     }
 
     final nuevo = BeneficioEntity(
@@ -70,6 +76,8 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       kilosCereza: kilos,
       estado: EstadoBeneficio.cereza,
       loteOrigenNombre: nombreLote,
+      beneficiaderoId: beneficiaderoId,
+      beneficiaderoNombre: nombreBeneficiadero,
     );
 
     final isar = ref.read(isarProvider);
@@ -80,21 +88,26 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     ref.invalidateSelf();
   }
 
-  Future<void> avanzarEstado(BeneficioEntity beneficio, {double? kilosFinales, double? costoAdicional}) async {
+  Future<void> avanzarEstado(BeneficioEntity beneficio, {double? kilosFinales, double? costoAdicional, String? secaderoId}) async {
     final isar = ref.read(isarProvider);
+    final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
     
     EstadoBeneficio nuevoEstado = beneficio.estado;
     bool estaTostado = beneficio.estaTostado;
     bool estaMolido = beneficio.estaMolido;
     double costoProcesamiento = beneficio.costoProcesamiento + (costoAdicional ?? 0.0);
+    String? secaderoNombre = beneficio.secaderoNombre;
 
     if (beneficio.estado == EstadoBeneficio.cereza) {
       nuevoEstado = EstadoBeneficio.lavado;
     } else if (beneficio.estado == EstadoBeneficio.lavado) {
       nuevoEstado = EstadoBeneficio.secado;
+      if (secaderoId != null) {
+        final infra = lotes.firstWhere((l) => l.id == secaderoId, orElse: () => const Lote(id: '', nombre: 'Desconocido', uso: TipoUsoLote.infraestructura, subCategoria: '', areaEnHectareas: 0, numeroMatas: 0, coordenadas: []));
+        secaderoNombre = infra.nombre;
+      }
     } else if (beneficio.estado == EstadoBeneficio.secado) {
       nuevoEstado = EstadoBeneficio.listo;
-      // Al finalizar secado, entra a bodega como pergamino si el usuario no decide procesar más
     } else if (beneficio.estado == EstadoBeneficio.listo) {
       nuevoEstado = EstadoBeneficio.tostado;
       estaTostado = true;
@@ -118,6 +131,8 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       estaTostado: estaTostado,
       estaMolido: estaMolido,
       costoProcesamiento: costoProcesamiento,
+      secaderoId: secaderoId ?? beneficio.secaderoId,
+      secaderoNombre: secaderoNombre,
     );
 
     await isar.writeTxn(() async {
@@ -130,8 +145,13 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       if (estaMolido) nombreBodega = 'Café Molido';
       else if (estaTostado) nombreBodega = 'Café Tostado';
 
+      String metadata = '';
+      if (beneficio.loteOrigenNombre != null) metadata += ' (Origen: ${beneficio.loteOrigenNombre})';
+      if (beneficio.beneficiaderoNombre != null) metadata += ' (Beneficiadero: ${beneficio.beneficiaderoNombre})';
+      if (secaderoNombre != null) metadata += ' (Secadero: $secaderoNombre)';
+
       await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
-        nombre: '$nombreBodega (Lote ${beneficio.id})',
+        nombre: '$nombreBodega (Lote ${beneficio.id})$metadata',
         unidad: 'Kilos',
         stockInicial: kilosFinales ?? beneficio.kilosFinales ?? 0.0,
         categoria: CategoriaInsumo.cosecha,

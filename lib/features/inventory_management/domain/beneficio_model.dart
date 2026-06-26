@@ -21,6 +21,11 @@ class BeneficioEntity {
   final bool estaMolido;
   final double costoProcesamiento;
 
+  final String? beneficiaderoId;
+  final String? beneficiaderoNombre;
+  final String? secaderoId;
+  final String? secaderoNombre;
+
   const BeneficioEntity({
     required this.id,
     this.fincaId,
@@ -32,6 +37,10 @@ class BeneficioEntity {
     this.estaTostado = false,
     this.estaMolido = false,
     this.costoProcesamiento = 0.0,
+    this.beneficiaderoId,
+    this.beneficiaderoNombre,
+    this.secaderoId,
+    this.secaderoNombre,
   });
 
   BeneficioEntity copyWith({
@@ -45,6 +54,10 @@ class BeneficioEntity {
     bool? estaTostado,
     bool? estaMolido,
     double? costoProcesamiento,
+    String? beneficiaderoId,
+    String? beneficiaderoNombre,
+    String? secaderoId,
+    String? secaderoNombre,
   }) {
     return BeneficioEntity(
       id: id ?? this.id,
@@ -57,6 +70,10 @@ class BeneficioEntity {
       estaTostado: estaTostado ?? this.estaTostado,
       estaMolido: estaMolido ?? this.estaMolido,
       costoProcesamiento: costoProcesamiento ?? this.costoProcesamiento,
+      beneficiaderoId: beneficiaderoId ?? this.beneficiaderoId,
+      beneficiaderoNombre: beneficiaderoNombre ?? this.beneficiaderoNombre,
+      secaderoId: secaderoId ?? this.secaderoId,
+      secaderoNombre: secaderoNombre ?? this.secaderoNombre,
     );
   }
 }

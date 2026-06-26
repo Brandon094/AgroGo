@@ -6,6 +6,13 @@ import '../domain/beneficio_model.dart';
 import '../../maps_and_lots/domain/lote_model.dart';
 import '../../maps_and_lots/presentation/providers/panel_lotes_notifier.dart';
 
+import 'package:agrogo/features/field_workers/presentation/providers/trabajadores_notifier.dart';
+import 'package:agrogo/features/field_workers/presentation/providers/gestion_administrativa_orchestrator.dart';
+import 'package:agrogo/features/field_workers/domain/trabajador_model.dart';
+import 'package:agrogo/features/field_workers/data/registro_labor_isar_model.dart';
+import 'package:agrogo/core/utils/formatters.dart';
+import 'package:flutter/services.dart';
+
 class PantallaProcesoCafe extends ConsumerWidget {
   const PantallaProcesoCafe({super.key});
 
@@ -55,6 +62,7 @@ class _BannerRecoleccionSemanal extends ConsumerStatefulWidget {
 
 class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSemanal> {
   Lote? _loteSeleccionado;
+  Lote? _beneficiaderoSeleccionado;
 
   @override
   Widget build(BuildContext context) {
@@ -80,43 +88,62 @@ class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSem
               Text('${kilos.toStringAsFixed(1)} kg Cereza', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
               const SizedBox(height: 20),
               
-              // Selector de Lote para el beneficio
+              // Selectores de Lote e Infraestructura
               lotesAsync.maybeWhen(
                 data: (lotes) {
                   final agricolas = lotes.where((l) => l.uso == TipoUsoLote.agricola).toList();
-                  if (agricolas.isEmpty) return const SizedBox.shrink();
+                  final beneficiaderos = lotes.where((l) => l.uso == TipoUsoLote.infraestructura && (l.subCategoria == 'Beneficiadero' || l.subCategoria == 'Tanque')).toList();
                   
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: DropdownButton<Lote>(
-                      value: _loteSeleccionado,
-                      hint: const Text('Vincular a un lote', style: TextStyle(color: Colors.white60)),
-                      dropdownColor: const Color(0xFF3E2723),
-                      underline: const SizedBox(),
-                      isExpanded: true,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      items: agricolas.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
-                      onChanged: (v) => setState(() => _loteSeleccionado = v),
-                    ),
+                  // Autocompletado por defecto si solo hay uno
+                  if (_beneficiaderoSeleccionado == null && beneficiaderos.length == 1) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => _beneficiaderoSeleccionado = beneficiaderos.first));
+                  }
+
+                  if (agricolas.isEmpty && beneficiaderos.isEmpty) return const SizedBox.shrink();
+                  
+                  return Column(
+                    children: [
+                      if (agricolas.isNotEmpty) 
+                        _buildDropdown<Lote>(
+                          label: 'Lote de Origen',
+                          value: _loteSeleccionado,
+                          items: agricolas,
+                          onChanged: (v) => setState(() => _loteSeleccionado = v),
+                        ),
+                      const SizedBox(height: 12),
+                      if (beneficiaderos.isNotEmpty)
+                        _buildDropdown<Lote>(
+                          label: 'Beneficiadero / Tanque',
+                          value: _beneficiaderoSeleccionado,
+                          items: beneficiaderos,
+                          onChanged: (v) => setState(() => _beneficiaderoSeleccionado = v),
+                        ),
+                      const SizedBox(height: 20),
+                    ],
                   );
                 },
                 orElse: () => const SizedBox.shrink(),
               ),
 
               ElevatedButton.icon(
-                onPressed: kilos > 0 ? () => _iniciarProceso(context, ref, kilos, _loteSeleccionado?.id) : null,
+                onPressed: kilos > 0 ? () => _iniciarProceso(context, ref, kilos, _loteSeleccionado?.id, _beneficiaderoSeleccionado?.id) : null,
                 icon: const Icon(Icons.settings_input_component_rounded),
                 label: const Text('INICIAR DESPULPADO'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF57C00),
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 56),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => _mostrarFormRecoleccion(context, ref),
+                icon: const Icon(Icons.add_task_rounded),
+                label: const Text('REGISTRAR PESAJE (NUEVA RECOLECCIÓN)', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.white24),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
               ),
             ],
@@ -126,7 +153,37 @@ class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSem
     );
   }
 
-  void _iniciarProceso(BuildContext context, WidgetRef ref, double kilos, String? loteId) {
+  void _mostrarFormRecoleccion(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) => const _FormularioRecoleccionGlobal(),
+    );
+  }
+
+  Widget _buildDropdown<T extends Lote>({required String label, T? value, required List<T> items, required ValueChanged<T?> onChanged}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: DropdownButton<T>(
+        value: value,
+        hint: Text(label, style: const TextStyle(color: Colors.white60, fontSize: 13)),
+        dropdownColor: const Color(0xFF3E2723),
+        underline: const SizedBox(),
+        isExpanded: true,
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+        items: items.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  void _iniciarProceso(BuildContext context, WidgetRef ref, double kilos, String? loteId, String? beneficiaderoId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -136,7 +193,7 @@ class _BannerRecoleccionSemanalState extends ConsumerState<_BannerRecoleccionSem
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           ElevatedButton(
             onPressed: () {
-              ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos, loteId: loteId);
+              ref.read(beneficioNotifierProvider.notifier).iniciarNuevoBeneficio(kilos, loteId: loteId, beneficiaderoId: beneficiaderoId);
               Navigator.pop(context);
             },
             child: const Text('INICIAR'),
@@ -171,13 +228,26 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${beneficio.kilosCereza} kg Cereza inicial', style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (beneficio.loteOrigenNombre != null)
+                if (beneficio.loteOrigenNombre != null || beneficio.beneficiaderoNombre != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Row(
                       children: [
-                        const Icon(Icons.landscape_rounded, size: 12, color: Colors.teal),
-                        Text(' Origen: ${beneficio.loteOrigenNombre}', style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
+                        const Icon(Icons.location_on_rounded, size: 12, color: Colors.teal),
+                        Text(
+                          ' ${beneficio.loteOrigenNombre ?? 'Sin lote'} • ${beneficio.beneficiaderoNombre ?? 'Sin planta'}', 
+                          style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)
+                        ),
+                      ],
+                    ),
+                  ),
+                if (beneficio.secaderoNombre != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.wb_sunny_rounded, size: 12, color: Colors.orange),
+                        Text(' Secado en: ${beneficio.secaderoNombre}', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -298,7 +368,44 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
   }
 
   void _avanzarLote(BuildContext context, WidgetRef ref) {
-    if (beneficio.estado == EstadoBeneficio.secado) {
+    if (beneficio.estado == EstadoBeneficio.lavado) {
+      // Pedir en qué secadero/marquesina se pondrá
+      final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
+      final secaderos = lotes.where((l) => l.uso == TipoUsoLote.infraestructura && (l.subCategoria == 'Secadero' || l.subCategoria == 'Marquesina')).toList();
+      Lote? seleccionado = secaderos.length == 1 ? secaderos.first : null;
+
+      showDialog(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('Iniciar Secado'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Seleccione el área de secado donde ubicará este lote:', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<Lote>(
+                  value: seleccionado,
+                  items: secaderos.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
+                  onChanged: (v) => setDialogState(() => seleccionado = v),
+                  decoration: const InputDecoration(labelText: 'Secadero / Marquesina', border: OutlineInputBorder()),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio, secaderoId: seleccionado?.id);
+                  Navigator.pop(context);
+                }, 
+                child: const Text('EMPEZAR SECADO')
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (beneficio.estado == EstadoBeneficio.secado) {
       // Pedir el peso final del pergamino
       final pesoCtrl = TextEditingController();
       showDialog(
@@ -361,5 +468,194 @@ class _TarjetaLoteBeneficio extends ConsumerWidget {
     } else {
       ref.read(beneficioNotifierProvider.notifier).avanzarEstado(beneficio);
     }
+  }
+}
+
+class _FormularioRecoleccionGlobal extends ConsumerStatefulWidget {
+  const _FormularioRecoleccionGlobal();
+  @override
+  ConsumerState<_FormularioRecoleccionGlobal> createState() => _FormularioRecoleccionGlobalState();
+}
+
+class _FormularioRecoleccionGlobalState extends ConsumerState<_FormularioRecoleccionGlobal> {
+  final _kilosCtrl = TextEditingController();
+  Lote? _loteSeleccionado;
+  TrabajadorEntity? _trabajadorSeleccionado;
+  bool _conComida = false;
+  String _tipoPago = 'porKilo';
+  double _pagoEstimado = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _kilosCtrl.addListener(_recalcularPago);
+  }
+
+  void _recalcularPago() {
+    if (_trabajadorSeleccionado == null) return;
+    setState(() {
+      _pagoEstimado = RegistroLaborIsarModel.calcularPago(
+        tipo: _tipoPago,
+        kilos: double.tryParse(_kilosCtrl.text),
+        tarifaBase: _trabajadorSeleccionado!.tarifaBase,
+        conAlimentacion: _conComida,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _kilosCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lotesAsync = ref.watch(panelLotesNotifierProvider);
+    final trabajadoresAsync = ref.watch(trabajadoresNotifierProvider);
+    final padding = MediaQuery.of(context).viewInsets.bottom;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(28, 32, 28, 32 + padding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Nueva Recolección', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF37474F))),
+          const SizedBox(height: 24),
+          
+          // Selector de Trabajador
+          trabajadoresAsync.maybeWhen(
+            data: (list) {
+              final recolectores = list.where((t) => t.tipoTrabajador == 'Recolector').toList();
+              return DropdownButtonFormField<TrabajadorEntity>(
+                value: _trabajadorSeleccionado,
+                decoration: const InputDecoration(labelText: '¿Quién recolectó?', prefixIcon: Icon(Icons.person_search_rounded)),
+                items: recolectores.map((t) => DropdownMenuItem(value: t, child: Text(t.nombreCompleto))).toList(),
+                onChanged: (v) {
+                  setState(() {
+                    _trabajadorSeleccionado = v;
+                    if (v != null) _tipoPago = 'porKilo'; // Reset a kilo para recolectores
+                  });
+                  _recalcularPago();
+                },
+              );
+            },
+            orElse: () => const Text('Cargando equipo...'),
+          ),
+
+          const SizedBox(height: 16),
+          
+          // Selector de Lote
+          lotesAsync.maybeWhen(
+            data: (lotes) {
+              final agricolas = lotes.where((l) => l.uso == TipoUsoLote.agricola).toList();
+              return DropdownButtonFormField<Lote>(
+                value: _loteSeleccionado,
+                decoration: const InputDecoration(labelText: 'Lote de origen', prefixIcon: Icon(Icons.landscape_rounded)),
+                items: agricolas.map((l) => DropdownMenuItem(value: l, child: Text(l.nombre))).toList(),
+                onChanged: (v) => setState(() => _loteSeleccionado = v),
+              );
+            },
+            orElse: () => const Text('Cargando lotes...'),
+          ),
+
+          const SizedBox(height: 16),
+
+          if (_trabajadorSeleccionado != null) ...[
+            DropdownButtonFormField<String>(
+              value: _tipoPago,
+              decoration: const InputDecoration(labelText: 'Sistema de Pago', prefixIcon: Icon(Icons.payments_rounded)),
+              items: const [
+                DropdownMenuItem(value: 'porKilo', child: Text('Por Kilo')),
+                DropdownMenuItem(value: 'porArroba', child: Text('Por Arroba (12.5 kg)')),
+              ],
+              onChanged: (v) {
+                setState(() => _tipoPago = v!);
+                _recalcularPago();
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _kilosCtrl, 
+              keyboardType: TextInputType.number, 
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                labelText: 'Cantidad recolectada', 
+                prefixIcon: const Icon(Icons.scale_rounded),
+                suffixText: _tipoPago == 'porKilo' ? 'Kilos' : 'Arrobas',
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(color: Colors.blueGrey.shade50, borderRadius: BorderRadius.circular(16)),
+              child: SwitchListTile(
+                title: const Text('¿Incluye Alimentación?', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Se descuenta \$15,000 del pago'),
+                value: _conComida,
+                activeColor: Colors.teal,
+                onChanged: (v) {
+                  setState(() => _conComida = v);
+                  _recalcularPago();
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00695C).withOpacity(0.05),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFF00695C).withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  const Text('PAGO NETO ESTIMADO', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1)),
+                  const SizedBox(height: 8),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      Formateadores.formatearMoneda(_pagoEstimado), 
+                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF00695C))
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: (_trabajadorSeleccionado != null && _loteSeleccionado != null && _kilosCtrl.text.isNotEmpty)
+              ? () async {
+                  final kilos = double.tryParse(_kilosCtrl.text) ?? 0;
+                  HapticFeedback.mediumImpact();
+                  
+                  await ref.read(gestionAdministrativaOrchestratorProvider.notifier).liquidarLaborDiaria(
+                    trabajadorId: int.parse(_trabajadorSeleccionado!.id),
+                    loteId: int.parse(_loteSeleccionado!.id),
+                    tipoPago: _tipoPago,
+                    kilos: kilos,
+                    tarifaBase: _trabajadorSeleccionado!.tarifaBase,
+                    conAlimentacion: _conComida,
+                  );
+                  
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Pesaje registrado con éxito. Se sumará a la liquidación semanal.'),
+                        backgroundColor: Color(0xFF00695C),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              : null,
+            child: const Text('GUARDAR PESAJE'),
+          ),
+        ],
+      ),
+    );
   }
 }

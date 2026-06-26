@@ -19,6 +19,11 @@ class BeneficioIsarModel {
   late bool estaMolido;
   late double costoProcesamiento;
 
+  int? beneficiaderoId;
+  String? beneficiaderoNombre;
+  int? secaderoId;
+  String? secaderoNombre;
+
   BeneficioEntity toEntity() {
     return BeneficioEntity(
       id: id.toString(),
@@ -31,6 +36,10 @@ class BeneficioIsarModel {
       estaTostado: estaTostado,
       estaMolido: estaMolido,
       costoProcesamiento: costoProcesamiento,
+      beneficiaderoId: beneficiaderoId?.toString(),
+      beneficiaderoNombre: beneficiaderoNombre,
+      secaderoId: secaderoId?.toString(),
+      secaderoNombre: secaderoNombre,
     );
   }
 
@@ -44,7 +53,11 @@ class BeneficioIsarModel {
       ..loteOrigenNombre = entidad.loteOrigenNombre
       ..estaTostado = entidad.estaTostado
       ..estaMolido = entidad.estaMolido
-      ..costoProcesamiento = entidad.costoProcesamiento;
+      ..costoProcesamiento = entidad.costoProcesamiento
+      ..beneficiaderoId = entidad.beneficiaderoId != null ? int.tryParse(entidad.beneficiaderoId!) : null
+      ..beneficiaderoNombre = entidad.beneficiaderoNombre
+      ..secaderoId = entidad.secaderoId != null ? int.tryParse(entidad.secaderoId!) : null
+      ..secaderoNombre = entidad.secaderoNombre;
     
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);
