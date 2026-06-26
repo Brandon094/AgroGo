@@ -20,6 +20,9 @@ class InsumoIsarModel {
   late double valorUnitario;
   late double valorTotal;
 
+  int? loteId;
+  int? beneficioId;
+
   InsumoEntity toEntity() {
     return InsumoEntity(
       id: id.toString(),
@@ -32,6 +35,8 @@ class InsumoIsarModel {
       esParaSecado: esParaSecado,
       valorUnitario: valorUnitario,
       valorTotal: valorTotal,
+      loteId: loteId?.toString(),
+      beneficioId: beneficioId?.toString(),
     );
   }
 
@@ -45,7 +50,9 @@ class InsumoIsarModel {
       ..categoria = entidad.categoria
       ..esParaSecado = entidad.esParaSecado
       ..valorUnitario = entidad.valorUnitario
-      ..valorTotal = entidad.valorTotal;
+      ..valorTotal = entidad.valorTotal
+      ..loteId = entidad.loteId != null ? int.tryParse(entidad.loteId!) : null
+      ..beneficioId = entidad.beneficioId != null ? int.tryParse(entidad.beneficioId!) : null;
     
     if (entidad.id.isNotEmpty && entidad.id != '0') {
       modelo.id = int.parse(entidad.id);

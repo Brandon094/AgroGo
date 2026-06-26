@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import '../../data/registro_labor_isar_model.dart';
 import '../../data/repositorio_labores.dart';
 import '../../../farms/data/repositorio_fincas.dart';
@@ -30,49 +32,50 @@ class LiquidarLaborUseCase extends _$LiquidarLaborUseCase {
   void build() {}
 
   /// Ejecuta la lógica de negocio para liquidar una labor diaria.
-  /// Devuelve el monto total pagado.
-  Future<double> ejecutar(LiquidarLaborParams params, int fincaId) async {
+  Future<Either<Fallo, double>> ejecutar(LiquidarLaborParams params, int fincaId) async {
     final repoFincas = ref.read(repositorioFincasProvider);
     final repoLabores = ref.read(repositorioLaboresProvider);
     
     // 1. Obtener reglas de negocio dinámicas (Configuración)
     final resConfig = await repoFincas.obtenerConfiguracion(fincaId);
-    final config = resConfig.getOrElse(() => throw Exception('Configuración no disponible'));
-
-    // 2. Calcular el pago (Lógica de Dominio)
-    // Nota: Esta lógica debería vivir en una entidad de dominio, pero por ahora 
-    // delegamos al método estático que ya es puro.
-    final totalPagar = RegistroLaborIsarModel.calcularPago(
-      tipo: params.tipoPago,
-      kilos: params.kilos,
-      tarifaBase: params.tarifaBase,
-      conAlimentacion: params.conAlimentacion,
-      costoComida: config.costoAlimentacion,
-    );
-
-    // 3. Persistir la labor
-    final registro = RegistroLaborIsarModel()
-      ..fincaId = fincaId
-      ..trabajadorId = params.trabajadorId
-      ..loteId = params.loteId
-      ..fechaRegistro = DateTime.now()
-      ..tipoPago = params.tipoPago
-      ..cantidadKilos = params.kilos
-      ..incluyeAlimentacion = params.conAlimentacion
-      ..totalPagar = totalPagar;
     
-    await repoLabores.guardarLabor(registro);
+    return await resConfig.fold(
+      (fallo) async => Left(fallo),
+      (config) async {
+        // 2. Calcular el pago (Lógica de Dominio)
+        final totalPagar = RegistroLaborIsarModel.calcularPago(
+          tipo: params.tipoPago,
+          kilos: params.kilos,
+          tarifaBase: params.tarifaBase,
+          conAlimentacion: params.conAlimentacion,
+          costoComida: config.costoAlimentacion,
+        );
 
-    // 4. Si hubo alimentación, disparar el registro de costo
-    if (params.conAlimentacion) {
-      await ref.read(costosNotifierProvider.notifier).agregarCosto(
-        nombre: 'Alimentación Trabajador (Lote ${params.loteId})',
-        categoria: 'Operativos',
-        precioTotal: config.costoAlimentacion,
-        loteId: params.loteId.toString(),
-      );
-    }
+        // 3. Persistir la labor
+        final registro = RegistroLaborIsarModel()
+          ..fincaId = fincaId
+          ..trabajadorId = params.trabajadorId
+          ..loteId = params.loteId
+          ..fechaRegistro = DateTime.now()
+          ..tipoPago = params.tipoPago
+          ..cantidadKilos = params.kilos
+          ..incluyeAlimentacion = params.conAlimentacion
+          ..totalPagar = totalPagar;
+        
+        await repoLabores.guardarLabor(registro);
 
-    return totalPagar;
+        // 4. Si hubo alimentación, disparar el registro de costo
+        if (params.conAlimentacion) {
+          await ref.read(costosNotifierProvider.notifier).agregarCosto(
+            nombre: 'Alimentación Trabajador (Lote ${params.loteId})',
+            categoria: 'Operativos',
+            precioTotal: config.costoAlimentacion,
+            loteId: params.loteId.toString(),
+          );
+        }
+
+        return Right(totalPagar);
+      },
+    );
   }
 }

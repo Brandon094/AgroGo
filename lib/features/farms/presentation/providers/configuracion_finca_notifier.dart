@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_fincas.dart';
 import '../../domain/configuracion_finca_model.dart';
@@ -22,18 +24,21 @@ class ConfiguracionFincaNotifier extends _$ConfiguracionFincaNotifier {
     );
   }
 
-  Future<void> actualizarCostoAlimentacion(double nuevoCosto) async {
+  Future<Either<Fallo, void>> actualizarCostoAlimentacion(double nuevoCosto) async {
     final configActual = state.valueOrNull;
-    if (configActual == null) return;
+    if (configActual == null) return Left(FalloBaseDatos('Configuración no cargada'));
 
     final nuevaConfig = configActual.copyWith(costoAlimentacion: nuevoCosto);
     
     final repositorio = ref.read(repositorioFincasProvider);
     final resultado = await repositorio.guardarConfiguracion(nuevaConfig);
     
-    resultado.fold(
-      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 }

@@ -17,6 +17,10 @@ class InsumoEntity {
   final bool esParaSecado; // Especial para Café
   final double valorUnitario;
   final double valorTotal;
+  
+  // Metadata de trazabilidad (Step 3 Audit)
+  final String? loteId;
+  final String? beneficioId;
 
   const InsumoEntity({
     required this.id,
@@ -29,6 +33,8 @@ class InsumoEntity {
     this.esParaSecado = false,
     this.valorUnitario = 0.0,
     this.valorTotal = 0.0,
+    this.loteId,
+    this.beneficioId,
   });
 
   InsumoEntity copyWith({
@@ -42,6 +48,8 @@ class InsumoEntity {
     bool? esParaSecado,
     double? valorUnitario,
     double? valorTotal,
+    String? loteId,
+    String? beneficioId,
   }) {
     return InsumoEntity(
       id: id ?? this.id,
@@ -54,6 +62,8 @@ class InsumoEntity {
       esParaSecado: esParaSecado ?? this.esParaSecado,
       valorUnitario: valorUnitario ?? this.valorUnitario,
       valorTotal: valorTotal ?? this.valorTotal,
+      loteId: loteId ?? this.loteId,
+      beneficioId: beneficioId ?? this.beneficioId,
     );
   }
 
