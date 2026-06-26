@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_insumos.dart';
 import '../../domain/insumo_model.dart';
@@ -21,7 +23,7 @@ class InsumosNotifier extends _$InsumosNotifier {
     );
   }
 
-  Future<void> registrarInsumo({
+  Future<Either<Fallo, void>> registrarInsumo({
     required String nombre,
     required String unidad,
     required double stockInicial,
@@ -29,8 +31,9 @@ class InsumosNotifier extends _$InsumosNotifier {
     CategoriaInsumo categoria = CategoriaInsumo.operativo,
     bool esParaSecado = false,
     double valorUnitario = 0.0,
+    String? loteId,
+    String? beneficioId,
   }) async {
-    state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
 
     final nuevo = InsumoEntity(
@@ -44,17 +47,33 @@ class InsumosNotifier extends _$InsumosNotifier {
       esParaSecado: esParaSecado,
       valorUnitario: valorUnitario,
       valorTotal: stockInicial * valorUnitario,
+      loteId: loteId,
+      beneficioId: beneficioId,
     );
 
     final repo = ref.read(repositorioInsumosProvider);
-    await repo.guardarInsumo(nuevo);
-    ref.invalidateSelf();
+    final res = await repo.guardarInsumo(nuevo);
+    
+    return res.fold(
+      (f) => Left(f),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
+    );
   }
 
-  Future<void> ajustarStock(String id, double cantidadCambio) async {
+  Future<Either<Fallo, void>> ajustarStock(String id, double cantidadCambio) async {
     final repo = ref.read(repositorioInsumosProvider);
-    await repo.actualizarStock(id, cantidadCambio);
-    ref.invalidateSelf();
+    final res = await repo.actualizarStock(id, cantidadCambio);
+    
+    return res.fold(
+      (f) => Left(f),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
+    );
   }
 
   Future<void> refresh() async {

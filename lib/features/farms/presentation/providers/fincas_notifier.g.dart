@@ -20,7 +20,7 @@ final fincaActualProvider = AutoDisposeFutureProvider<FincaEntity?>.internal(
 );
 
 typedef FincaActualRef = AutoDisposeFutureProviderRef<FincaEntity?>;
-String _$fincasNotifierHash() => r'516c7eb51c8c91debc2501c6392c31dbb7a9f715';
+String _$fincasNotifierHash() => r'baa16291aeeb71a5053cfdc76b90f7e3acf9bb7a';
 
 /// See also [FincasNotifier].
 @ProviderFor(FincasNotifier)

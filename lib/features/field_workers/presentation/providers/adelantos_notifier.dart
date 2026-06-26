@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_trabajadores.dart';
 import '../../domain/adelanto_model.dart';
@@ -21,12 +23,11 @@ class AdelantosNotifier extends _$AdelantosNotifier {
     );
   }
 
-  Future<void> agregarAdelanto({
+  Future<Either<Fallo, void>> agregarAdelanto({
     required String trabajadorId,
     required double monto,
     String? motivo,
   }) async {
-    state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
 
     final nuevo = AdelantoEntity(
@@ -41,9 +42,13 @@ class AdelantosNotifier extends _$AdelantosNotifier {
 
     final repositorio = ref.read(repositorioTrabajadoresProvider);
     final resultado = await repositorio.guardarAdelanto(nuevo);
-    resultado.fold(
-      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 
@@ -58,13 +63,16 @@ class AdelantosNotifier extends _$AdelantosNotifier {
     ref.invalidateSelf();
   }
 
-  Future<void> eliminarAdelanto(String id) async {
-    state = const AsyncValue.loading();
+  Future<Either<Fallo, void>> eliminarAdelanto(String id) async {
     final repositorio = ref.read(repositorioTrabajadoresProvider);
     final resultado = await repositorio.eliminarAdelanto(id);
-    resultado.fold(
-      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 }

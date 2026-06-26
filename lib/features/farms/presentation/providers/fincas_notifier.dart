@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_fincas.dart';
 import '../../domain/finca_model.dart';
@@ -16,18 +18,34 @@ class FincasNotifier extends _$FincasNotifier {
     );
   }
 
-  Future<void> agregarFinca({
+  Future<Either<Fallo, String>> agregarFinca({
     required String nombre,
     String? vereda,
     double? area,
   }) async {
-    state = const AsyncValue.loading();
     final repo = ref.read(repositorioFincasProvider);
     final nueva = FincaEntity(id: '', nombre: nombre, veredaUbicacion: vereda, areaTotalHectareas: area);
     final res = await repo.guardarFinca(nueva);
-    res.fold(
-      (f) => state = AsyncValue.error(f.mensaje, StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    
+    return res.fold(
+      (f) => Left(f),
+      (id) {
+        ref.invalidateSelf();
+        return Right(id);
+      },
+    );
+  }
+
+  Future<Either<Fallo, void>> eliminarFinca(String id) async {
+    final repo = ref.read(repositorioFincasProvider);
+    final res = await repo.eliminarFinca(id);
+    
+    return res.fold(
+      (f) => Left(f),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 

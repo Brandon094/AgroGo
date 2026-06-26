@@ -1,10 +1,10 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:isar/isar.dart';
-import '../../../../main.dart';
 import '../../domain/beneficio_model.dart';
-import '../../data/beneficio_isar_model.dart';
+import '../../data/repositorio_beneficio.dart';
 import '../../../farms/presentation/providers/fincas_notifier.dart';
-import '../../../field_workers/data/registro_labor_isar_model.dart';
+import '../../../field_workers/data/repositorio_labores.dart';
 import 'insumos_notifier.dart';
 import '../../domain/insumo_model.dart';
 import '../../../inventory_costs/presentation/providers/costos_notifier.dart';
@@ -20,42 +20,32 @@ class BeneficioNotifier extends _$BeneficioNotifier {
     final fincaIdStr = ref.watch(fincaSeleccionadaProvider);
     if (fincaIdStr == null) return [];
     
-    final isar = ref.read(isarProvider);
     final fincaId = int.parse(fincaIdStr);
+    final repositorio = ref.watch(repositorioBeneficioProvider);
     
-    final resultados = await isar.beneficioIsarModels
-        .filter()
-        .fincaIdEqualTo(fincaId)
-        .sortByFechaInicioDesc()
-        .findAll();
-        
-    return resultados.map((m) => m.toEntity()).toList();
+    final resultado = await repositorio.obtenerBeneficios(fincaId);
+    return resultado.fold(
+      (fallo) => throw Exception(fallo.mensaje),
+      (beneficios) => beneficios,
+    );
   }
 
   /// Suma los kilos recolectados en la semana actual que aún no han sido procesados.
   Future<double> calcularKilosCerezaPendientes() async {
-    final isar = ref.read(isarProvider);
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     if (fincaIdStr == null) return 0;
+    final fincaId = int.parse(fincaIdStr);
     
-    // Obtenemos los kilos de recolección de la semana
     final hoy = DateTime.now();
     final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+    final fechaLunes = DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day);
     
-    final labores = await isar.registroLaborIsarModels
-        .filter()
-        .fincaIdEqualTo(int.parse(fincaIdStr))
-        .fechaRegistroGreaterThan(DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day))
-        .findAll();
-        
-    return labores.fold<double>(0, (sum, l) => sum + (l.cantidadKilos ?? 0));
+    return await ref.read(repositorioLaboresProvider).obtenerKilosCerezaPendientes(fincaId, fechaLunes);
   }
 
-  Future<void> iniciarNuevoBeneficio(double kilos, {String? loteId, String? beneficiaderoId}) async {
-    state = const AsyncValue.loading();
+  Future<Either<Fallo, void>> iniciarNuevoBeneficio(double kilos, {String? loteId, String? beneficiaderoId}) async {
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     
-    // Si tenemos loteId, intentamos obtener su nombre para el registro
     String? nombreLote;
     final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
     if (loteId != null) {
@@ -80,16 +70,19 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       beneficiaderoNombre: nombreBeneficiadero,
     );
 
-    final isar = ref.read(isarProvider);
-    await isar.writeTxn(() async {
-      await isar.beneficioIsarModels.put(BeneficioIsarModel.fromEntity(nuevo));
-    });
+    final repositorio = ref.read(repositorioBeneficioProvider);
+    final resultado = await repositorio.guardarBeneficio(nuevo);
     
-    ref.invalidateSelf();
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
+    );
   }
 
-  Future<void> avanzarEstado(BeneficioEntity beneficio, {double? kilosFinales, double? costoAdicional, String? secaderoId}) async {
-    final isar = ref.read(isarProvider);
+  Future<Either<Fallo, void>> avanzarEstado(BeneficioEntity beneficio, {double? kilosFinales, double? costoAdicional, String? secaderoId}) async {
     final lotes = ref.read(panelLotesNotifierProvider).valueOrNull ?? [];
     
     EstadoBeneficio nuevoEstado = beneficio.estado;
@@ -116,7 +109,6 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       estaMolido = true;
     }
 
-    // Registrar gasto adicional si aplica (tostado/molienda)
     if (costoAdicional != null && costoAdicional > 0) {
       await ref.read(costosNotifierProvider.notifier).agregarCosto(
         nombre: 'Procesamiento Lote ${beneficio.id}: ${nuevoEstado.name}', 
@@ -135,44 +127,52 @@ class BeneficioNotifier extends _$BeneficioNotifier {
       secaderoNombre: secaderoNombre,
     );
 
-    await isar.writeTxn(() async {
-      await isar.beneficioIsarModels.put(BeneficioIsarModel.fromEntity(actualizado));
-    });
+    final repositorio = ref.read(repositorioBeneficioProvider);
+    final resultado = await repositorio.guardarBeneficio(actualizado);
 
-    // Sincronizar con Bodega si el estado es final o avanzado (listo, tostado, molido)
-    if (nuevoEstado == EstadoBeneficio.listo || nuevoEstado == EstadoBeneficio.tostado || nuevoEstado == EstadoBeneficio.molido) {
-      String nombreBodega = 'Café Pergamino Seco';
-      if (estaMolido) nombreBodega = 'Café Molido';
-      else if (estaTostado) nombreBodega = 'Café Tostado';
-
-      String metadata = '';
-      if (beneficio.loteOrigenNombre != null) metadata += ' (Origen: ${beneficio.loteOrigenNombre})';
-      if (beneficio.beneficiaderoNombre != null) metadata += ' (Beneficiadero: ${beneficio.beneficiaderoNombre})';
-      if (secaderoNombre != null) metadata += ' (Secadero: $secaderoNombre)';
-
-      await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
-        nombre: '$nombreBodega (Lote ${beneficio.id})$metadata',
-        unidad: 'Kilos',
-        stockInicial: kilosFinales ?? beneficio.kilosFinales ?? 0.0,
-        categoria: CategoriaInsumo.cosecha,
-      );
-    }
-    
-    ref.invalidateSelf();
+    return await resultado.fold(
+      (fallo) async => Left(fallo),
+      (_) async {
+        if (nuevoEstado == EstadoBeneficio.listo || nuevoEstado == EstadoBeneficio.tostado || nuevoEstado == EstadoBeneficio.molido) {
+          await _sincronizarConBodega(actualizado);
+        }
+        ref.invalidateSelf();
+        return const Right(null);
+      },
+    );
   }
 
-  Future<void> venderLote(BeneficioEntity beneficio, double kilosVendidos) async {
-    final isar = ref.read(isarProvider);
-    
+  Future<void> _sincronizarConBodega(BeneficioEntity beneficio) async {
+    String nombreBodega = 'Café Pergamino Seco';
+    if (beneficio.estaMolido) nombreBodega = 'Café Molido';
+    else if (beneficio.estaTostado) nombreBodega = 'Café Tostado';
+
+    // LIMPIEZA ARQUITECTÓNICA: Ya no inyectamos metadata en el String del nombre.
+    // Usamos los campos técnicos beneficioId y loteId del InsumoEntity.
+    await ref.read(insumosNotifierProvider.notifier).registrarInsumo(
+      nombre: '$nombreBodega (Lote ${beneficio.id})',
+      unidad: 'Kilos',
+      stockInicial: beneficio.kilosFinales ?? 0.0,
+      categoria: CategoriaInsumo.cosecha,
+      beneficioId: beneficio.id,
+    );
+  }
+
+  Future<Either<Fallo, void>> venderLote(BeneficioEntity beneficio, double kilosVendidos) async {
     final actualizado = beneficio.copyWith(
       estado: EstadoBeneficio.vendido,
       kilosFinales: kilosVendidos,
     );
 
-    await isar.writeTxn(() async {
-      await isar.beneficioIsarModels.put(BeneficioIsarModel.fromEntity(actualizado));
-    });
+    final repositorio = ref.read(repositorioBeneficioProvider);
+    final res = await repositorio.guardarBeneficio(actualizado);
     
-    ref.invalidateSelf();
+    return res.fold(
+      (f) => Left(f),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
+    );
   }
 }

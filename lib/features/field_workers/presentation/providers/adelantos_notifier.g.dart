@@ -6,7 +6,7 @@ part of 'adelantos_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$adelantosNotifierHash() => r'540516919aeb102717003ff36c0e53fbb28441b0';
+String _$adelantosNotifierHash() => r'ea01fc76518687f94b441a096a5deae5f054bfe5';
 
 /// See also [AdelantosNotifier].
 @ProviderFor(AdelantosNotifier)

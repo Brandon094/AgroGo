@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/fallos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositorio_trabajadores.dart';
 import '../../domain/trabajador_model.dart';
@@ -21,12 +23,11 @@ class TrabajadoresNotifier extends _$TrabajadoresNotifier {
     );
   }
 
-  Future<void> agregarTrabajador({
+  Future<Either<Fallo, void>> agregarTrabajador({
     required String nombreCompleto,
     required String tipoTrabajador,
     required double tarifaBase,
   }) async {
-    state = const AsyncValue.loading();
     final fincaIdStr = ref.read(fincaSeleccionadaProvider);
     
     final nuevoTrabajador = TrabajadorEntity(
@@ -41,19 +42,25 @@ class TrabajadoresNotifier extends _$TrabajadoresNotifier {
     final repositorio = ref.read(repositorioTrabajadoresProvider);
     final resultado = await repositorio.guardarTrabajador(nuevoTrabajador);
 
-    resultado.fold(
-      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 
-  Future<void> eliminarTrabajador(String id) async {
-    state = const AsyncValue.loading();
+  Future<Either<Fallo, void>> eliminarTrabajador(String id) async {
     final repositorio = ref.read(repositorioTrabajadoresProvider);
     final resultado = await repositorio.eliminarTrabajador(id);
-    resultado.fold(
-      (fallo) => state = AsyncValue.error(Exception(fallo.mensaje), StackTrace.current),
-      (_) => ref.invalidateSelf(),
+    
+    return resultado.fold(
+      (fallo) => Left(fallo),
+      (_) {
+        ref.invalidateSelf();
+        return const Right(null);
+      },
     );
   }
 

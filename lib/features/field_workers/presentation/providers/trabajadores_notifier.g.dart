@@ -7,7 +7,7 @@ part of 'trabajadores_notifier.dart';
 // **************************************************************************
 
 String _$trabajadoresNotifierHash() =>
-    r'94623b94f6f53bc9080b09d3bfdd6e9de1152a6d';
+    r'a2494fc2c5d93411d7effb44e2d7c6629ce54e14';
 
 /// See also [TrabajadoresNotifier].
 @ProviderFor(TrabajadoresNotifier)
